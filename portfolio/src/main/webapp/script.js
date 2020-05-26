@@ -12,17 +12,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/** @typedef {'light' | 'dark'} ThemeMode */
+
+let state = {
+  theme: {
+    /** @type {ThemeMode} */
+    mode: 'light', 
+    /** @type {HTMLLinkElement} */
+    el: document.getElementById('theme-link') 
+  }
+};
+
 /**
- * Adds a random greeting to the page.
+ * @param {ThemeMode} mode
  */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
+function updateTheme(mode) {
+  console.debug(`changing theme to ${mode}`);
 
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+  state.theme.el.href = `/style.${mode}.css`;
+  state.theme.mode = mode;
 }
+
+function toggleTheme() {
+  if (state.theme.mode === 'light')
+    updateTheme('dark');
+  else
+    updateTheme('light');
+}
+
+document.getElementById('theme-toggle')
+    .addEventListener('click', toggleTheme);
