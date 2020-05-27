@@ -12,13 +12,12 @@ header, footer {
 }
 
 #content {
-  max-width: 100vh;
+  max-width: 100vw;
   width: 80rem;
   padding: 0 2rem;
   margin: 0 auto;
 }
 
 #content img {
-  display: inline-block;
   max-width: 100%;
 }
