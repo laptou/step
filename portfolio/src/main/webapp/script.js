@@ -14,31 +14,37 @@
 
 /** @typedef {'light' | 'dark'} ThemeMode */
 
-let state = {
-  theme: {
-    /** @type {ThemeMode} */
-    mode: 'light', 
-    /** @type {HTMLLinkElement} */
-    el: document.getElementById('theme-link') 
+class ThemeState {
+  /** @type {ThemeMode} */
+  mode = 'light';
+  /** @type {HTMLLinkElement} */
+  el = document.getElementById('theme-link');
+
+  /**
+   * Updates the theme to the given mode
+   * @param {ThemeMode} mode
+   */
+  update(mode) {
+    this.el.href = `/style.${mode}.css`;
+    this.mode = mode;
   }
+
+  /**
+   * Switches theme from light to dark or vice versa.
+   */
+  toggle() {
+    if (this.mode === 'light')
+      this.update('dark');
+    else
+      this.update('light');
+  }
+}
+
+let state = {
+  theme: new ThemeState()
 };
 
-/**
- * @param {ThemeMode} mode
- */
-function updateTheme(mode) {
-  console.debug(`changing theme to ${mode}`);
 
-  state.theme.el.href = `/style.${mode}.css`;
-  state.theme.mode = mode;
-}
-
-function toggleTheme() {
-  if (state.theme.mode === 'light')
-    updateTheme('dark');
-  else
-    updateTheme('light');
-}
-
-document.getElementById('theme-toggle')
-    .addEventListener('click', toggleTheme);
+document
+  .getElementById('theme-toggle')
+  .addEventListener('click', () => state.theme.toggle());
