@@ -2,9 +2,9 @@ const webpack = require('webpack');
 const path = require('path');
 
 const HtmlPlugin = require('html-webpack-plugin');
-const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin: CleanPlugin} = require('clean-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const {BundleAnalyzerPlugin} = require('webpack-bundle-analyzer');
 const SriPlugin = require('webpack-subresource-integrity');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -22,26 +22,26 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
  */
 
 /** @param {Env} env Current environment.
- *  @returns {webpack.Configuration} */
-exports.default = (env = { production: true }) => ({
+ *  @return {webpack.Configuration} */
+exports.default = (env = {production: true}) => ({
   context: __dirname,
   entry: ['./src/index.tsx'],
   devtool: env.development ? 'eval-source-map' : false,
   devServer: {
     port: 1234,
     hot: true,
-    historyApiFallback: true
+    historyApiFallback: true,
   },
   optimization: {
     runtimeChunk: false,
     splitChunks: {
-      chunks: 'all'
-    }
+      chunks: 'all',
+    },
   },
   output: {
     publicPath: '/',
     path: path.resolve(__dirname, 'dist'),
-    crossOriginLoading: 'anonymous'
+    crossOriginLoading: 'anonymous',
   },
   module: {
     rules: [
@@ -49,16 +49,16 @@ exports.default = (env = { production: true }) => ({
         test: /\.ts$/i,
         exclude: /node_modules/,
         use: [
-          'ts-loader'
-        ]
+          'ts-loader',
+        ],
       },
       {
         test: /\.tsx$/i,
         exclude: /node_modules/,
         use: [
           'surplus-loader',
-          'ts-loader'
-        ]
+          'ts-loader',
+        ],
       },
       {
         test: /\.scss$/i,
@@ -67,72 +67,72 @@ exports.default = (env = { production: true }) => ({
             loader: MiniCssExtractPlugin.loader,
             options: {
               esModule: true,
-              hmr: env.development
-            }
-          }, 
+              hmr: env.development,
+            },
+          },
           {
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: env.development ? '[path][name]__[local]--[hash:base64:5]' : '[hash:base64]'
+                localIdentName: env.development ? '[path][name]__[local]--[hash:base64:5]' : '[hash:base64]',
               },
               localsConvention: 'camelCase',
-              esModule: true
-            }
+              esModule: true,
+            },
           },
           {
-            loader: 'resolve-url-loader'
+            loader: 'resolve-url-loader',
           },
           {
             loader: 'sass-loader',
             options: {
-              sourceMap: true
-            }
-          }
-        ]
+              sourceMap: true,
+            },
+          },
+        ],
       },
       {
         test: /\.(pdf|jpg|png|svg)$/i,
-        use: ['file-loader']
-      }
-    ]
+        use: ['file-loader'],
+      },
+    ],
   },
   plugins: [
     new EslintPlugin(),
     new StylelintPlugin(),
     new HtmlPlugin({
-      template: 'src/index.html'
+      template: 'src/template.html',
     }),
     new ForkTsCheckerPlugin({
-      workers: ForkTsCheckerPlugin.TWO_CPUS_FREE
+      workers: ForkTsCheckerPlugin.TWO_CPUS_FREE,
     }),
     new CleanPlugin(),
     new MiniCssExtractPlugin(),
-    ...(env.production
-      ? [
+    ...(env.production ?
+      [
         new CompressionPlugin({
-          threshold: 8192
+          threshold: 8192,
         }),
         new SriPlugin({
-          hashFuncNames: ['sha384', 'sha512']
-        })
-      ]
-      : []),
-    ...(env.analyze
-      ? [
-        new BundleAnalyzerPlugin()
-      ]
-      : []),
-    ...(env.development
-      ? [
-        new webpack.HotModuleReplacementPlugin()
-      ]
-      : [])
+          hashFuncNames: ['sha384', 'sha512'],
+        }),
+      ] :
+      []),
+    ...(env.analyze ?
+      [
+        new BundleAnalyzerPlugin(),
+      ] :
+      []),
+    ...(env.development ?
+      [
+        new webpack.HotModuleReplacementPlugin(),
+      ] :
+      []),
   ],
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
     plugins: [
-      new TsConfigPathsPlugin()
-    ]
-  }
+      new TsConfigPathsPlugin(),
+    ],
+  },
 });

@@ -1,3 +1,4 @@
-node_modules/
-dist/
-src/
+/*
+!/res
+/res/*
+!/res/style

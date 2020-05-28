@@ -50,7 +50,7 @@
             "public-abstract-field",
             "private-abstract-method",
             "protected-abstract-method",
-            "public-abstract-method",
+            "public-abstract-method"
         ]
     }],
     "@typescript-eslint/explicit-member-accessibility": ["warn", { "accessibility": "explicit" }],
@@ -67,6 +67,7 @@
     ],
     "react/jsx-uses-vars": [
       "warn"
-    ]
+    ],
+    "max-len": ["warn", { "code": 100 }]
   }
 }
