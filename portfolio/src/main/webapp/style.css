@@ -16,17 +16,17 @@ p {
 }
 
 a {
-  color: hsl(0, 75%, 50%);
+  color: hsl(0, 60%, 50%); /* muted red */
   text-decoration-style: dotted;
 }
 
 a:hover {
-  color: hsl(25, 100%, 50%);
+  color: hsl(25, 100%, 50%); /* bright orange */
   text-decoration-style: solid;
 }
 
 a:visited, a:active {
-  color: hsl(0, 100%, 50%);
+  color: hsl(0, 100%, 50%); /* bright red */
   text-decoration-style: dashed;
 }
 
