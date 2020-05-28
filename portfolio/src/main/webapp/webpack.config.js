@@ -74,7 +74,10 @@ exports.default = (env = {production: true}) => ({
             loader: 'css-loader',
             options: {
               modules: {
-                localIdentName: env.development ? '[path][name]__[local]--[hash:base64:5]' : '[hash:base64]',
+                localIdentName:
+                  env.development ?
+                  '[path][name]__[local]--[hash:base64:5]' :
+                  '[hash:base64]',
               },
               localsConvention: 'camelCase',
               esModule: true,
