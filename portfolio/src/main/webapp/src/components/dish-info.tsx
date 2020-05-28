@@ -1,5 +1,6 @@
 import * as Surplus from 'surplus';
 import {html} from '@src/util/html';
+import { LightboxItem } from './lightbox';
 
 interface CookingSectionProps {
   info: {
@@ -12,7 +13,7 @@ export const CookingSection = ({info}: CookingSectionProps) => {
   return (
     <section class='cooking-section'>
       <div class='thumbnail'>
-        <img
+        <LightboxItem
           src={require(`@res/img/dish/${info.attributes.image}`).default}
           alt={info.attributes.name}
         />
