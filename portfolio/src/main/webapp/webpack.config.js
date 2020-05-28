@@ -98,6 +98,10 @@ exports.default = (env = {production: true}) => ({
         test: /\.(pdf|jpg|png|svg)$/i,
         use: ['file-loader'],
       },
+      {
+        test: /\.(md)$/i,
+        use: ['frontmatter-markdown-loader'],
+      },
     ],
   },
   plugins: [
@@ -134,6 +138,9 @@ exports.default = (env = {production: true}) => ({
   ],
   resolve: {
     extensions: ['.js', '.ts', '.tsx'],
+    alias: {
+      '@res': path.resolve(__dirname, 'res'),
+    },
     plugins: [
       new TsConfigPathsPlugin(),
     ],

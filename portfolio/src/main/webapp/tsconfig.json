@@ -15,6 +15,12 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
+      "@res/*": [
+        "./res/*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
       "@component/*": [
         "./src/components/*"
       ],

@@ -1,6 +1,6 @@
 ---
 name: Raspberry swirl cheesecake
-image: raspberry-cheesecake
+image: raspberry-cheesecake.jpg
 ---
 
 I made this one by synthesizing these two recipes for cheesecake
