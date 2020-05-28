@@ -73,8 +73,13 @@
       {
         // this is TypeScript, so we don't need types in JSDoc
         "requireParamType": false,
-        "requireReturnType": false
+        "requireReturnType": false,
+        // don't require @return if the function doesn't return anything
+        "requireReturn": false
       }
+    ],
+    "new-cap": [
+      "off"
     ],
     "max-len": ["warn", { "code": 100 }]
   }
