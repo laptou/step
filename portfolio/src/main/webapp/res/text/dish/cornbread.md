@@ -1,6 +1,6 @@
 ---
 name: Maple syrup cornbread with pork sausage and barbecue sauce
-image: cornbread
+image: cornbread.jpg
 ---
 
 I can't even remember which recipe I used for this one. I should really keep

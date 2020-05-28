@@ -15,6 +15,8 @@
   "devDependencies": {
     "@laptou/eslint-config-typescript": "^1.0.1",
     "@laptou/stylelint-config": "^1.0.2",
+    "@types/webpack": "^4.41.13",
+    "@types/webpack-env": "^1.15.2",
     "clean-webpack-plugin": "^3.0.0",
     "compression-webpack-plugin": "^4.0.0",
     "css-loader": "^3.5.3",
@@ -22,7 +24,9 @@
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-react": "^7.20.0",
     "eslint-webpack-plugin": "^1.0.0",
+    "file-loader": "^6.0.0",
     "fork-ts-checker-webpack-plugin": "^4.1.6",
+    "front-matter-loader": "^1.1.0",
     "frontmatter-markdown-loader": "^3.5.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
