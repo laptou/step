@@ -2,10 +2,13 @@ import * as Surplus from 'surplus';
 import S from 's-js';
 import {Header} from '@component/header';
 import {IndexPage} from '@component/pages';
+import {activate as activateThemeSwitcher} from '@component/theme-switcher';
 
 import '@style/index.scss';
 
 S.root(() => {
+  activateThemeSwitcher();
+
   document.body.appendChild(
       <Header />
   );
