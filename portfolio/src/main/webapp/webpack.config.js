@@ -92,7 +92,7 @@ exports.default = (env = { production: true }) => ({
         ]
       },
       {
-        test: /\.(mp3|mp4|ogg|opus|wav|png)$/i,
+        test: /\.(pdf|jpg|png|svg)$/i,
         use: ['file-loader']
       }
     ]
