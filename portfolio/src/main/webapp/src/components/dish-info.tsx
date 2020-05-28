@@ -1,22 +1,25 @@
 import * as Surplus from 'surplus';
+import {html} from '@src/util/html';
 
 interface CookingSectionProps {
   info: {
     attributes: { name: string; image: string };
-    body: HTMLElement[];
+    html: string;
   };
 }
 
 export const CookingSection = ({info}: CookingSectionProps) => {
   return (
     <section class='cooking-section'>
-      <img
-        src={require(`@res/img/dish/${info.attributes.image}`).default}
-        alt={info.attributes.name}
-      />
-      <div>
+      <div class='thumbnail'>
+        <img
+          src={require(`@res/img/dish/${info.attributes.image}`).default}
+          alt={info.attributes.name}
+        />
+      </div>
+      <div class='content'>
         <h3>{info.attributes.name}</h3>
-        {info.body}
+        <div fn={html(info.html)} />
       </div>
     </section>
   );

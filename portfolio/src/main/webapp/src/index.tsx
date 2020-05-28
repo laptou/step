@@ -3,6 +3,8 @@ import S from 's-js';
 import {Header} from '@component/header';
 import {IndexPage} from '@component/pages';
 
+import '@style/index.scss';
+
 S.root(() => {
   document.body.appendChild(
       <Header />

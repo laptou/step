@@ -68,6 +68,14 @@
     "react/jsx-uses-vars": [
       "warn"
     ],
+    "valid-jsdoc": [
+      "error",
+      {
+        // this is TypeScript, so we don't need types in JSDoc
+        "requireParamType": false,
+        "requireReturnType": false
+      }
+    ],
     "max-len": ["warn", { "code": 100 }]
   }
 }
