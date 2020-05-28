@@ -22,7 +22,7 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
  */
 
 /** @param {Env} env Current environment.
- *  @return {webpack.Configuration} */
+ *  @return {webpack.Configuration} config */
 exports.default = (env = {production: true}) => ({
   context: __dirname,
   entry: ['./src/index.tsx'],

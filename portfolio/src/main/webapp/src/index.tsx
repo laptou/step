@@ -3,19 +3,15 @@ import S from 's-js';
 import {Header} from '@component/header';
 import {IndexPage} from '@component/pages';
 import {activate as activateThemeSwitcher} from '@component/theme-switcher';
+import {Lightbox} from './components/lightbox';
 
 import '@style/index.scss';
 
 S.root(() => {
   activateThemeSwitcher();
 
-  document.body.appendChild(
-      <Header />
-  );
-
-  document.body.appendChild(
-      <IndexPage />
-  );
+  document.body.appendChild(<Header />);
+  document.body.appendChild(<IndexPage />);
 
   document.body.appendChild(
       <footer>
@@ -23,4 +19,6 @@ S.root(() => {
         <p>Because this stuff isn't owned by <em>me</em>...</p>
       </footer>
   );
+
+  document.body.appendChild(<Lightbox />);
 });
