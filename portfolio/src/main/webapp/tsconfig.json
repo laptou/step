@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "CommonJS",
+    "target": "ES2017",
+    "jsx": "preserve",
+    "jsxFactory": "Surplus",
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "@component/*": [
+        "./src/components/*"
+      ],
+      "@page/*": [
+        "./src/components/pages/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@util/*": [
+        "./src/util/*"
+      ],
+      "@style/*": [
+        "./res/style/*"
+      ],
+      "@asset/*": [
+        "./res/asset/*"
+      ]      
+    },
+  },
+  "include": [
+    "src/**/*",
+    "webpack.config.js"
+  ]
+}

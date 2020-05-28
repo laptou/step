@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "@laptou/eslint-config-typescript"
+  ],
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "plugins": [
+    "react"
+  ],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      {
+        "vars": "all",
+        "varsIgnorePattern": "Surplus",
+        "args": "after-used",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "react/jsx-uses-vars": ["warn"]
+  }
+}
