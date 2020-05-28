@@ -34,8 +34,9 @@ a:visited, a:active {
 /* ui */
 
 button {
-  color: hsl(200, 75%, 50%);
-  border: 1pt currentColor dashed;
+  --color: hsl(200, 75%, 50%);
+  color: var(--color);
+  border: 1pt var(--color) dashed;
   background: transparent;
   padding: 0.5rem 1rem;
   cursor: pointer;
@@ -43,7 +44,7 @@ button {
 }
 
 button:hover, button:focus {
-  color: hsl(200, 100%, 60%);
+  --color: hsl(200, 75%, 50%);
   border-style: solid;
   outline: none;
   box-shadow: 0 0 2pt rgba(0, 0, 0, 0.25);
