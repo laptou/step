@@ -1,7 +1,7 @@
 ---
 title: Crash Landing on You
 rating: 10
-tags: romance, thriller, drama
+tags: romance, thriller, drama, korean
 external: https://mydramalist.com/35729-emergency-lands-of-love
 ---
 
