@@ -17,15 +17,13 @@
 class ThemeState {
   /** @type {ThemeMode} */
   mode = 'light';
-  /** @type {HTMLLinkElement} */
-  el = document.getElementById('theme-link');
-
   /**
    * Updates the theme to the given mode
    * @param {ThemeMode} mode
    */
   update(mode) {
-    this.el.href = `/style.${mode}.css`;
+    document.body.classList.remove('theme-light', 'theme-dark');
+    document.body.classList.add(`theme-${mode}`);
     this.mode = mode;
   }
 
@@ -40,10 +38,12 @@ class ThemeState {
   }
 }
 
-let state = {
-  theme: new ThemeState()
-};
+(() => {
+  let state = {
+    theme: new ThemeState()
+  };
 
-document
-  .getElementById('theme-toggle')
-  .addEventListener('click', () => state.theme.toggle());
+  document
+    .getElementById('theme-toggle')
+    .addEventListener('click', () => state.theme.toggle());
+});
