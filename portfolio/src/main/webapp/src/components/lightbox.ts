@@ -15,7 +15,6 @@ export interface LightboxItemProps {
  * @param uri The URI of the image to be shown.
  */
 function showLightbox(uri: string) {
-  console.log('hi');
   currentImage(uri);
   isVisible(true);
 }
