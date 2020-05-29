@@ -1,4 +1,4 @@
-import {ThemeSwitcher} from './theme-switcher';
+import {ThemeSwitcher} from './controls/theme-switcher';
 import {html} from '@src/util/html';
 
 export const Header = () =>

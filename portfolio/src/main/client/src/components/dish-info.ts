@@ -1,5 +1,5 @@
 import {html} from '@src/util/html';
-import {LightboxItem} from './lightbox';
+import {LightboxItem} from './controls/lightbox';
 
 interface CookingSectionProps {
   info: {
