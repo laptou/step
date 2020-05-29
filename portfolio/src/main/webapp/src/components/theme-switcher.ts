@@ -3,6 +3,7 @@ import S from 's-js';
 
 import '@style/index.dark.scss';
 import '@style/index.light.scss';
+import {create} from '@src/util/html';
 
 type Theme = 'light' | 'dark';
 
@@ -32,4 +33,11 @@ export function toggle() {
 }
 
 export const ThemeSwitcher = () =>
-  <button class="theme-switcher" onClick={toggle}>Switch theme</button>;
+  create(
+    'button',
+    (btn) => {
+      btn.className = 'theme-switcher';
+      btn.onclick = toggle;
+    },
+    'Switch theme'
+  );

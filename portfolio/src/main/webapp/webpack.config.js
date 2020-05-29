@@ -25,7 +25,7 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
  *  @return {webpack.Configuration} config */
 exports.default = (env = {production: true}) => ({
   context: __dirname,
-  entry: ['./src/index.tsx'],
+  entry: ['./src/index.ts'],
   devtool: env.development ? 'eval-source-map' : false,
   devServer: {
     port: 1234,
