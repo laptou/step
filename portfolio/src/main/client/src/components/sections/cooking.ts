@@ -1,14 +1,16 @@
 import {html} from '@src/util/html';
-import {LightboxItem} from './controls/lightbox';
+import {LightboxItem} from '../controls/lightbox';
 
-interface CookingSectionProps {
-  info: {
-    attributes: { name: string; image: string };
-    html: string;
-  };
+export interface DishInfo {
+  attributes: { name: string; image: string };
+  html: string;
 }
 
-export const CookingSection = ({info}: CookingSectionProps) => html`
+export interface CookingSectionProps {
+  info: DishInfo;
+}
+
+export const CookingSection = ({info}: CookingSectionProps): HTMLElement => html`
   <section class="cooking-section">
     <div class="thumbnail">
       ${LightboxItem({
@@ -19,4 +21,5 @@ export const CookingSection = ({info}: CookingSectionProps) => html`
     <div class="content">
       <h3>${info.attributes.name}</h3>
       ${info.html}
-    </div>`;
+    </div>
+  </section>`;

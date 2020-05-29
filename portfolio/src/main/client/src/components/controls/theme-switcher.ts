@@ -1,4 +1,3 @@
-import * as Surplus from 'surplus';
 import S from 's-js';
 
 import '@style/index.dark.scss';
@@ -12,7 +11,7 @@ const currentTheme = S.data('light' as Theme);
 /**
  * Initializes the theme switcher.
  */
-export function activate() {
+export function activate(): void {
   S(() => {
     document.body.setAttribute('data-theme', currentTheme());
   });
@@ -21,7 +20,7 @@ export function activate() {
 /**
  * Toggles the theme between light and dark.
  */
-export function toggle() {
+export function toggle(): void {
   // sample because we don't want this to run again
   // in response to the theme being changed, that leads
   // to infinite loop
@@ -32,8 +31,8 @@ export function toggle() {
   }
 }
 
-export const ThemeSwitcher = () => {
-  const btn: HTMLButtonElement = html`<button class="theme-switcher">Switch theme</button>`;
+export const ThemeSwitcher = (): HTMLElement => {
+  const btn: HTMLButtonElement = html`<button class='theme-switcher'>Switch theme</button>`;
   btn.onclick = toggle;
   return btn;
 };

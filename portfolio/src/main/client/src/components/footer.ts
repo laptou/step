@@ -1,6 +1,6 @@
 import {html} from '@src/util/html';
 
-export const Footer = () =>
+export const Footer = (): HTMLElement =>
   html`
   <footer>
     <p>© 2020 Google, Inc.</p>

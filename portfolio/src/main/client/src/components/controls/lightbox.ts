@@ -26,7 +26,7 @@ function hideLightbox() {
   isVisible(false);
 }
 
-export const LightboxItem = ({alt, src}: LightboxItemProps) => {
+export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
   const lbItem: HTMLDivElement = html`
     <div class="lightbox-item">
       <img alt="${alt}" src="${src}">
@@ -36,7 +36,7 @@ export const LightboxItem = ({alt, src}: LightboxItemProps) => {
   return lbItem;
 };
 
-export const Lightbox = () => {
+export const Lightbox = (): HTMLElement => {
   const lightboxImg = document.createElement('img');
   lightboxImg.onclick = (e) => e.preventDefault();
 
