@@ -49,15 +49,7 @@ exports.default = (env = {production: true}) => ({
         test: /\.ts$/i,
         exclude: /node_modules/,
         use: [
-          'ts-loader',
-        ],
-      },
-      {
-        test: /\.tsx$/i,
-        exclude: /node_modules/,
-        use: [
-          'surplus-loader',
-          'ts-loader',
+          'babel-loader',
         ],
       },
       {
