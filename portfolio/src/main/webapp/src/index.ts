@@ -6,7 +6,7 @@ import {activate as activateThemeSwitcher} from '@component/theme-switcher';
 import {Lightbox} from './components/lightbox';
 
 import '@style/index.scss';
-import { Footer } from './components/footer';
+import {Footer} from './components/footer';
 
 S.root(() => {
   activateThemeSwitcher();

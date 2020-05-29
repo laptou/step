@@ -33,7 +33,7 @@ export function toggle() {
 }
 
 export const ThemeSwitcher = () => {
-  const btn: HTMLButtonElement = html`<button class='theme-switcher'>Switch theme</button>`;
+  const btn: HTMLButtonElement = html`<button class="theme-switcher">Switch theme</button>`;
   btn.onclick = toggle;
   return btn;
 };

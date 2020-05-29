@@ -29,8 +29,8 @@ function hideLightbox() {
 
 export const LightboxItem = ({alt, src}: LightboxItemProps) => {
   const lbItem: HTMLDivElement = html`
-    <div class='lightbox-item'>
-      <img alt='${alt}' src='${src}'>
+    <div class="lightbox-item">
+      <img alt="${alt}" src="${src}">
     </div>`;
 
   lbItem.onclick = () => showLightbox(src);
@@ -46,7 +46,7 @@ export const Lightbox = () => {
   });
 
   const lightbox: HTMLDivElement = html`
-    <div id='lightbox'>
+    <div id="lightbox">
       ${lightboxImg}
     </div>`;
   lightbox.onclick = hideLightbox;
