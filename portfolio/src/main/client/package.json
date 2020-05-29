@@ -7,10 +7,7 @@
     "classnames": "^2.2.6",
     "path-to-regexp": "^6.1.0",
     "s-array": "^0.4.10",
-    "s-js": "^0.4.9",
-    "surplus": "^0.5.3",
-    "surplus-mixin-data": "^0.5.0",
-    "surplus-mixin-on": "^0.5.0"
+    "s-js": "^0.4.9"
   },
   "devDependencies": {
     "@babel/core": "^7.10.1",
@@ -33,7 +30,6 @@
     "eslint-webpack-plugin": "^1.0.0",
     "file-loader": "^6.0.0",
     "fork-ts-checker-webpack-plugin": "^4.1.6",
-    "front-matter-loader": "^1.1.0",
     "frontmatter-markdown-loader": "^3.5.0",
     "html-loader": "^1.1.0",
     "html-webpack-plugin": "^4.3.0",
