@@ -40,7 +40,7 @@ exports.default = (env = {production: true}) => ({
   },
   output: {
     publicPath: '/',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../webapp'),
     crossOriginLoading: 'anonymous',
   },
   module: {
@@ -130,7 +130,7 @@ exports.default = (env = {production: true}) => ({
       []),
   ],
   resolve: {
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.ts'],
     alias: {
       '@res': path.resolve(__dirname, 'res'),
     },
