@@ -1,13 +1,15 @@
-import * as Surplus from 'surplus';
 import {CookingSection} from '@component/dish-info';
+import {htmls, create} from '@src/util/html';
 
 export const IndexPage = () => {
   const dishContext = require.context('@res/text/dish', false);
   const dishInfos = dishContext.keys().map((key) => dishContext(key));
-  const dishComponents = dishInfos.map((info) => <CookingSection info={info} />);
+  const dishComponents = dishInfos.map((info) => CookingSection({info}));
 
-  return (
-    <main>
+  return create(
+    'main',
+    null,
+    ...htmls`
       <h2>Hi!</h2>
       <p>
         I'm a rising sophomore at Cornell, double majoring in electrical & computer engineering, and
@@ -27,8 +29,7 @@ export const IndexPage = () => {
       <h2>Cooking</h2>
       <p>
         I know, we're in quarantine, everyone is cooking and baking. But look at this:
-      </p>
-      {dishComponents}
-    </main>
+      </p>`,
+    ...dishComponents
   );
 };
