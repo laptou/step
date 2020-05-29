@@ -1,11 +1,11 @@
 import S from 's-js';
 import cx from 'classnames';
-import {create, CreateOptions, set} from '@src/util/html';
+import {html} from '@src/util/html';
 
 const currentImage = S.data('');
 const isVisible = S.data(false);
 
-export interface LightboxItemProps extends CreateOptions {
+export interface LightboxItemProps {
   src: string;
   alt?: string;
 }
@@ -27,36 +27,33 @@ function hideLightbox() {
   isVisible(false);
 }
 
-export const LightboxItem = ({className, alt, src}: LightboxItemProps) =>
-  create(
-    'div',
-    (lbItem) => {
-      lbItem.className = cx('lightbox-item', className);
-      lbItem.onclick = () => showLightbox(src);
-    },
-    create('img', (img) => {
-      set(img, 'alt', alt);
-      set(img, 'src', src);
-    })
-  );
+export const LightboxItem = ({alt, src}: LightboxItemProps) => {
+  const lbItem: HTMLDivElement = html`
+    <div class='lightbox-item'>
+      <img alt='${alt}' src='${src}'>
+    </div>`;
 
-export const Lightbox = () =>
-  create(
-    'div',
-    (lightbox) => {
-      lightbox.id = 'lightbox';
-      lightbox.onclick = hideLightbox;
+  lbItem.onclick = () => showLightbox(src);
+  return lbItem;
+};
 
-      S(() => {
-        lightbox.className = cx({active: isVisible()});
-      });
-    },
-    create('img',
-      (img) => {
-        img.onclick = (e) => e.preventDefault();
-        S(() => {
-          img.src = currentImage();
-        });
-      }
-    )
-  );
+export const Lightbox = () => {
+  const lightboxImg = document.createElement('img');
+  lightboxImg.onclick = (e) => e.preventDefault();
+
+  S(() => {
+    lightboxImg.src = currentImage();
+  });
+
+  const lightbox: HTMLDivElement = html`
+    <div id='lightbox'>
+      ${lightboxImg}
+    </div>`;
+  lightbox.onclick = hideLightbox;
+
+  S(() => {
+    lightbox.className = cx({active: isVisible()});
+  });
+
+  return lightbox;
+};
