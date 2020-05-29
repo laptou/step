@@ -7,7 +7,7 @@
 
 /* text */
 
-h1, h2, h3, h4, code, pre {
+h1, h2, h3, h4, code, pre, button {
   font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -23,11 +23,31 @@ a {
 a:hover {
   color: hsl(25, 100%, 50%); /* bright orange */
   text-decoration-style: solid;
+  outline: none;
 }
 
 a:visited, a:active {
   color: hsl(0, 100%, 50%); /* bright red */
   text-decoration-style: dashed;
+}
+
+/* ui */
+
+button {
+  --color: hsl(200, 75%, 50%);
+  color: var(--color);
+  border: 1pt var(--color) dashed;
+  background: transparent;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  box-shadow: 0 0 1pt rgba(0, 0, 0, 0.25);
+}
+
+button:hover, button:focus {
+  --color: hsl(200, 75%, 50%);
+  border-style: solid;
+  outline: none;
+  box-shadow: 0 0 2pt rgba(0, 0, 0, 0.25);
 }
 
 /* sections */
