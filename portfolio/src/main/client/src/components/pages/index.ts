@@ -22,7 +22,7 @@ export const IndexPage = () => {
     </p>
     <h2>Coding</h2>
     <p>
-      You want my resume? <a href="/dl/resume.pdf">Here you go</a>.
+      You want my resume? <a href="${require('@res/dl/resume.pdf')}">Here you go</a>.
     </p>
     <h2>Cooking</h2>
     <p>
