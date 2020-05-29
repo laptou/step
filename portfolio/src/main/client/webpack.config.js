@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 const webpack = require('webpack');
 const path = require('path');
 
@@ -107,7 +110,7 @@ exports.default = (env = {production: true}) => ({
       workers: ForkTsCheckerPlugin.TWO_CPUS_FREE,
     }),
     new CleanPlugin({
-      cleanOnceBeforeBuildPatterns: ['**/*', '!WEB-INF'],
+      cleanOnceBeforeBuildPatterns: ['**/*', '!WEB-INF', '!WEB-INF/*'],
     }),
     new MiniCssExtractPlugin(),
     ...(env.production ?
