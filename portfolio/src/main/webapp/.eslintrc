@@ -86,7 +86,8 @@
       {
         "ignoredNodes": [
           "JSXElement *",
-          "JSXElement"
+          "JSXElement",
+          "TemplateLiteral *"
         ]
       }
     ],

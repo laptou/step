@@ -1,27 +1,5 @@
-import classnames from 'classnames';
-import {ClassValue} from 'classnames/types';
+import type {Thunk, Arrunk} from './types';
 
-export type Attrs<K extends keyof HTMLElementTagNameMap> = Partial<HTMLElementTagNameMap[K]>;
-export interface CreateOptions {
-  className?: string;
-}
-
-/**
- * Helper function to create an HTML tag.
- * @param name The HTML tag to create.
- * @param setup A function that sets attributes and event handlers.
- * @param content The items that the HTML tag should contain.
- * @returns The HTML tag.
- */
-export function create<K extends keyof HTMLElementTagNameMap>(
-  name: K,
-  setup?: ((el: HTMLElementTagNameMap[K]) => void) | null,
-  ...content: (string | Node)[]): HTMLElementTagNameMap[K] {
-  const elem = document.createElement(name);
-  elem.append(...content);
-  setup?.(elem);
-  return elem;
-}
 
 /**
  * Sets an attribute on an element, unless `value` is null or undefined, in which case it is
@@ -40,14 +18,51 @@ export function set<T extends Element>(el: T, attr: string, value: any): T {
   return el;
 }
 
+// eslint-disable-next-line valid-jsdoc
 /**
- * Returns a setup function that gives `el` the classes specified by `classes`.
- * @param el The element to set up.
- * @param classes The classes to add to `el`.
- * @returns The setup function.
+ * Helper function to parse HTML into multiple DOM nodes. Meant to be used
+ * as a template literal tag:
+ * ```
+ * const myElem = htmls`<td>this is the html</td><td>this is the html</td>`;
+ * ```
+ *
+ * You can interpolate HTML elements into the template literal, and it will
+ * insert them properly:
+ * ```
+ * const btn = document.createElement('button');
+ * btn.addEventListener(() => ...);
+ * const myElem = htmls`<p>some text<p>${btn}<p>with a button inside</p>`;
+ * ```
+ *
+ * You can also interpolate arrays of HTML elements, or a function which
+ * returns a string, an HTML element, or an array of HTML elements.
+ * @returns The HTML elements.
  */
-export function withClass<T extends HTMLElement>(...classes: ClassValue[]): (el: T) => void {
-  return (el) => el.className = classnames(...classes);
+export function htmls(
+  fragments: TemplateStringsArray,
+  ...items: Thunk<Arrunk<string | Node | null | undefined>>[]): Node[] {
+  const markup = items.reduce((prev: string, curr, idx) => {
+    if (typeof curr === 'string') {
+      return prev + curr + fragments[idx + 1];
+    } else {
+      return prev + `<slot data-template data-index="${idx}" />` + fragments[idx + 1];
+    }
+  }, fragments[0]);
+
+  const template = document.createElement('template');
+  template.innerHTML = markup.trim();
+  template.content.querySelectorAll('slot[data-template]').forEach((slot) => {
+    const index = parseInt(slot.getAttribute('data-index')!, 10);
+    let item = items[index];
+    // dethunk
+    item = typeof item === 'function' ? item() : item;
+    // arrayify
+    item = Array.isArray(item) ? item : [item];
+    item = item.filter((i) => i !== null && i !== undefined);
+    slot.replaceWith(...item as (string | Node)[]);
+  });
+
+  return Array.from(template.content.children);
 }
 
 // eslint-disable-next-line valid-jsdoc
@@ -59,31 +74,15 @@ export function withClass<T extends HTMLElement>(...classes: ClassValue[]): (el:
  * ```
  * @returns The HTML element.
  */
-export function html(fragments: TemplateStringsArray, ...items: any[]): Node {
-  const markup = items.reduce((prev, curr, idx) => prev + curr + fragments[idx + 1], fragments[0]);
-
-  const template = document.createElement('template');
-  template.innerHTML = markup.trim();
-  if (template.content.children.length !== 1) {
+export function html<T extends Node>(
+  fragments: TemplateStringsArray,
+  ...items: Thunk<Arrunk<string | Node | null | undefined>>[]
+): T {
+  const result = htmls(fragments, ...items);
+  if (result.length !== 1) {
     throw new Error(
       'This HTML should contain exactly one element. ' +
       'For multiple elements, use htmls.');
   }
-  return template.content.firstChild!;
-}
-
-// eslint-disable-next-line valid-jsdoc
-/**
- * Helper function to parse HTML into multiple DOM nodes. Meant to be used
- * as a template literal tag:
- * ```
- * const myElem = htmls`<td>this is the html</td><td>this is the html</td>`;
- * ```
- * @returns The HTML elements.
- */
-export function htmls(fragments: TemplateStringsArray, ...items: any[]): Node[] {
-  const markup = items.reduce((prev, curr, idx) => prev + curr + fragments[idx + 1], fragments[0]);
-  const template = document.createElement('template');
-  template.innerHTML = markup.trim();
-  return Array.from(template.content.children);
+  return result[0] as T;
 }

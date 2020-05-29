@@ -3,7 +3,7 @@ import S from 's-js';
 
 import '@style/index.dark.scss';
 import '@style/index.light.scss';
-import {create} from '@src/util/html';
+import {html} from '@src/util/html';
 
 type Theme = 'light' | 'dark';
 
@@ -32,12 +32,8 @@ export function toggle() {
   }
 }
 
-export const ThemeSwitcher = () =>
-  create(
-    'button',
-    (btn) => {
-      btn.className = 'theme-switcher';
-      btn.onclick = toggle;
-    },
-    'Switch theme'
-  );
+export const ThemeSwitcher = () => {
+  const btn: HTMLButtonElement = html`<button class='theme-switcher'>Switch theme</button>`;
+  btn.onclick = toggle;
+  return btn;
+};
