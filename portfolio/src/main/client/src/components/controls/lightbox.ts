@@ -1,9 +1,4 @@
-import S from 's-js';
-import cx from 'classnames';
 import {html} from '@src/util/html';
-
-const currentImage = S.data('');
-const isVisible = S.data(false);
 
 export interface LightboxItemProps {
   src: string;
@@ -15,15 +10,15 @@ export interface LightboxItemProps {
  * @param uri The URI of the image to be shown.
  */
 function showLightbox(uri: string) {
-  currentImage(uri);
-  isVisible(true);
+  lightboxImg.src = uri;
+  lightbox.classList.add('active');
 }
 
 /**
  * Hides the lightbox.
  */
 function hideLightbox() {
-  isVisible(false);
+  lightbox.classList.remove('active');
 }
 
 export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
@@ -33,22 +28,12 @@ export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
     </div>`;
 };
 
-export const Lightbox = (): HTMLElement => {
-  const lightboxImg = document.createElement('img');
-  lightboxImg.onclick = (e) => e.preventDefault();
+const lightboxImg = document.createElement('img');
+lightboxImg.onclick = (e) => e.preventDefault();
 
-  S(() => {
-    lightboxImg.src = currentImage();
-  });
+const lightbox: HTMLDivElement = html`
+  <div id='lightbox' @click=${hideLightbox}>
+    ${lightboxImg}
+  </div>`;
 
-  const lightbox: HTMLDivElement = html`
-    <div id='lightbox' @click=${hideLightbox}>
-      ${lightboxImg}
-    </div>`;
-
-  S(() => {
-    lightbox.className = cx({active: isVisible()});
-  });
-
-  return lightbox;
-};
+export const Lightbox = (): HTMLElement => lightbox;

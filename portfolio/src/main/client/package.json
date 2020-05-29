@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.tsx",
-  "dependencies": {
-    "classnames": "^2.2.6",
-    "path-to-regexp": "^6.1.0",
-    "s-array": "^0.4.10",
-    "s-js": "^0.4.9"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@babel/core": "^7.10.1",
     "@babel/preset-env": "^7.10.1",
