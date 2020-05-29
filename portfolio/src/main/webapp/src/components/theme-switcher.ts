@@ -1,4 +1,3 @@
-import * as Surplus from 'surplus';
 import S from 's-js';
 
 import '@style/index.dark.scss';

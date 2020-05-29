@@ -53,14 +53,6 @@ exports.default = (env = {production: true}) => ({
         ],
       },
       {
-        test: /\.tsx$/i,
-        exclude: /node_modules/,
-        use: [
-          'surplus-loader',
-          'ts-loader',
-        ],
-      },
-      {
         test: /\.scss$/i,
         use: [
           {
@@ -73,13 +65,6 @@ exports.default = (env = {production: true}) => ({
           {
             loader: 'css-loader',
             options: {
-              // not using CSS modules for now
-              // modules: {
-              //   localIdentName:
-              //     env.development ?
-              //     '[path][name]__[local]--[hash:base64:5]' :
-              //     '[hash:base64]',
-              // },
               localsConvention: 'camelCase',
               esModule: true,
             },
@@ -138,7 +123,7 @@ exports.default = (env = {production: true}) => ({
       []),
   ],
   resolve: {
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.ts'],
     alias: {
       '@res': path.resolve(__dirname, 'res'),
     },

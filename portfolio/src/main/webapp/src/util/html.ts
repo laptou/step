@@ -1,23 +1,5 @@
 import type {Thunk, Arrunk} from './types';
 
-
-/**
- * Sets an attribute on an element, unless `value` is null or undefined, in which case it is
- * removed.
- * @param el The element.
- * @param attr The attribute to set or remove.
- * @param value The value to set.
- * @returns The element.
- */
-export function set<T extends Element>(el: T, attr: string, value: any): T {
-  if (value !== null && value !== undefined) {
-    el.setAttribute(attr, value);
-  } else {
-    el.removeAttribute(attr);
-  }
-  return el;
-}
-
 // eslint-disable-next-line valid-jsdoc
 /**
  * Helper function to parse HTML into multiple DOM nodes. Meant to be used

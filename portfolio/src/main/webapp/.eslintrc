@@ -9,8 +9,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": [
-    "@typescript-eslint",
-    "react"
+    "@typescript-eslint"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": [
@@ -90,17 +89,6 @@
           "TemplateLiteral *"
         ]
       }
-    ],
-    "react/jsx-uses-vars": [
-      "warn"
-    ],
-    "react/jsx-first-prop-new-line": [
-      "error",
-      "never"
-    ],
-    "react/jsx-indent-props": [
-      "error",
-      "first"
     ],
     "valid-jsdoc": [
       "error",
