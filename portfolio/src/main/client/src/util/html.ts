@@ -1,23 +1,6 @@
-import type {Thunk, Arrunk} from './types';
+import type {Arrunk} from './types';
 
 type InterpolationValue = Arrunk<string | Node | null | undefined> | EventListener;
-
-/**
- * Sets an attribute on an element, unless `value` is null or undefined, in which case it is
- * removed.
- * @param el The element.
- * @param attr The attribute to set or remove.
- * @param value The value to set.
- * @returns The element.
- */
-export function set<T extends Element>(el: T, attr: string, value: string): T {
-  if (value !== null && value !== undefined) {
-    el.setAttribute(attr, value);
-  } else {
-    el.removeAttribute(attr);
-  }
-  return el;
-}
 
 /**
  * Helper function to iterate over all descendants of a node.
@@ -74,7 +57,7 @@ function flatten<T>(arr: Arrunk<T>[]): T[] {
  * ```
  * @returns The HTML elements.
  */
-export function htmls(
+export function htmlFragment(
   fragments: TemplateStringsArray,
   ...items: InterpolationValue[]): Node[] {
   // combine items first so that arrays can be flattened
@@ -152,15 +135,15 @@ export function htmls(
  * Helper function to parse HTML into a DOM node. Meant to be used
  * as a template literal tag:
  * ```
- * const myElem = html`<td>this is the html</td>`;
+ * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
  * @returns The HTML element.
  */
-export function html<T extends Node>(
+export function htmlElement<T extends Node>(
   fragments: TemplateStringsArray,
   ...items: InterpolationValue[]
 ): T {
-  const result = htmls(fragments, ...items);
+  const result = htmlFragment(fragments, ...items);
   if (result.length !== 1) {
     throw new Error(
       'This HTML should contain exactly one element. ' +

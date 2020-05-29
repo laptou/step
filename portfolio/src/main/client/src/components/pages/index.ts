@@ -1,12 +1,12 @@
 import {CookingSection, DishInfo} from '@src/components/sections/cooking';
-import {html} from '@src/util/html';
+import {htmlElement} from '@src/util/html';
 
 export const IndexPage = (): HTMLElement => {
   const dishContext = require.context('@res/text/dish', false);
   const dishInfos = dishContext.keys().map((key) => dishContext(key) as DishInfo);
   const dishComponents = dishInfos.map((info) => CookingSection({info}));
 
-  return html`
+  return htmlElement`
   <main>
     <h2>Hi!</h2>
     <p>

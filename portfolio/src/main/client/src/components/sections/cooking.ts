@@ -1,4 +1,4 @@
-import {html} from '@src/util/html';
+import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
 
 export interface DishInfo {
@@ -10,7 +10,7 @@ export interface CookingSectionProps {
   info: DishInfo;
 }
 
-export const CookingSection = ({info}: CookingSectionProps): HTMLElement => html`
+export const CookingSection = ({info}: CookingSectionProps): HTMLElement => htmlElement`
   <section class="cooking-section">
     <div class="thumbnail">
       ${LightboxItem({

@@ -1,6 +1,6 @@
 import '@style/index.dark.scss';
 import '@style/index.light.scss';
-import {html} from '@src/util/html';
+import {htmlElement} from '@src/util/html';
 
 document.body.setAttribute('data-theme', 'light');
 
@@ -19,7 +19,7 @@ export function toggle(): void {
 }
 
 export const ThemeSwitcher = (): HTMLElement => {
-  const btn: HTMLButtonElement = html`<button class='theme-switcher'>Switch theme</button>`;
+  const btn: HTMLButtonElement = htmlElement`<button class='theme-switcher'>Switch theme</button>`;
   btn.onclick = toggle;
   return btn;
 };

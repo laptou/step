@@ -1,4 +1,4 @@
-import {html} from '@src/util/html';
+import {htmlElement} from '@src/util/html';
 
 export interface LightboxItemProps {
   src: string;
@@ -22,7 +22,7 @@ function hideLightbox() {
 }
 
 export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
-  return html`
+  return htmlElement`
     <div class='lightbox-item' @click='${() => showLightbox(src)}'>
       <img alt='${alt}' src='${src}'>
     </div>`;
@@ -31,7 +31,7 @@ export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
 const lightboxImg = document.createElement('img');
 lightboxImg.onclick = (e) => e.preventDefault();
 
-const lightbox: HTMLDivElement = html`
+const lightbox: HTMLDivElement = htmlElement`
   <div id='lightbox' @click=${hideLightbox}>
     ${lightboxImg}
   </div>`;

@@ -1,7 +1,7 @@
-import {html} from '@src/util/html';
+import {htmlElement} from '@src/util/html';
 
 export const Footer = (): HTMLElement =>
-  html`
+  htmlElement`
   <footer>
     <p>© 2020 Google, Inc.</p>
     <p>Because this stuff isn't owned by <em>me</em>...</p>
