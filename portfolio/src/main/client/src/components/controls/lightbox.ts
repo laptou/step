@@ -27,13 +27,10 @@ function hideLightbox() {
 }
 
 export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
-  const lbItem: HTMLDivElement = html`
-    <div class="lightbox-item">
-      <img alt="${alt}" src="${src}">
+  return html`
+    <div class='lightbox-item' @click='${() => showLightbox(src)}'>
+      <img alt='${alt}' src='${src}'>
     </div>`;
-
-  lbItem.onclick = () => showLightbox(src);
-  return lbItem;
 };
 
 export const Lightbox = (): HTMLElement => {
@@ -45,10 +42,9 @@ export const Lightbox = (): HTMLElement => {
   });
 
   const lightbox: HTMLDivElement = html`
-    <div id="lightbox">
+    <div id='lightbox' @click=${hideLightbox}>
       ${lightboxImg}
     </div>`;
-  lightbox.onclick = hideLightbox;
 
   S(() => {
     lightbox.className = cx({active: isVisible()});

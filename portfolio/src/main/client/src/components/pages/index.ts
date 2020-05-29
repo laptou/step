@@ -15,10 +15,8 @@ export const IndexPage = (): HTMLElement => {
       coding.
     </p>
     <p>
-      I was born in Nigeria, and I've lived all over the U.S., although when people ask I tell
-      them
-      I'm from Seattle because I lived in Bellevue & Kirkland for about 9 years of my 19-year
-      life.
+      I was born in Nigeria, and I've lived all over the U.S. When people ask I tell
+      them I'm from Seattle because I lived in Bellevue & Kirkland for about 9 years.
     </p>
     <h2>Coding</h2>
     <p>

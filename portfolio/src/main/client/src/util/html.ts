@@ -1,5 +1,6 @@
 import type {Thunk, Arrunk} from './types';
 
+type InterpolationValue = Arrunk<string | Node | null | undefined> | EventListener;
 
 /**
  * Sets an attribute on an element, unless `value` is null or undefined, in which case it is
@@ -9,13 +10,42 @@ import type {Thunk, Arrunk} from './types';
  * @param value The value to set.
  * @returns The element.
  */
-export function set<T extends Element>(el: T, attr: string, value: any): T {
+export function set<T extends Element>(el: T, attr: string, value: string): T {
   if (value !== null && value !== undefined) {
     el.setAttribute(attr, value);
   } else {
     el.removeAttribute(attr);
   }
   return el;
+}
+
+/**
+ * Helper function to iterate over all descendants of a node.
+ * @param node The node to iterate over.
+ */
+function* descendants(node: Node): Generator<Node> {
+  for (const child of node.childNodes) {
+    yield child;
+    for (const grandchild of descendants(child)) {
+      yield grandchild;
+    }
+  }
+}
+
+/**
+ * @param arr The array to flatten.
+ * @returns The flattened array.
+ */
+function flatten<T>(arr: Arrunk<T>[]): T[] {
+  const newArr = [];
+  for (const item of arr) {
+    if (Array.isArray(item)) {
+      newArr.push(...item);
+    } else {
+      newArr.push(item);
+    }
+  }
+  return newArr;
 }
 
 // eslint-disable-next-line valid-jsdoc
@@ -34,33 +64,85 @@ export function set<T extends Element>(el: T, attr: string, value: any): T {
  * const myElem = htmls`<p>some text<p>${btn}<p>with a button inside</p>`;
  * ```
  *
- * You can also interpolate arrays of HTML elements, or a function which
- * returns a string, an HTML element, or an array of HTML elements.
+ * You can also interpolate arrays of HTML elements or strings.
+ *
+ * Finally, you can interpolate functions, but only to use them as event handlers
+ * in @-attributes. Using them anywhere else is undefined behaviour.
+ * ```
+ * const myHandler = () => console.log('hi');
+ * const myElem = htmls`<button @click='${myHandler}'>Say hi</button>`;
+ * ```
  * @returns The HTML elements.
  */
 export function htmls(
   fragments: TemplateStringsArray,
-  ...items: Thunk<Arrunk<string | Node | null | undefined>>[]): Node[] {
-  const markup = items.reduce((prev: string, curr, idx) => {
-    if (typeof curr === 'string') {
-      return prev + curr + fragments[idx + 1];
+  ...items: InterpolationValue[]): Node[] {
+  // combine items first so that arrays can be flattened
+  // without messing up indices
+  const combined: InterpolationValue[] = [fragments[0]];
+
+  for (let i = 0; i < items.length; i++) {
+    combined.push(items[i]);
+    combined.push(fragments[i + 1]);
+  }
+
+  const flattened = flatten(combined);
+
+  /**
+   * @param item The item to get the sentinel value for.
+   * @param idx The index of the item within the items array.
+   * @returns The sentinel value.
+   */
+  function getSentinel(
+    item: InterpolationValue,
+    idx: number): string {
+    if (typeof item === 'function') {
+      return `$$template_fn_${idx}`;
+    } else if (item instanceof Node || Array.isArray(item)) {
+      return `<slot data-template data-index="${idx}" />`;
+    } else if (item !== null && item !== undefined) {
+      return item.toString();
     } else {
-      return prev + `<slot data-template data-index="${idx}" />` + fragments[idx + 1];
+      return '';
     }
-  }, fragments[0]);
+  }
+
+  const markup = flattened.map(getSentinel).join('');
 
   const template = document.createElement('template');
+
   template.innerHTML = markup.trim();
-  template.content.querySelectorAll('slot[data-template]').forEach((slot) => {
-    const index = parseInt(slot.getAttribute('data-index')!, 10);
-    let item = items[index];
-    // dethunk
-    item = typeof item === 'function' ? item() : item;
-    // arrayify
-    item = Array.isArray(item) ? item : [item];
-    item = item.filter((i) => i !== null && i !== undefined);
-    slot.replaceWith(...item as (string | Node)[]);
-  });
+
+  for (const descendant of descendants(template.content)) {
+    if (!(descendant instanceof Element)) continue;
+
+    // use slots for substitution
+    if (descendant.tagName === 'SLOT') {
+      const slot = descendant as HTMLSlotElement;
+      if (slot.hasAttribute('data-template')) {
+        const index = parseInt(slot.getAttribute('data-index')!, 10);
+        const item = flattened[index];
+        // cannot be event handler b/c it uses a different sentinel
+        // cannot be null or undefined b/c those don't produce sentinels
+        slot.replaceWith(item as string | Node);
+      }
+    }
+
+    // use all @attributes as event handlers
+    for (const attr of descendant.getAttributeNames()) {
+      if (!attr.startsWith('@')) continue;
+      const event = attr.slice(1);
+
+      const sentinel = descendant.getAttribute(attr);
+      if (!sentinel) throw new Error(`Attribute ${attr} should have a function handler.`);
+
+      const match = /^\$\$template_fn_(\d+)$/.exec(sentinel);
+      if (!match) throw new Error(`Attribute ${attr} should have a function handler.`);
+
+      const index = parseInt(match[1], 10);
+      descendant.addEventListener(event, flattened[index] as EventListener);
+    }
+  }
 
   return Array.from(template.content.children);
 }
@@ -76,7 +158,7 @@ export function htmls(
  */
 export function html<T extends Node>(
   fragments: TemplateStringsArray,
-  ...items: Thunk<Arrunk<string | Node | null | undefined>>[]
+  ...items: InterpolationValue[]
 ): T {
   const result = htmls(fragments, ...items);
   if (result.length !== 1) {
