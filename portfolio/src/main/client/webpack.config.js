@@ -106,7 +106,9 @@ exports.default = (env = {production: true}) => ({
     new ForkTsCheckerPlugin({
       workers: ForkTsCheckerPlugin.TWO_CPUS_FREE,
     }),
-    new CleanPlugin(),
+    new CleanPlugin({
+      cleanOnceBeforeBuildPatterns: ['**/*', '!WEB-INF'],
+    }),
     new MiniCssExtractPlugin(),
     ...(env.production ?
       [
