@@ -7,6 +7,13 @@
   font-family: 'IBM Plex Serif', sans-serif;
 }
 
+body {
+  color: var(--color);
+  background-color: var(--background);
+  background-image: url('~@res/img/noise.png');
+  background-blend-mode: difference;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -41,9 +48,10 @@ a:visited, a:active {
 
 button {
   --accent: hsl(200, 75%, 50%);
+
   padding: 0.5rem 1rem;
   color: var(--accent);
-  background: transparent;
+  background: var(--background);
   border: 1pt var(--accent) dashed;
   box-shadow: 0 0 1pt rgba(0, 0, 0, 0.25);
   cursor: pointer;

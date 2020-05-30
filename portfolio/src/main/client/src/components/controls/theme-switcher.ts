@@ -15,7 +15,6 @@ export function toggle(): void {
   } else {
     document.body.classList.remove('theme-dark');
     document.body.classList.add('theme-light');
-    document.body.setAttribute('data-theme', 'light');
   }
 }
 
