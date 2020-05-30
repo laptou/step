@@ -50,8 +50,8 @@ export function htmlFragment(
     combined.push(fragments[i + 1]);
   }
 
-  // type assertion b/c TS does not recognize that this will remove null and undefined
-  // from the array
+  // type assertion b/c TS does not recognize that this will remove null and
+  // undefined from the array
   const flattened = combined
     .flat()
     .filter((r) => r !== null && r !== undefined) as (string | Node)[];

@@ -6,11 +6,7 @@ export interface DishInfo {
   html: string;
 }
 
-export interface CookingSectionProps {
-  info: DishInfo;
-}
-
-export const CookingSection = ({info}: CookingSectionProps): HTMLElement => htmlElement`
+export const CookingSection = (info: DishInfo): HTMLElement => htmlElement`
   <section class="cooking-section">
     <div class="thumbnail">
       ${LightboxItem({

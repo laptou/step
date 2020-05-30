@@ -20,7 +20,8 @@ export function toggle(): void {
 }
 
 export const ThemeSwitcher = (): HTMLElement => {
-  const btn: HTMLButtonElement = htmlElement`<button class='theme-switcher'>Switch theme</button>`;
+  const btn: HTMLButtonElement =
+    htmlElement`<button class='theme-switcher'>Switch theme</button>`;
   btn.onclick = toggle;
   return btn;
 };
