@@ -9,9 +9,6 @@ document.body.classList.add('theme-light');
  * Toggles the theme between light and dark.
  */
 export function toggle(): void {
-  // sample because we don't want this to run again
-  // in response to the theme being changed, that leads
-  // to infinite loop
   if (document.body.classList.contains('theme-light')) {
     document.body.classList.remove('theme-light');
     document.body.classList.add('theme-dark');
