@@ -10,8 +10,7 @@
     "project": "./tsconfig.json"
   },
   "plugins": [
-    "@typescript-eslint",
-    "react"
+    "@typescript-eslint"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": [

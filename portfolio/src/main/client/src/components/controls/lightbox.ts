@@ -22,18 +22,28 @@ function hideLightbox() {
 }
 
 export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
-  return htmlElement`
-    <div class='lightbox-item' @click='${() => showLightbox(src)}'>
+  const lbItem: HTMLDivElement = htmlElement`
+    <div class='lightbox-item'>
       <img alt='${alt}' src='${src}'>
     </div>`;
+
+  lbItem.addEventListener('click', () => showLightbox(src));
+
+  return lbItem;
 };
 
 const lightboxImg = document.createElement('img');
-lightboxImg.onclick = (e) => e.preventDefault();
+lightboxImg.addEventListener('click', (e) => e.stopPropagation());
+
+const lightboxCloseBtn = htmlElement`<button class='close'>Close</button>`;
+lightboxCloseBtn.addEventListener('click', hideLightbox);
 
 const lightbox: HTMLDivElement = htmlElement`
-  <div id='lightbox' @click=${hideLightbox}>
+  <div id='lightbox'>
     ${lightboxImg}
+    ${lightboxCloseBtn}
   </div>`;
+
+lightbox.addEventListener('click', hideLightbox);
 
 export const Lightbox = (): HTMLElement => lightbox;

@@ -2,7 +2,12 @@ import {CookingSection, DishInfo} from '@src/components/sections/cooking';
 import {htmlElement} from '@src/util/html';
 
 export const IndexPage = (): HTMLElement => {
+  // get list of files in res/text/dish folder as webpack context
   const dishContext = require.context('@res/text/dish', false);
+  // load each file from the context
+  // these are markdown files that are transformed into JS objects via
+  // frontmatter-markdown-loader, giving the front matter on property `attributes`
+  // and the HTML corresponding to the markdown on property `html`.
   const dishInfos = dishContext.keys().map((key) => dishContext(key) as DishInfo);
   const dishComponents = dishInfos.map((info) => CookingSection({info}));
 
