@@ -14,6 +14,7 @@ export const CookingSection = ({info}: CookingSectionProps): HTMLElement => html
   <section class="cooking-section">
     <div class="thumbnail">
       ${LightboxItem({
+        // require returns the mangled URL to the image, via file-loader
         src: require(`@res/img/dish/${info.attributes.image}`).default,
         alt: info.attributes.name,
       })}
