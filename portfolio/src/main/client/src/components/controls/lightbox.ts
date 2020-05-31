@@ -1,4 +1,5 @@
 import {htmlElement} from '@src/util/html';
+import '@res/style/controls/lightbox.scss';
 
 export interface LightboxItemProps {
   src: string;

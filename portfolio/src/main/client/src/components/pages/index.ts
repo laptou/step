@@ -1,5 +1,6 @@
 import {CookingSection, DishInfo} from '@src/components/sections/cooking';
 import {htmlElement} from '@src/util/html';
+import '@res/style/pages/index.scss';
 
 export const IndexPage = (): HTMLElement => {
   // get list of files in res/text/dish folder as webpack context
