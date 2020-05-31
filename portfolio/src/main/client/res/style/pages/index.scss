@@ -1,9 +1,35 @@
 @use '../responsive';
 
+#index-hero {
+  margin-bottom: -8rem;
+  background-image: url('~@res/img/me/lake.jpg');
+  // position at 30% so my face is not cut off
+  background-position: center 30%;
+
+  h1 {
+    margin: 0 1rem;
+    color: white; // should not change with theme
+    font-weight: bold;
+    font-size: 3rem;
+    text-shadow: 0 0 16pt rgba(0, 0, 0, 0.5);
+    user-select: none;
+  }
+}
+
+#index-main {
+  .theme-switcher {
+    float: right;
+  }
+}
+
 .cooking-section {
   display: flex;
   flex-flow: column nowrap;
   margin: 2rem 0;
+
+  .content {
+    padding: 1rem 0 0;
+  }
 
   @media screen and (min-width: responsive.$break-mobile) {
     & {

@@ -1,8 +1,10 @@
 import {CookingSection, DishInfo} from '@src/components/sections/cooking';
-import {htmlElement} from '@src/util/html';
+import {htmlFragment} from '@src/util/html';
+import {Footer} from '../footer';
+import {ThemeSwitcher} from '../controls/theme-switcher';
 import '@res/style/pages/index.scss';
 
-export const IndexPage = (): HTMLElement => {
+export const IndexPage = (): Node[] => {
   // get list of files in res/text/dish folder as webpack context
   const dishContext = require.context('@res/text/dish', false);
 
@@ -18,8 +20,12 @@ export const IndexPage = (): HTMLElement => {
     .map((key) => dishContext(key) as DishInfo);
   const dishComponents = dishInfos.map((info) => CookingSection(info));
 
-  return htmlElement`
-  <main>
+  return htmlFragment`
+  <section id="index-hero" class="hero parallax">
+    <h1>Ibiyemi Abiodun</h1>
+  </section>
+  <main id="index-main">
+    ${ThemeSwitcher()}
     <h2>Hi!</h2>
     <p>
       I'm a rising sophomore at Cornell, double majoring in electrical &
@@ -42,5 +48,6 @@ export const IndexPage = (): HTMLElement => {
       this:
     </p>
     ${dishComponents}
-  </main>`;
+  </main>
+  ${Footer()}`;
 };

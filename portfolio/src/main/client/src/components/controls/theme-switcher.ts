@@ -1,5 +1,3 @@
-import '@style/index.dark.scss';
-import '@style/index.light.scss';
 import {htmlElement} from '@src/util/html';
 
 // not adding this in HTML for encapsulation
