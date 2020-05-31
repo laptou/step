@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Serif&display=swap');
 
+$break-mobile: 640px;
+$break-tablet: 960px;
+$break-desktop: 1280px;
+
 :root, body, html {
   margin: 0;
   padding: 0;
@@ -22,6 +26,14 @@ body {
 
 h1, h2, h3, h4, code, pre, button {
   font-family: 'IBM Plex Mono', monospace;
+}
+
+h1, h2 {
+  margin: 1.25em 0 0.5em;
+}
+
+h3, h4 {
+  margin: 0.5em 0;
 }
 
 p {
@@ -87,35 +99,53 @@ main {
   max-width: 100vw;
   margin: 0 auto;
   padding: 0 2rem;
+
+  @media screen and (min-width: $break-mobile) {
+    padding: 0 4rem;
+  }
+
+  @media screen and (min-width: $break-tablet) {
+    padding: 0 8rem;
+  }
 }
 
 /* content */
 
 .cooking-section {
   display: flex;
-  flex-flow: row nowrap;
-  margin: 1rem -1rem;
-}
+  flex-flow: column nowrap;
+  margin: 2rem 0;
 
-.cooking-section:nth-child(2n+1) {
-  flex-flow: row-reverse nowrap;
+  @media screen and (min-width: $break-mobile) {
+    & {
+      flex-direction: row;
+
+      .content {
+        padding: 1rem 0 1rem 2rem;
+      } 
+    }
+
+    &:nth-child(2n+1) {
+      flex-direction: row-reverse;
+
+      .content {
+        padding: 1rem 2rem 1rem 0;
+      }
+    }
+  }
 }
 
 .cooking-section .thumbnail {
   flex-basis: 12rem;
   flex-grow: 0;
   flex-shrink: 0;
-  margin: 1rem;
+  box-shadow: 0 0 8pt rgba(0, 0, 0, 0.25);
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-}
-
-.cooking-section .content {
-  margin: 1rem;
 }
 
 /* lightbox */
@@ -126,8 +156,9 @@ main {
   right: 0;
   bottom: 0;
   left: 0;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  align-content: center;
+  justify-items: center;
   padding: 4rem;
   background-color: rgba(0, 0, 0, 0.25);
   visibility: hidden;
@@ -176,3 +207,4 @@ main {
     content: '';
   }
 }
+
