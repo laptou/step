@@ -46,8 +46,9 @@ const lightbox: HTMLDivElement = htmlElement`
   </div>`;
 
 lightbox.addEventListener('click', hideLightbox);
+
 window.addEventListener('keydown', (e) => {
-  if (e.keyCode !== 27) return;
+  if (e.key !== 'Escape') return;
   hideLightbox();
 });
 
