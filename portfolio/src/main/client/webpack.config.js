@@ -84,8 +84,45 @@ exports.default = (env = {production: true}) => ({
         ],
       },
       {
-        test: /\.(pdf|jpg|png|svg)$/i,
+        test: /\.(pdf)$/i,
         use: ['file-loader'],
+      },
+      {
+        test: /\.(jpe?g|png|svg|gif)$/i,
+        use: [
+          'file-loader',
+          {
+            loader: 'image-webpack-loader',
+            options: {
+              mozjpeg: {
+                progressive: true,
+                quality: 75,
+              },
+              optipng: {
+                enabled: false,
+              },
+              pngquant: {
+                quality: [0.65, 0.90],
+                speed: 4,
+              },
+              gifsicle: {
+                interlaced: false,
+              },
+              // the webp option will enable WEBP
+              webp: {
+                quality: 75,
+              },
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(jpe?g|png)$/i,
+        resourceQuery: /responsive/,
+        loader: 'responsive-loader',
+        options: {
+          adapter: require('responsive-loader/sharp'),
+        },
       },
       {
         test: /\.(md)$/i,
