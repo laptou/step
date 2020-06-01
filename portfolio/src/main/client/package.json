@@ -37,7 +37,6 @@
     "sharp": "^0.25.3",
     "stylelint": "^13.5.0",
     "stylelint-webpack-plugin": "^2.0.0",
-    "surplus-loader": "^0.5.0",
     "ts-loader": "^7.0.5",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typescript": "^3.9.3",
