@@ -10,10 +10,12 @@ export interface ResponsiveImageInfo {
 }
 
 export interface ResponsiveImageOptions {
-  info: ResponsiveImageInfo;
+  src: string | ResponsiveImageInfo;
   alt?: string;
 }
 
 export const ResponsiveImage =
-  ({info, alt}: ResponsiveImageOptions): HTMLImageElement =>
-    htmlElement`<img srcset="${info.srcSet}" src="${info.src}" alt="${alt}" />`;
+  ({src, alt}: ResponsiveImageOptions): HTMLImageElement =>
+    typeof src === 'string' ?
+      htmlElement`<img src="${src}" alt="${alt}" />` :
+      htmlElement`<img srcset="${src.srcSet}" src="${src.src}" alt="${alt}" />`;

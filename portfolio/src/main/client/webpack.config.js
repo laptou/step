@@ -88,6 +88,18 @@ exports.default = (env = {production: true}) => ({
         use: ['file-loader'],
       },
       {
+        test: /\.(jpe?g|png)$/i,
+        resourceQuery: /responsive/,
+        use: [
+          {
+            loader: 'responsive-loader',
+            options: {
+              adapter: require('responsive-loader/sharp'),
+            },
+          },
+        ],
+      },
+      {
         test: /\.(jpe?g|png|svg|gif)$/i,
         use: [
           'file-loader',
@@ -115,14 +127,6 @@ exports.default = (env = {production: true}) => ({
             },
           },
         ],
-      },
-      {
-        test: /\.(jpe?g|png)$/i,
-        resourceQuery: /responsive/,
-        loader: 'responsive-loader',
-        options: {
-          adapter: require('responsive-loader/sharp'),
-        },
       },
       {
         test: /\.(md)$/i,

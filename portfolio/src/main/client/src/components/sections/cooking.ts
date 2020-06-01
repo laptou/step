@@ -16,11 +16,12 @@ export const CookingSection = (info: DishInfo): HTMLElement => {
   </section>`;
 
   if (info.attributes.image) {
+    const src = require(`@res/img/dish/${info.attributes.image}?responsive&sizes[]=200,sizes[]=400,sizes[]=600`);
     const thumbnail = htmlElement`
     <div class="thumbnail">
       ${LightboxItem({
         // require returns the mangled URL to the image, via file-loader
-        src: require(`@res/img/dish/${info.attributes.image}?responsive&sizes[]=200,sizes[]=400,sizes[]=600`).default,
+        src,
         alt: info.attributes.name,
       })}
     </div>`;
