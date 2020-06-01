@@ -54,7 +54,7 @@ export function htmlFragment(
   // undefined from the array
   const flattened = combined
     .flat()
-    .filter((r) => r !== null && r !== undefined) as (string | Node)[];
+    .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
   const markup = flattened.map(getSentinel).join('');
   const template = document.createElement('template');
   template.innerHTML = markup.trim();
