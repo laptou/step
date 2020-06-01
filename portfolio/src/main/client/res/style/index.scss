@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Serif&display=swap');
+
+:root, body, html {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: 'IBM Plex Serif', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* text */
+
+h1, h2, h3, h4, code, pre, button {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+a {
+  color: hsl(0, 75%, 50%); // muted red
+  text-decoration-style: dotted;
+}
+
+a:hover, a:focus {
+  color: hsl(25, 100%, 50%); // bright orange
+  text-decoration-style: solid;
+  outline: none;
+}
+
+a:visited, a:active {
+  color: hsl(0, 100%, 50%); // bright red
+  text-decoration-style: dashed;
+}
+
+/* ui */
+
+button {
+  --accent: hsl(200, 75%, 50%);
+  padding: 0.5rem 1rem;
+  color: var(--accent);
+  background: transparent;
+  border: 1pt var(--accent) dashed;
+  box-shadow: 0 0 1pt rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+button:hover, button:focus {
+  --accent: hsl(200, 100%, 60%);
+  border-style: solid;
+  outline: none;
+  box-shadow: 0 0 2pt rgba(0, 0, 0, 0.25);
+}
+
+/* sections */
+
+header, footer {
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+}
+
+header {
+  padding: 4rem 0;
+}
+
+footer {
+  padding: 4rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+main {
+  width: 60rem;
+  max-width: 100vw;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* content */
+
+.cooking-section {
+  display: flex;
+  flex-flow: row nowrap;
+  margin: 1rem -1rem;
+}
+
+.cooking-section:nth-child(2n+1) {
+  flex-flow: row-reverse nowrap;
+}
+
+.cooking-section .thumbnail {
+  flex-basis: 12rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  margin: 1rem;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cooking-section .content {
+  margin: 1rem;
+}
+
+/* lightbox */
+#lightbox {
+  position: fixed;
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  padding: 4rem;
+  background-color: rgba(0, 0, 0, 0.25);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out, visibility 0.25s linear;
+
+  &.active {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+  .close {
+    --accent: white;
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 0;
+    background: url('~@res/icon/close-white-24dp.svg') center no-repeat;
+  }
+}
+
+.lightbox-item {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+
+  &:hover::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 4rem;
+    background-color: rgba(0, 0, 0, 0.25);
+    background-image: url('~@res/icon/fullscreen-white-24dp.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    content: '';
+  }
+}

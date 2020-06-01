@@ -1,0 +1,46 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "module": "ES2015",
+    "target": "ES2020",
+    "skipLibCheck": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "@res/*": [
+        "./res/*"
+      ],
+      "@src/*": [
+        "./src/*"
+      ],
+      "@component/*": [
+        "./src/components/*"
+      ],
+      "@page/*": [
+        "./src/components/pages/*"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
+      ],
+      "@util/*": [
+        "./src/util/*"
+      ],
+      "@style/*": [
+        "./res/style/*"
+      ],
+      "@asset/*": [
+        "./res/asset/*"
+      ]      
+    },
+  },
+  "include": [
+    "src/**/*",
+    "webpack.config.js"
+  ]
+}
