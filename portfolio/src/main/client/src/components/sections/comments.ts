@@ -1,4 +1,5 @@
 import {htmlElement} from '@src/util/html';
+import '@res/style/sections/comments.scss';
 
 export interface Comment {
   id: number;
@@ -28,8 +29,8 @@ const Comment = (comment: Comment): HTMLElement => htmlElement`
   <li class="comment" data-id="${comment.id.toString()}">
     <span class="info">
       <span class="name">${comment.name}</span>
-      <span class="upvotes">${comment.upvotes.toString()}</span>
-      <span class="downvotes">${comment.downvotes.toString()}</span>
+      <span class="upvotes">+${comment.upvotes.toString()}</span>
+      <span class="downvotes">-${comment.downvotes.toString()}</span>
     </span>
     <div class="content">
       ${comment.content}
@@ -38,8 +39,11 @@ const Comment = (comment: Comment): HTMLElement => htmlElement`
 
 export const CommentSection = (): HTMLElement => {
   const el: HTMLElement = htmlElement`
-    <ul class="comments">
-    </ul>`;
+    <div class="comments">
+      <h3>Comments</h3>
+      <ul>
+      </ul>
+    </div>`;
 
   void initComments(el);
 
