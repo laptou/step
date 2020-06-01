@@ -34,7 +34,7 @@ exports.default = (env = {production: true}) => ({
     port: 8090,
     hot: true,
     proxy: {
-      '/data': 'http://127.0.0.1:8080/',
+      '/api': 'http://127.0.0.1:8080/',
     },
     historyApiFallback: true,
   },
