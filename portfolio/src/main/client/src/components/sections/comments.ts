@@ -43,7 +43,7 @@ async function load(
   while (listEl.firstChild) listEl.firstChild.remove();
   listEl.append(...comments);
 
-  return data.next;
+  return data;
 }
 
 // eslint-disable-next-line valid-jsdoc
@@ -64,7 +64,9 @@ async function loadCurrentPage(
     throw new Error('no comments page is currently loaded');
   }
 
-  pages[pages.length - 1] = await load(el, pages[pages.length - 2], limit);
+  const result = await load(el, pages[pages.length - 2], limit);
+  pages[pages.length - 1] = result.next;
+  return result;
 }
 
 /**
@@ -78,7 +80,9 @@ async function loadNextPage(
   pages: [null, ...string[]],
   limit: number
 ) {
-  pages.push(await load(el, pages[pages.length - 1], limit));
+  const result = await load(el, pages[pages.length - 1], limit);
+  pages.push(result.next);
+  return result;
 }
 
 /**
@@ -93,7 +97,7 @@ async function loadPreviousPage(
   limit: number
 ) {
   pages.pop();
-  await loadCurrentPage(el, pages, limit);
+  return loadCurrentPage(el, pages, limit);
 }
 
 /**
@@ -111,6 +115,10 @@ async function submitForm(
     await fetch(
       '/api/comments',
       {method: 'POST', body: new FormData(formEl)});
+
+    // clear the inputs on successful submission
+    usernameInput[1].value = '';
+    commentInput[1].value = '';
   } catch {
     // TODO present toast to user notifying failure
   }
@@ -145,22 +153,24 @@ export const CommentSection = (): HTMLElement => {
 
   const limit = 2;
 
+  const usernameInput = LabeledInput({
+    id: 'comment-username',
+    label: 'Name',
+    name: 'username',
+    type: 'text',
+  });
+
+  const commentInput = LabeledInput({
+    id: 'comment-content',
+    label: 'Comment',
+    name: 'content',
+    type: 'textarea',
+  });
+
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${LabeledInput({
-        id: 'comment-username',
-        label: 'Name',
-        name: 'username',
-        type: 'text',
-        soft: true,
-      })}
-      ${LabeledInput({
-        id: 'comment-content',
-        label: 'Comment',
-        name: 'content',
-        type: 'textarea',
-        soft: true,
-      })}
+      ${usernameInput}
+      ${commentInput}
       <button id="comment-submit" type="submit">
         Comment
       </button>
@@ -171,15 +181,40 @@ export const CommentSection = (): HTMLElement => {
     void submitForm(commentsEl, formEl, pages, limit);
   });
 
+  const nextBtn: HTMLButtonElement = htmlElement`<button>Next</button>`;
+  const prevBtn: HTMLButtonElement = htmlElement`<button>Previous</button>`;
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  nextBtn.addEventListener('click', async () => {
+    const result = await loadNextPage(commentsEl, pages, limit);
+    nextBtn.disabled = result.comments.length < limit;
+    prevBtn.disabled = pages.length <= 2;
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  prevBtn.addEventListener('click', async () => {
+    await loadPreviousPage(commentsEl, pages, limit);
+    nextBtn.disabled = false;
+    prevBtn.disabled = pages.length <= 2;
+  });
+
   const commentsEl: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
       <ul>
       </ul>
+      <div class="comments-controls">
+        ${prevBtn}
+        ${nextBtn}
+      </div>
       ${formEl}
     </div>`;
 
-  void loadNextPage(commentsEl, pages, limit);
+  void loadNextPage(commentsEl, pages, limit)
+    .then(() => {
+      nextBtn.disabled = false;
+      prevBtn.disabled = pages.length <= 2;
+    });
 
   return commentsEl;
 };

@@ -39,6 +39,20 @@
     }
   }
 
+  .comments-controls {
+    @include index.content-section-padding();
+
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 -1rem 0;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    * {
+      margin: 0 1rem;
+    }
+  }
+
   form {
     display: flex;
     flex-direction: column;

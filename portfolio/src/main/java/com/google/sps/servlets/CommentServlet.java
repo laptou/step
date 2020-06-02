@@ -36,6 +36,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultList;
+import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -63,8 +64,8 @@ public class CommentServlet extends HttpServlet {
       fetchOptions = FetchOptions.Builder.withLimit(20);
     }
 
-    if (request.getParameter("start") != null) {
-      Cursor start = Cursor.fromWebSafeString(request.getParameter("start"));
+    if (request.getParameter("cursor") != null) {
+      Cursor start = Cursor.fromWebSafeString(request.getParameter("cursor"));
       fetchOptions.startCursor(start);
     }
 
@@ -89,8 +90,10 @@ public class CommentServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
-    String username = readPartToString(req.getPart("username"));
-    String content = readPartToString(req.getPart("content"));
+    // truncate usernames at 1000 bytes
+    String username = readPartToString(req.getPart("username"), 1000);
+    // truncate comments at 50000 bytes
+    String content = readPartToString(req.getPart("content"), 50000);
 
     if (username.length() == 0) {
       resp.setStatus(400);
@@ -108,7 +111,9 @@ public class CommentServlet extends HttpServlet {
     comment.setProperty("timestamp", new Date());
     comment.setProperty("username", username);
     comment.setProperty("name", username);
-    comment.setProperty("content", content);
+
+    // allow storing values more than 1500 bytes long
+    comment.setProperty("content", new Text(content));
     comment.setProperty("shameful",
         htmlDetector.matcher(username).matches() || htmlDetector.matcher(content).matches());
     comment.setProperty("upvotes", 0);
@@ -116,13 +121,13 @@ public class CommentServlet extends HttpServlet {
     datastore.put(comment);
   }
 
-  private static String readPartToString(Part part) throws IOException {
+  private static String readPartToString(Part part, int limit) throws IOException {
     InputStream src = part.getInputStream();
     ByteArrayOutputStream dst = new ByteArrayOutputStream();
-    byte[] block = new byte[4096];
+    byte[] block = new byte[1024];
 
-    while (true) {
-      int bytesRead = src.read(block, 0, block.length);
+    while (dst.size() < limit) {
+      int bytesRead = src.read(block, 0, Math.min(block.length, limit - dst.size()));
       if (bytesRead < 0)
         break;
       dst.write(block, 0, bytesRead);
