@@ -2,6 +2,8 @@ import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 
+type Cursor = string;
+
 export interface CommentInfo {
   id: number;
   name: string;
@@ -11,44 +13,106 @@ export interface CommentInfo {
   downvotes: number;
 }
 
-/**
- * Loads comments from server and adds them to the component.
- * @param el The element to load the comments into.
- */
-async function load(el: HTMLElement) {
-  try {
-    const response = await fetch('/api/comments');
-    const data = await response.json() as CommentInfo[];
-    const comments = data.map(Comment);
-
-    const listEl = el.getElementsByTagName('ul')[0];
-    listEl.innerHTML = '';
-    listEl.append(...comments);
-  } catch (e) {
-    const reloadLink =
-      htmlElement`<a href="javascript:void(0)">Click here to reload.</a>`;
-    reloadLink.addEventListener('click', () => void load(el));
-
-    el.append(htmlElement`
-      <li class="error">Failed to load comments. ${reloadLink}</li>
-    `);
-  }
+export interface CommentData {
+  comments: CommentInfo[];
+  next: Cursor;
 }
 
 /**
- * @param el The element containing the comment list.
- * @param form The form to submit.
+ * Loads comments from server and adds them to the component.
+ * @param el The element to load the comments into.
+ * @param cursor Contains the server-provided cursor for the comment at the
+ * start of each page. First one must be null because we get the first page by
+ * not specifying a cursor.
+ * @param limit The number of comments per page.
  */
-async function submitForm(el: HTMLElement, form: HTMLFormElement) {
+async function load(
+  el: HTMLElement,
+  cursor: Cursor | null,
+  limit: number) {
+  const response = cursor ?
+    await fetch(`/api/comments?limit=${limit}&cursor=${cursor}`) :
+    await fetch(`/api/comments?limit=${limit}`);
+  const data = await response.json() as CommentData;
+  const comments = data.comments.map(Comment);
+
+  const listEl = el.getElementsByTagName('ul')[0];
+  while (listEl.firstChild) listEl.firstChild.remove();
+  listEl.append(...comments);
+
+  return data.next;
+}
+
+// eslint-disable-next-line valid-jsdoc
+/**
+ * Reloads the current page of comments.
+ * @param el The element containing the comment list.
+ * @param pages The comment page stack.
+ * @param limit The number of comments per page.
+ */
+async function loadCurrentPage(
+  el: HTMLElement,
+  pages: [null, ...string[]],
+  limit: number
+) {
+  // if pages.length is less than 2, then no page
+  // has been loaded yet
+  if (pages.length < 2) {
+    throw new Error('no comments page is currently loaded');
+  }
+
+  pages[pages.length - 1] = await load(el, pages[pages.length - 2], limit);
+}
+
+/**
+ * Loads the next page of comments.
+ * @param el The element containing the comment list.
+ * @param pages The comment page stack.
+ * @param limit The number of comments per page.
+ */
+async function loadNextPage(
+  el: HTMLElement,
+  pages: [null, ...string[]],
+  limit: number
+) {
+  pages.push(await load(el, pages[pages.length - 1], limit));
+}
+
+/**
+ * Loads the previous page of comments.
+ * @param el The element containing the comment list.
+ * @param pages The comment page stack.
+ * @param limit The number of comments per page.
+ */
+async function loadPreviousPage(
+  el: HTMLElement,
+  pages: [null, ...string[]],
+  limit: number
+) {
+  pages.pop();
+  await loadCurrentPage(el, pages, limit);
+}
+
+/**
+ * @param commentsEl The element containing the comment list.
+ * @param formEl The form to submit.
+ * @param pages The comment page stack.
+ * @param limit The number of comments per page.
+ */
+async function submitForm(
+  commentsEl: HTMLElement,
+  formEl: HTMLFormElement,
+  pages: [null, ...string[]],
+  limit: number) {
   try {
     await fetch(
       '/api/comments',
-      {method: 'POST', body: new FormData(form)});
+      {method: 'POST', body: new FormData(formEl)});
   } catch {
     // TODO present toast to user notifying failure
   }
 
-  await load(el);
+  await loadCurrentPage(commentsEl, pages, limit);
 }
 
 const Comment = (comment: CommentInfo): HTMLElement => {
@@ -71,7 +135,11 @@ const Comment = (comment: CommentInfo): HTMLElement => {
 };
 
 export const CommentSection = (): HTMLElement => {
-  const form: HTMLFormElement = htmlElement`
+  const pages: [null, ...string[]] = [null];
+
+  const limit = 2;
+
+  const formEl: HTMLFormElement = htmlElement`
     <form>
       ${LabeledInput({
         id: 'comment-username',
@@ -90,20 +158,20 @@ export const CommentSection = (): HTMLElement => {
       </button>
     </form>`;
 
-  form.addEventListener('submit', (ev) => {
+  formEl.addEventListener('submit', (ev) => {
     ev.preventDefault();
-    void submitForm(el, form);
+    void submitForm(commentsEl, formEl, pages, limit);
   });
 
-  const el: HTMLElement = htmlElement`
+  const commentsEl: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
       <ul>
       </ul>
-      ${form}
+      ${formEl}
     </div>`;
 
-  void load(el);
+  void loadNextPage(commentsEl, pages, limit);
 
-  return el;
+  return commentsEl;
 };
