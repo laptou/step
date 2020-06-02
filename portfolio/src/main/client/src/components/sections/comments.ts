@@ -1,7 +1,7 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 
-export interface Comment {
+export interface CommentInfo {
   id: number;
   name: string;
   user: string;
@@ -17,18 +17,24 @@ export interface Comment {
 async function load(el: HTMLElement) {
   try {
     const response = await fetch('/api/comments');
-    const data = await response.json() as Comment[];
+    const data = await response.json() as CommentInfo[];
     const comments = data.map(Comment);
 
     const listEl = el.getElementsByTagName('ul')[0];
-    while (listEl.firstChild) listEl.firstChild.remove();
+    listEl.innerHTML = '';
     listEl.append(...comments);
   } catch (e) {
-    el.append(htmlElement`<li class="error">Failed to load comments.</li>`);
+    const reloadLink =
+      htmlElement`<a href="javascript:void(0)">Click here to reload.</a>`;
+    reloadLink.addEventListener('click', () => void load(el));
+
+    el.append(htmlElement`
+      <li class="error">Failed to load comments. ${reloadLink}</li>
+    `);
   }
 }
 
-const Comment = (comment: Comment): HTMLElement => {
+const Comment = (comment: CommentInfo): HTMLElement => {
   // user supplied strings cannot be interpolated directly to avoid XSS
   const content: HTMLElement = htmlElement`<div class="content"></div>`;
   content.innerText = comment.content;

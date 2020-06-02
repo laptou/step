@@ -39,12 +39,15 @@
         <artifactId>appengine-maven-plugin</artifactId>
         <version>2.2.0</version>
         <configuration>
+          <!-- uncomment to enable debugging -->
+          <!--
           <jvmFlags>
             <jvmFlag>-Xdebug</jvmFlag>
             <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=5005,server=y,suspend=n</jvmFlag>
           </jvmFlags>
           <host>0.0.0.0</host>
           <port>8080</port>
+          -->
           <deploy.projectId>ibiyemi-step-2020</deploy.projectId>
           <deploy.version>1</deploy.version>
         </configuration>
