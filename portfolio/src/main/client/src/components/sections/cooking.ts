@@ -1,5 +1,6 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
+import {ResponsiveImageInfo} from '../controls/responsive-image';
 
 export interface DishInfo {
   attributes: { name: string; image?: string };
@@ -16,7 +17,10 @@ export const CookingSection = (info: DishInfo): HTMLElement => {
   </section>`;
 
   if (info.attributes.image) {
-    const src = require(`@res/img/dish/${info.attributes.image}?responsive&sizes[]=200,sizes[]=400,sizes[]=600`);
+    const src = require(
+      `@res/img/dish/${info.attributes.image}` +
+      '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
+
     const thumbnail = htmlElement`
     <div class="thumbnail">
       ${LightboxItem({
