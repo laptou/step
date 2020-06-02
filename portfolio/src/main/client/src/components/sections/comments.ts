@@ -5,7 +5,7 @@ import {LabeledInput} from '../controls/labeled-input';
 type Cursor = string;
 type CommentPageStack = [null, ...Cursor[]];
 
-export interface CommentInfo {
+interface CommentInfo {
   id: number;
   name: string;
   user: string;
@@ -14,7 +14,7 @@ export interface CommentInfo {
   downvotes: number;
 }
 
-export interface CommentPage {
+interface CommentPage {
   comments: CommentInfo[];
   next: Cursor;
 }
