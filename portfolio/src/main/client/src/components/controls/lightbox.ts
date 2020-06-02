@@ -1,8 +1,9 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/controls/lightbox.scss';
+import {ResponsiveImage, ResponsiveImageInfo} from './responsive-image';
 
 export interface LightboxItemProps {
-  src: string;
+  src: string | ResponsiveImageInfo;
   alt?: string;
 }
 
@@ -10,8 +11,8 @@ export interface LightboxItemProps {
  * Shows the lightbox with the given image.
  * @param uri The URI of the image to be shown.
  */
-function showLightbox(uri: string) {
-  lightboxImg.src = uri;
+function showLightbox(uri: string | ResponsiveImageInfo) {
+  lightboxImg.src = uri.toString();
   lightbox.classList.add('active');
 }
 
@@ -25,7 +26,7 @@ function hideLightbox() {
 export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
   const lbItem: HTMLDivElement = htmlElement`
     <div class='lightbox-item'>
-      <img alt='${alt}' src='${src}'>
+      ${ResponsiveImage({alt, src})}
     </div>`;
 
   lbItem.addEventListener('click', () => showLightbox(src));
