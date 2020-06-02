@@ -5,13 +5,17 @@
   @extend %content-section;
 
   padding-right: 0;
-  padding-bottom: 1rem;
+  padding-bottom: 2rem;
   padding-left: 0;
-  list-style: none;
-
-  h3 {
+  
+  h2 {
     @include index.content-section-padding();
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  ul {
+    padding: 0;
+    list-style: none;
   }
 
   .comment {
@@ -19,8 +23,8 @@
     padding-top: 1rem;
     padding-bottom: 1rem;
     border-color: hsla(0, 0%, 50%, 50%); // 50% grey
-    border-style: solid;
-    border-width: 1px 0 0;
+    border-style: dashed;
+    border-width: 0 0 1px;
 
     .name {
       font-weight: bold;
@@ -34,6 +38,18 @@
 
     .downvotes {
       opacity: 0.5;
+    }
+  }
+
+  form {
+    @include index.content-section-padding();
+    display: flex;
+    flex-direction: column;
+    padding: 0 2rem;
+
+    #comment-submit {
+      align-self: flex-end;
+      margin: 2rem 0;
     }
   }
 }
