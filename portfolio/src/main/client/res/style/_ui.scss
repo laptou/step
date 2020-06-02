@@ -4,9 +4,6 @@
 $accent-interactive: hsl(200, 75%, 50%);
 $accent-interactive-hover: color.scale($accent-interactive, $lightness: 20%);
 
-@debug $accent-interactive;
-@debug $accent-interactive-hover;
-
 button {
   --accent: #{$accent-interactive};
 
@@ -19,7 +16,7 @@ button {
   cursor: pointer;
 }
 
-button:hover, button:focus {
+button:hover, button:active {
   --accent: #{$accent-interactive-hover};
   
   border: 1px solid var(--accent);
@@ -36,6 +33,7 @@ button:disabled {
 input[type=text], textarea {
   --accent: #{$accent-interactive};
   padding: 0.5rem;
+  color: inherit;
   font-family: inherit;
   background: var(--background-saturated);
   border: 1px var(--accent) solid;
@@ -48,6 +46,11 @@ input[type=text], textarea {
     --accent: #{$accent-interactive-hover};
     outline: none;
     box-shadow: 0 0 4pt rgba(0, 0, 0, 0.25);
+  }
+
+  .show-validation &:invalid, &.show-validation:invalid {
+    --accent: red;
+    background-image: radial-gradient(circle at right 1rem top 1.25em, red 3px, transparent 4px);
   }
 }
 
