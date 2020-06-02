@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 
 import javax.servlet.ServletException;
@@ -34,6 +35,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.gson.Gson;
+import com.google.sps.data.Comment;
 
 /** Servlet that returns comment information. */
 @WebServlet("/api/comments")
@@ -48,7 +50,17 @@ public class CommentServlet extends HttpServlet {
     PreparedQuery results = datastore.prepare(query);
 
     response.setContentType("application/json");
-    gson.toJson(results.asIterable(), response.getWriter());
+
+    ArrayList<Comment> comments = new ArrayList<>();
+    for (Entity e : results.asIterable()) {
+      comments.add(new Comment(
+        e.getKey().getId(),
+        (String) e.getProperty("username"),
+        (String) e.getProperty("name"),
+        (String) e.getProperty("content")));
+    }
+    
+    gson.toJson(comments, response.getWriter());
   }
 
   /**
