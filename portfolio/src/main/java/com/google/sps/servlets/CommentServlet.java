@@ -58,14 +58,28 @@ public class CommentServlet extends HttpServlet {
     FetchOptions fetchOptions;
 
     if (request.getParameter("limit") != null) {
-      int limit = Integer.parseInt(request.getParameter("limit"));
+      int limit;
+      try {
+        limit = Integer.parseInt(request.getParameter("limit"));
+      } catch (NumberFormatException ex) {
+        response.setStatus(400);
+        return;
+      }
+
       fetchOptions = FetchOptions.Builder.withLimit(Math.min(limit, 50));
     } else {
       fetchOptions = FetchOptions.Builder.withLimit(20);
     }
 
     if (request.getParameter("cursor") != null) {
-      Cursor start = Cursor.fromWebSafeString(request.getParameter("cursor"));
+      Cursor start;
+      try {
+        start = Cursor.fromWebSafeString(request.getParameter("cursor"));
+      } catch (IllegalArgumentException ex) {
+        response.setStatus(400);
+        return;
+      }
+
       fetchOptions.startCursor(start);
     }
 
@@ -79,11 +93,12 @@ public class CommentServlet extends HttpServlet {
       boolean shameful = (boolean) e.getProperty("shameful");
       return new Comment(id, username, name, content, shameful);
     }).collect(Collectors.toList());
-    response.setContentType("application/json");
 
     JsonObject root = new JsonObject();
     root.add("comments", gson.toJsonTree(comments));
     root.addProperty("next", results.getCursor().toWebSafeString());
+    
+    response.setContentType("application/json");
     response.getWriter().print(root.toString());
   }
 
@@ -93,10 +108,24 @@ public class CommentServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
+    Part usernamePart, contentPart;
+
+    try {
+      usernamePart = req.getPart("username");
+      contentPart = req.getPart("content");
+    } catch (ServletException e) {
+      resp.setStatus(400);
+      return;
+    } catch (Error e) {
+      resp.setStatus(500);
+      return;
+    }
+
     // truncate usernames at 1000 bytes
-    String username = readPartToString(req.getPart("username"), 1000);
+    String username = readPartToString(usernamePart, 1000);
+
     // truncate comments at 50000 bytes
-    String content = readPartToString(req.getPart("content"), 50000);
+    String content = readPartToString(contentPart, 50000);
 
     if (username.length() == 0) {
       resp.setStatus(400);
