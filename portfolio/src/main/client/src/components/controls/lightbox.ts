@@ -1,4 +1,5 @@
 import {htmlElement} from '@src/util/html';
+import '@res/style/controls/lightbox.scss';
 
 export interface LightboxItemProps {
   src: string;
@@ -45,5 +46,10 @@ const lightbox: HTMLDivElement = htmlElement`
   </div>`;
 
 lightbox.addEventListener('click', hideLightbox);
+
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  hideLightbox();
+});
 
 export const Lightbox = (): HTMLElement => lightbox;
