@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -35,6 +36,7 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.sps.data.Comment;
 
 /** Servlet that returns comment information. */
@@ -43,6 +45,8 @@ import com.google.sps.data.Comment;
 public class CommentServlet extends HttpServlet {
   private static Gson gson = new Gson();
   private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  private static Pattern htmlDetector = Pattern.compile("<\\w+(\\s*\\w+\\s*(=\\s*['\"].*['\"]))*>.*<\\/\\w+>",
+      Pattern.DOTALL);
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -52,15 +56,22 @@ public class CommentServlet extends HttpServlet {
     response.setContentType("application/json");
 
     ArrayList<Comment> comments = new ArrayList<>();
+    ArrayList<Comment> shamefulComments = new ArrayList<>();
+
     for (Entity e : results.asIterable()) {
-      comments.add(new Comment(
-        e.getKey().getId(),
-        (String) e.getProperty("username"),
-        (String) e.getProperty("name"),
-        (String) e.getProperty("content")));
+      Comment comment = new Comment(e.getKey().getId(), (String) e.getProperty("username"),
+          (String) e.getProperty("name"), (String) e.getProperty("content"), (boolean) e.getProperty("shameful"));
+
+      if (comment.isShameful)
+        shamefulComments.add(comment);
+      else
+        comments.add(comment);
     }
-    
-    gson.toJson(comments, response.getWriter());
+
+    JsonObject root = new JsonObject();
+    root.add("comments", gson.toJsonTree(comments));
+    root.add("shamefulComments", gson.toJsonTree(comments));
+    response.getWriter().print(root.toString());
   }
 
   /**
@@ -72,9 +83,9 @@ public class CommentServlet extends HttpServlet {
     String content = readPartToString(req.getPart("content"));
 
     if (username.length() == 0) {
-       resp.setStatus(400);
-       resp.getWriter().print("username");
-       return;
+      resp.setStatus(400);
+      resp.getWriter().print("username");
+      return;
     }
 
     if (content.length() == 0) {
@@ -88,6 +99,8 @@ public class CommentServlet extends HttpServlet {
     comment.setProperty("username", username);
     comment.setProperty("name", username);
     comment.setProperty("content", content);
+    comment.setProperty("shameful",
+        htmlDetector.matcher(username).matches() || htmlDetector.matcher(content).matches());
     comment.setProperty("upvotes", 0);
     comment.setProperty("downvotes", 0);
     datastore.put(comment);
