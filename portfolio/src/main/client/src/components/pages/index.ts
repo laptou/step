@@ -3,7 +3,7 @@ import {htmlFragment} from '@src/util/html';
 import {Footer} from '../footer';
 import {ThemeSwitcher} from '../controls/theme-switcher';
 import '@res/style/pages/index.scss';
-import { CommentSection } from '../sections/comments';
+import {CommentSection} from '../sections/comments';
 
 export const IndexPage = (): Node[] => {
   // get list of files in res/text/dish folder as webpack context
