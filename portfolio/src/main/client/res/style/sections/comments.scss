@@ -39,6 +39,16 @@
     }
   }
 
+  .comment-empty-state {
+    @include index.content-section-padding();
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+    font-size: 0.9em;
+    font-style: italic;
+    text-align: center;
+    opacity: 0.7;
+  }
+
   .comments-controls {
     display: flex;
     justify-content: flex-end;
