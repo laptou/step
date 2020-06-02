@@ -10,7 +10,7 @@ button {
   padding: 0.5rem 1rem;
   color: var(--accent);
   background: var(--background);
-  border: none;
+  border: 1px solid transparent;
   border-radius: 0.25rem;
   box-shadow: 0 0 2pt var(--accent);
   cursor: pointer;
@@ -19,10 +19,15 @@ button {
 button:hover, button:focus {
   --accent: #{$accent-interactive-hover};
   
-  // use outline instead of border so that layout
-  // is not affected
-  outline: var(--accent) solid 1px;
+  border: 1px solid var(--accent);
   box-shadow: 0 0 4pt var(--accent);
+}
+
+button:disabled {
+  --accent: grey;
+  border: var(--accent) solid 1px;
+  box-shadow: none;
+  cursor: initial;
 }
 
 input[type=text], textarea {
