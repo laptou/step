@@ -17,10 +17,14 @@ export interface LabeledInputOptions {
   value?: string;
 }
 
+
+export type LabeledInputComponent =
+  [HTMLLabelElement, HTMLInputElement | HTMLTextAreaElement];
+
 export const LabeledInput =
   ({
     name, id, className, label, type, value, soft,
-  }: LabeledInputOptions): Node[] => {
+  }: LabeledInputOptions): LabeledInputComponent => {
     const labelEl: HTMLLabelElement =
       htmlElement`<label for="${id}" class="input-label">${label}</label>`;
 
@@ -49,5 +53,5 @@ export const LabeledInput =
       }
     });
 
-    return htmlFragment`${labelEl}${inputEl}`;
+    return htmlFragment`${labelEl}${inputEl}` as LabeledInputComponent;
   };
