@@ -41,7 +41,12 @@ async function load(
 
   const listEl = el.getElementsByTagName('ul')[0];
   while (listEl.firstChild) listEl.firstChild.remove();
-  listEl.append(...comments);
+
+  if (comments.length > 0) {
+    listEl.append(...comments);
+  } else {
+    listEl.append(CommentEmptyState());
+  }
 
   return data;
 }
@@ -111,14 +116,21 @@ async function submitForm(
   formEl: HTMLFormElement,
   pages: [null, ...string[]],
   limit: number) {
+  if (!formEl.checkValidity()) {
+    formEl.classList.add('show-validation');
+  }
+
+  const usernameInput = commentsEl.querySelector("#comment-username") as HTMLInputElement;
+  const commentInput = commentsEl.querySelector("#comment-content") as HTMLTextAreaElement;
+  
   try {
     await fetch(
       '/api/comments',
       {method: 'POST', body: new FormData(formEl)});
 
     // clear the inputs on successful submission
-    usernameInput[1].value = '';
-    commentInput[1].value = '';
+    usernameInput.value = '';
+    commentInput.value = '';
   } catch {
     // TODO present toast to user notifying failure
   }
@@ -145,13 +157,20 @@ const Comment = (comment: CommentInfo): HTMLElement => {
   </li>`;
 };
 
+const CommentEmptyState = (): HTMLElement => {
+  return htmlElement`
+  <li class="comment-empty-state">
+    You've reached the end. No more comments.
+  </li>`;
+};
+
 /**
  * @returns The comments section of the page.
  */
 export const CommentSection = (): HTMLElement => {
   const pages: [null, ...string[]] = [null];
 
-  const limit = 2;
+  const limit = 10;
 
   const usernameInput = LabeledInput({
     id: 'comment-username',
@@ -160,12 +179,16 @@ export const CommentSection = (): HTMLElement => {
     type: 'text',
   });
 
+  usernameInput[1].required = true;
+
   const commentInput = LabeledInput({
     id: 'comment-content',
     label: 'Comment',
     name: 'content',
     type: 'textarea',
   });
+
+  commentInput[1].required = true;
 
   const formEl: HTMLFormElement = htmlElement`
     <form>

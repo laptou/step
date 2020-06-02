@@ -71,11 +71,14 @@ public class CommentServlet extends HttpServlet {
 
     QueryResultList<Entity> results = datastore.prepare(query).asQueryResultList(fetchOptions);
 
-    List<Comment> comments = results.stream()
-        .map(e -> new Comment(e.getKey().getId(), (String) e.getProperty("username"),
-            (String) e.getProperty("name"), (String) e.getProperty("content"),
-            (boolean) e.getProperty("shameful")))
-        .collect(Collectors.toList());
+    List<Comment> comments = results.stream().map(e -> {
+      long id = e.getKey().getId();
+      String username = (String) e.getProperty("username");
+      String name = (String) e.getProperty("name");
+      String content = ((Text) e.getProperty("content")).getValue();
+      boolean shameful = (boolean) e.getProperty("shameful");
+      return new Comment(id, username, name, content, shameful);
+    }).collect(Collectors.toList());
     response.setContentType("application/json");
 
     JsonObject root = new JsonObject();
@@ -113,7 +116,7 @@ public class CommentServlet extends HttpServlet {
     comment.setProperty("name", username);
 
     // allow storing values more than 1500 bytes long
-    comment.setProperty("content", new Text(content));
+    comment.setUnindexedProperty("content", new Text(content));
     comment.setProperty("shameful",
         htmlDetector.matcher(username).matches() || htmlDetector.matcher(content).matches());
     comment.setProperty("upvotes", 0);
