@@ -80,6 +80,7 @@ public class CommentServlet extends HttpServlet {
     JsonObject root = new JsonObject();
     root.add("comments", gson.toJsonTree(comments));
     root.addProperty("next", results.getCursor().toWebSafeString());
+    response.getWriter().print(root.toString());
   }
 
   /**
