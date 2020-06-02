@@ -193,6 +193,20 @@ export const CommentSection = (): HTMLElement => {
 
   commentInput[1].required = true;
 
+  const usernameInput = LabeledInput({
+    id: 'comment-username',
+    label: 'Name',
+    name: 'username',
+    type: 'text',
+  });
+
+  const commentInput = LabeledInput({
+    id: 'comment-content',
+    label: 'Comment',
+    name: 'content',
+    type: 'textarea',
+  });
+
   const formEl: HTMLFormElement = htmlElement`
     <form>
       ${usernameInput}
