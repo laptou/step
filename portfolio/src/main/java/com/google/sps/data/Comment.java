@@ -12,7 +12,7 @@ public class Comment {
    * A comment is shameful if it appears to contain HTML.
    * Shame on you, for trying to do XSS on my website!
    */
-  public final boolean isShameful;
+  public final boolean shameful;
   public long upvotes;
   public long downvotes;
 
@@ -22,6 +22,6 @@ public class Comment {
     this.name = name;
     this.user = user;
     this.content = content;
-    this.isShameful = shameful;
+    this.shameful = shameful;
   }
 }
