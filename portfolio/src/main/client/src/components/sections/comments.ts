@@ -34,6 +34,22 @@ async function load(el: HTMLElement) {
   }
 }
 
+/**
+ * @param el The element containing the comment list.
+ * @param form The form to submit.
+ */
+async function submitForm(el: HTMLElement, form: HTMLFormElement) {
+  try {
+    await fetch(
+      '/api/comments',
+      {method: 'POST', body: new FormData(form)});
+  } catch {
+    // TODO present toast to user notifying failure
+  }
+
+  await load(el);
+}
+
 const Comment = (comment: CommentInfo): HTMLElement => {
   // user supplied strings cannot be interpolated directly to avoid XSS
   const content: HTMLElement = htmlElement`<div class="content"></div>`;
@@ -64,19 +80,9 @@ export const CommentSection = (): HTMLElement => {
       </button>
     </form>`;
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  form.addEventListener('submit', async (ev) => {
+  form.addEventListener('submit', (ev) => {
     ev.preventDefault();
-
-    try {
-      const response = await fetch(
-        '/api/comments',
-        {method: 'POST', body: new FormData(form)});
-    } catch {
-      // TODO present toast to user notifying failure
-    }
-
-    void load(el);
+    void submitForm(el, form);
   });
 
   const el: HTMLElement = htmlElement`
