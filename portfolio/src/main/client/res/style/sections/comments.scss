@@ -30,6 +30,7 @@
       margin: -0.5rem;
       padding: 0.5rem;
       background-color: var(--background);
+      overflow: hidden;
     }
 
     &.shameful {
@@ -59,10 +60,6 @@
 
     .downvotes {
       opacity: 0.5;
-    }
-
-    .content {
-      overflow: hidden;
     }
 
     .expander {
