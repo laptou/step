@@ -35,6 +35,7 @@
     &.shameful {
       background-color: hsla(0, 100%, 50%, 25%); // 50% transparent red
       background-image: url('~@res/img/site/shame.svg');
+      animation: 15s linear 0s infinite shameful-background;
 
       .inner::after {
         display: block;
@@ -42,7 +43,7 @@
         font-size: 0.9em;
         font-style: italic;
         opacity: 0.8;
-        content: 'Look at this fool, they tried to do HTML injection on my website!';
+        content: 'Look at this fool, they tried to do HTML injection on my website! Repent!';
       }
     }
 
@@ -106,5 +107,15 @@
       align-self: flex-end;
       margin: 2rem 0;
     }
+  }
+}
+
+@keyframes shameful-background {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 200px 100px;
   }
 }
