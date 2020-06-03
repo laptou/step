@@ -1,5 +1,3 @@
-@use '../responsive';
-
 #index-hero {
   margin-bottom: -10rem;
   background-image: url('~@res/img/me/lake.jpg');
@@ -22,43 +20,3 @@
   }
 }
 
-.cooking-item {
-  display: flex;
-  flex-flow: column nowrap;
-  margin: 2rem 0;
-
-  .content {
-    padding: 1rem 0 0;
-  }
-
-  @media screen and (min-width: responsive.$break-mobile) {
-    & {
-      flex-direction: row;
-
-      .content {
-        padding: 1rem 0 1rem 2rem;
-      } 
-    }
-
-    &:nth-child(2n+1) {
-      flex-direction: row-reverse;
-
-      .content {
-        padding: 1rem 2rem 1rem 0;
-      }
-    }
-  }
-}
-
-.cooking-item .thumbnail {
-  flex-basis: 12rem;
-  flex-grow: 0;
-  flex-shrink: 0;
-  box-shadow: 0 0 8pt rgba(0, 0, 0, 0.25);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-}
