@@ -1,6 +1,6 @@
 import type {Arrunk} from './types';
 
-type Renderable = Arrunk<string | Node | null | undefined>;
+export type Renderable = Arrunk<string | Node | null | undefined>;
 
 /**
  * @param item The item to get the sentinel value for.
