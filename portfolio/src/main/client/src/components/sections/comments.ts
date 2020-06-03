@@ -118,9 +118,11 @@ async function submitForm(
     formEl.classList.add('show-validation');
   }
 
-  const usernameInput = commentsEl.querySelector("#comment-username") as HTMLInputElement;
-  const commentInput = commentsEl.querySelector("#comment-content") as HTMLTextAreaElement;
-  
+  const usernameInput =
+    commentsEl.querySelector('#comment-username') as HTMLInputElement;
+  const commentInput =
+    commentsEl.querySelector('#comment-content') as HTMLTextAreaElement;
+
   try {
     await fetch(
       '/api/comments',
@@ -165,7 +167,7 @@ const CommentEmptyState = (): HTMLElement => {
 export const CommentSection = (): HTMLElement => {
   const pages: CommentPageStack = [null];
 
-  const limit = 10;
+  const limit = 5;
 
   const usernameInput = LabeledInput({
     id: 'comment-username',
