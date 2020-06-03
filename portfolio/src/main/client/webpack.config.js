@@ -31,8 +31,11 @@ exports.default = (env = {production: true}) => ({
   entry: ['./src/index.ts'],
   devtool: env.development ? 'eval-source-map' : false,
   devServer: {
-    port: 1234,
+    port: 8090,
     hot: true,
+    proxy: {
+      '/api': 'http://127.0.0.1:8080/',
+    },
     historyApiFallback: true,
   },
   optimization: {

@@ -96,11 +96,22 @@ footer {
   opacity: 0.8;
 }
 
-main {
+@mixin content-section-padding {
+  padding-right: 2rem;
+  padding-left: 2rem;
+
+  @media screen and (min-width: responsive.$break-mobile) {
+    padding-right: 4rem;
+    padding-left: 4rem;
+  }
+}
+
+%content-section {
   width: 50rem;
   max-width: 100%;
-  margin: 0 auto;
-  padding: 3rem 2rem;
+  margin: 2rem auto;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
   background-color: var(--background);
   border: 1px solid hsla(0, 0%, 50%, 50%); // 50% grey
   border-width: 1px 0;
@@ -109,9 +120,11 @@ main {
     border-width: 1px;
   }
 
-  @media screen and (min-width: responsive.$break-mobile) {
-    padding: 3rem 4rem;
-  }
+  @include content-section-padding();
+}
+
+main {
+  @extend %content-section;
 }
 
 .hero {
