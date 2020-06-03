@@ -1,12 +1,25 @@
 #project-section {
   display: flex;
   flex-flow: row nowrap;
-  overflow: auto;
+  margin: 0 -2rem;
+  padding: 1rem 0 2rem;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scroll-snap-stop: always;
+  scroll-padding: 50%;
 }
 
 .project-item {
   display: inline-block;
   flex-shrink: 0;
   width: 100vw;
-  max-width: min(100%, 40rem);
+  max-width: 30rem;
+  margin: 0 1rem;
+  padding: 1rem;
+  scroll-snap-align: center;
+
+  // TODO: change when PR #17 merges
+  // background: var(--background-saturated);
+  background: white;
+  box-shadow: 0 0 4pt rgba(0, 0, 0, 0.25);
 }
