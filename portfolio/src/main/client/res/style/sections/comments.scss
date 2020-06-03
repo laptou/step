@@ -10,14 +10,11 @@
   list-style: none;
 
   h3 {
-    @include index.content-section-padding();
-    margin-bottom: 2rem;
+    padding: 0 var(--page-padding) 2rem;
   }
 
   .comment {
-    @include index.content-section-padding();
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem var(--page-padding);
     border-color: hsla(0, 0%, 50%, 50%); // 50% grey
     border-style: solid;
     border-width: 1px 0 0;

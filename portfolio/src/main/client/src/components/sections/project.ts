@@ -2,6 +2,7 @@ import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
 import {ResponsiveImageInfo} from '../controls/responsive-image';
 import {ReadMore} from '../controls/readmore';
+import '@res/style/sections/project.scss';
 
 /**
  * Project information as translated by frontmatter-markdown-loader.
@@ -27,7 +28,7 @@ export interface ProjectInfo {
   html: string;
 }
 
-const projectContext = require.context('@res/text/code', false);
+const projectContext = require.context('@res/text/project', false);
 const projectInfos = projectContext
   .keys()
   .map((key) => ({key, info: projectContext(key) as ProjectInfo}));
@@ -40,12 +41,12 @@ export const ProjectSection = (): HTMLElement =>
 
 export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
-  <section class="code-section">
+  <div class="project-item">
     <div class="content">
       <h3>${info.attributes.name}</h3>
       ${ReadMore(info.html)}
     </div>
-  </section>`;
+  </div>`;
 
   return section;
 };

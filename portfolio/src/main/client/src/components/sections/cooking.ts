@@ -1,6 +1,7 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
 import {ResponsiveImageInfo} from '../controls/responsive-image';
+import '@res/style/sections/cooking.scss';
 
 export interface DishInfo {
   attributes: { name: string; image?: string };
