@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 100 100" width="100" height="100">
+    <text id="shame" fill="rgba(255, 0, 0, 0.5)" font-family="sans-serif" x="0" y="0" text-anchor="middle" alignment-baseline="middle">SHAME</text>
+    <use xlink:href="#shame" x="100" y="0" />
+    <use xlink:href="#shame" x="50" y="50" />
+    <use xlink:href="#shame" x="0" y="100" />
+    <use xlink:href="#shame" x="100" y="100" />
+</svg>

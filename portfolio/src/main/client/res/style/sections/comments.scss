@@ -22,10 +22,29 @@
     @include index.content-section-padding();
     padding-top: 1rem;
     padding-bottom: 1rem;
-    overflow: hidden;
     border-color: hsla(0, 0%, 50%, 50%); // 50% grey
     border-style: dashed;
     border-width: 0 0 1px;
+
+    .inner {
+      margin: -0.5rem;
+      padding: 0.5rem;
+      background-color: var(--background);
+    }
+
+    &.shameful {
+      background-color: hsla(0, 100%, 50%, 25%); // 50% transparent red
+      background-image: url('~@res/img/site/shame.svg');
+
+      .inner::after {
+        display: block;
+        margin-top: 1rem;
+        font-size: 0.9em;
+        font-style: italic;
+        opacity: 0.8;
+        content: 'Look at this fool, they tried to do HTML injection on my website!';
+      }
+    }
 
     .name {
       font-weight: bold;
@@ -39,6 +58,17 @@
 
     .downvotes {
       opacity: 0.5;
+    }
+
+    .content {
+      overflow: hidden;
+    }
+
+    .expander {
+      margin-top: 1rem;
+      font-size: 0.9em;
+      font-style: italic;
+      opacity: 0.8;
     }
   }
 
