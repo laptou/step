@@ -4,9 +4,6 @@
 $accent-interactive: hsl(200, 75%, 50%);
 $accent-interactive-hover: color.scale($accent-interactive, $lightness: 20%);
 
-@debug $accent-interactive;
-@debug $accent-interactive-hover;
-
 button {
   --accent: #{$accent-interactive};
 
