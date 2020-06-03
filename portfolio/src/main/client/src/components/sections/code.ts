@@ -8,7 +8,7 @@ export interface ProjectInfo {
   html: string;
 }
 
-export const CookingSection = (info: ProjectInfo): HTMLElement => {
+export const CodeSection = (info: ProjectInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
   <section class="code-section">
     <div class="content">

@@ -4,6 +4,7 @@ import {Footer} from '../footer';
 import {ThemeSwitcher} from '../controls/theme-switcher';
 import '@res/style/pages/index.scss';
 import { CommentSection } from '../sections/comments';
+import { CodeSection } from '../sections/code';
 
 export const IndexPage = (): Node[] => {
   // get list of files in res/text/dish folder as webpack context
@@ -43,6 +44,7 @@ export const IndexPage = (): Node[] => {
       You want my resume? 
       <a href="${require('@res/dl/resume.pdf').default}">Here you go</a>.
     </p>
+    ${CodeSection(require('@res/text/code/rain-2d.md'))}
     <h2>Cooking</h2>
     <p>
       I know, we're in quarantine, everyone is cooking and baking. But look at 

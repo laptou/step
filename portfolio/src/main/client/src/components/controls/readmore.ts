@@ -1,4 +1,5 @@
 import {htmlElement, Renderable} from '@src/util/html';
+import '@res/style/controls/readmore.scss';
 
 export const ReadMore = (content: Renderable): HTMLElement => {
   const contentEl: HTMLElement =
@@ -9,8 +10,11 @@ export const ReadMore = (content: Renderable): HTMLElement => {
   expanderEl.addEventListener('click', () => {
     if (!contentEl.classList.contains('collapsed')) {
       contentEl.classList.add('collapsed');
+      contentEl.style.maxHeight = '';
+
       expanderEl.innerText = 'see more';
     } else {
+      contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
       contentEl.classList.remove('collapsed');
       expanderEl.innerText = 'see less';
     }
