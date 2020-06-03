@@ -3,6 +3,7 @@ import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 
 type Cursor = string;
+type CommentPageStack = [null, ...Cursor[]];
 
 export interface CommentInfo {
   id: number;
@@ -13,7 +14,7 @@ export interface CommentInfo {
   downvotes: number;
 }
 
-export interface CommentData {
+export interface CommentPage {
   comments: CommentInfo[];
   next: Cursor;
 }
@@ -33,7 +34,7 @@ async function load(
   const response = cursor ?
     await fetch(`/api/comments?limit=${limit}&cursor=${cursor}`) :
     await fetch(`/api/comments?limit=${limit}`);
-  const data = await response.json() as CommentData;
+  const data = await response.json() as CommentPage;
   const comments = data.comments.map(Comment);
 
   const listEl = el.getElementsByTagName('ul')[0];
@@ -57,7 +58,7 @@ async function load(
  */
 async function loadCurrentPage(
   el: HTMLElement,
-  pages: [null, ...string[]],
+  pages: CommentPageStack,
   limit: number
 ) {
   // if pages.length is less than 2, then no page
@@ -79,7 +80,7 @@ async function loadCurrentPage(
  */
 async function loadNextPage(
   el: HTMLElement,
-  pages: [null, ...string[]],
+  pages: CommentPageStack,
   limit: number
 ) {
   const result = await load(el, pages[pages.length - 1], limit);
@@ -95,7 +96,7 @@ async function loadNextPage(
  */
 async function loadPreviousPage(
   el: HTMLElement,
-  pages: [null, ...string[]],
+  pages: CommentPageStack,
   limit: number
 ) {
   pages.pop();
@@ -162,7 +163,7 @@ const CommentEmptyState = (): HTMLElement => {
 };
 
 export const CommentSection = (): HTMLElement => {
-  const pages: [null, ...string[]] = [null];
+  const pages: CommentPageStack = [null];
 
   const limit = 10;
 
