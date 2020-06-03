@@ -7,14 +7,34 @@ export interface DishInfo {
   html: string;
 }
 
-export const CookingSection = (info: DishInfo): HTMLElement => {
+// get list of files in res/text/dish folder as webpack context
+const dishContext = require.context('@res/text/dish', false);
+
+// load each file from the context these are markdown files that are
+// transformed into JS objects via frontmatter-markdown-loader, giving the
+// front matter on property `attributes` and the HTML corresponding to the
+// markdown on property `html`.
+
+// type assertion b/c webpack context returns `any` since it does not know
+// the type of the modules
+const dishInfos = dishContext
+  .keys()
+  .map((key) => dishContext(key) as DishInfo);
+
+export const CookingSection = (): HTMLElement =>
+  htmlElement`
+  <section id="cooking-section">
+    ${dishInfos.map((info) => CookingItem(info))}
+  </section>`;
+
+export const CookingItem = (info: DishInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
-  <section class="cooking-section">
+  <div class="cooking-item">
     <div class="content">
       <h3>${info.attributes.name}</h3>
       ${info.html}
     </div>
-  </section>`;
+  </div>`;
 
   if (info.attributes.image) {
     const src = require(
