@@ -1,29 +1,41 @@
 import {htmlElement, Renderable} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
+import {Component} from '..';
 
-export const ReadMore = (content: Renderable): HTMLElement => {
-  const contentEl: HTMLElement =
-    htmlElement`<div class="content collapsed">${content}</div>`;
-  const expanderEl: HTMLElement =
-    htmlElement`<a href="javascript: void 0" class="expander">see more</a>`;
+/**
+ * Creates a readmore, which can be expanded to show all of its content.
+ */
+export class ReadMore implements Component {
+  private readonly _el: HTMLDivElement;
+  private _expanded = false;
 
-  expanderEl.addEventListener('click', () => {
-    if (!contentEl.classList.contains('collapsed')) {
-      contentEl.classList.add('collapsed');
+  /**
+   * @param content The content of this readmore.
+   */
+  public constructor(content: Renderable) {
+    this._el =
+      htmlElement`<div class="readmore collapsed">${content}</div>`;
+  }
+
+  public get content(): Renderable {
+    return this._el;
+  }
+
+  public get expanded(): boolean {
+    return this._expanded;
+  }
+
+  public set expanded(val: boolean) {
+    this._expanded = val;
+
+    if (!val) {
+      this._el.classList.add('collapsed');
       // let CSS transition max height from whatever it was to 0
-      contentEl.style.maxHeight = '';
-      expanderEl.innerText = 'see more';
+      this._el.style.maxHeight = '';
     } else {
       // this makes the CSS transition work, gracefully scaling from 100% to 0
-      contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
-      contentEl.classList.remove('collapsed');
-      expanderEl.innerText = 'see less';
+      this._el.style.maxHeight = `${this._el.scrollHeight}px`;
+      this._el.classList.remove('collapsed');
     }
-  });
-
-  return htmlElement`
-    <div class="readmore">
-      ${contentEl}
-      ${expanderEl}
-    </div>`;
-};
+  }
+}

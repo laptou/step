@@ -4,7 +4,7 @@ import {Footer} from '../footer';
 import {ThemeSwitcher} from '../controls/theme-switcher';
 import '@res/style/pages/index.scss';
 import {CommentSection} from '../sections/comments';
-import { ProjectSection } from '../sections/project';
+import {ProjectSection} from '../sections/project';
 
 export const IndexPage = (): Node[] => {
   return htmlFragment`

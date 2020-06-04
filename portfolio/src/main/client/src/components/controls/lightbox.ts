@@ -4,6 +4,7 @@ import '@res/style/controls/lightbox.scss';
 export interface LightboxItemProps {
   /** The element to place in the lightbox. */
   target: HTMLElement;
+
   /**
    * If true, the element will appear in the same position in the lightbox as it
    * did on the page. The position will automatically be adjusted to fit in the
@@ -17,7 +18,8 @@ const shim = document.createElement('div');
 /**
  * Shows the lightbox with the given element. Has no effect
  * if this element is already in the lightbox.
- * @param target The element to show in the lightbox.
+ *
+ * @param options The lightbox options.
  */
 function showLightbox({target, preservePosition}: LightboxItemProps) {
   hideLightbox();
@@ -89,16 +91,19 @@ function hideLightbox() {
 
 
   const lbItem = shim.parentElement!;
-  lbItem.dispatchEvent(new CustomEvent('lightbox:hide'));
+  lbItem.dispatchEvent(new CustomEvent('lightbox-hide'));
 
   shim.replaceWith(target);
   lightbox.classList.remove('active');
 }
 
 /**
+ * An item that contaisn a target. When this item is clicked, the target will be
+ * displayed in the lightbox.
+ *
  * @param props _
- * @event lightbox:show Fired when this item is shown in the lightbox.
- * @event lightbox:hide Fired when this item is hidden from the lightbox.
+ * @event lightbox-show Fired when this item is shown in the lightbox.
+ * @event lightbox-hide Fired when this item is hidden from the lightbox.
  * @returns A lightbox item which wraps `target`.
  */
 export const LightboxItem = (props: LightboxItemProps): HTMLElement => {
@@ -109,7 +114,7 @@ export const LightboxItem = (props: LightboxItemProps): HTMLElement => {
 
   lbItem.addEventListener('click', () => {
     showLightbox(props);
-    lbItem.dispatchEvent(new CustomEvent('lightbox:show'));
+    lbItem.dispatchEvent(new CustomEvent('lightbox-show'));
   });
 
   return lbItem;

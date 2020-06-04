@@ -3,6 +3,8 @@ import type {Arrunk} from './types';
 export type Renderable = Arrunk<string | Node | null | undefined>;
 
 /**
+ * Gets the sentinel for an item.
+ *
  * @param item The item to get the sentinel value for.
  * @param idx The index of the item within the items array.
  * @returns The sentinel value.
@@ -36,14 +38,16 @@ function getSentinel(
  *
  * You can also interpolate arrays of HTML elements or strings.
  *
+ * @param fragments
+ * @param items
  * @returns The HTML elements.
  */
 export function htmlFragment(
   fragments: TemplateStringsArray,
-  ...items: Renderable[]): Node[] {
+  ...items: Array<Renderable | Component>): Node[] {
   // combine items first so that arrays can be flattened
   // without messing up indices
-  const combined: Renderable[] = [fragments[0]];
+  const combined: Array<Renderable | Component> = [fragments[0]];
 
   for (let i = 0; i < items.length; i++) {
     combined.push(items[i]);
@@ -54,7 +58,9 @@ export function htmlFragment(
   // undefined from the array
   const flattened = combined
     .flat()
+    .map((r: Node | string | null) => r instanceof Component ? r.render() : r)
     .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
+
   const markup = flattened.map(getSentinel).join('');
   const template = document.createElement('template');
   template.innerHTML = markup.trim();
@@ -78,11 +84,14 @@ export function htmlFragment(
  * ```
  * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
+ *
+ * @param fragments
+ * @param items
  * @returns The HTML element.
  */
 export function htmlElement<T extends Node>(
   fragments: TemplateStringsArray,
-  ...items: Renderable[]
+  ...items: Array<Renderable | Component>
 ): T {
   const result = htmlFragment(fragments, ...items);
   if (result.length !== 1) {

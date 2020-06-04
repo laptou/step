@@ -15,6 +15,7 @@ export interface CommentInfo {
 
 /**
  * Loads comments from server and adds them to the component.
+ *
  * @param el The element to load the comments into.
  */
 async function load(el: HTMLElement) {
