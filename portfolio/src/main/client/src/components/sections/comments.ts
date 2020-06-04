@@ -179,15 +179,15 @@ const Comment = (comment: CommentInfo): HTMLElement => {
 
     let isTruncated = true;
     truncatedContentExpander.addEventListener('click', () => {
+      isTruncated = !isTruncated;
+
       if (isTruncated) {
-        truncatedContentEl!.replaceWith(contentEl);
-        truncatedContentExpander!.innerText = 'see less';
-      } else {
         contentEl.replaceWith(truncatedContentEl!);
         truncatedContentExpander!.innerText = 'see more';
+      } else {
+        truncatedContentEl!.replaceWith(contentEl);
+        truncatedContentExpander!.innerText = 'see less';
       }
-
-      isTruncated = !isTruncated;
     });
   }
 
