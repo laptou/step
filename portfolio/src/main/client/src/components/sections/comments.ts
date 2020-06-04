@@ -210,9 +210,7 @@ const Comment = (comment: CommentInfo): HTMLElement => {
       </div>
     </li>`;
 
-  if (comment.shameful) {
-    commentEl.classList.add('shameful');
-  }
+  commentEl.classList.toggle('shameful', comment.shameful);
 
   return commentEl;
 };
