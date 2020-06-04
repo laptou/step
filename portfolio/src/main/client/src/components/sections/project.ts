@@ -1,6 +1,5 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
-import {ResponsiveImageInfo} from '../controls/responsive-image';
 import {ReadMore} from '../controls/readmore';
 import '@res/style/sections/project.scss';
 
@@ -42,9 +41,8 @@ export const ProjectSection = (): HTMLElement =>
   </section>`;
 
 export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const section: HTMLElement = htmlElement`
-  <div class="project-item">
-    <div class="content">
+  const content = htmlElement`
+    <div class="project-content">
       <h3>${info.attributes.name}</h3>
       <ul class="project-stats">
         <!-- don't nit me, if I put any whitespace in this line it will mess
@@ -52,7 +50,11 @@ export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
         <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
       </ul>
       ${ReadMore(info.html)}
-    </div>
+    </div>`;
+
+  const section: HTMLElement = htmlElement`
+  <div class="project-item">
+    ${LightboxItem({target: content})}
   </div>`;
 
   return section;

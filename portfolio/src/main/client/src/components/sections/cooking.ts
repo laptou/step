@@ -1,6 +1,9 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
-import {ResponsiveImageInfo, ResponsiveImage} from '../controls/responsive-image';
+import {
+  ResponsiveImageInfo,
+  ResponsiveImage,
+} from '../controls/responsive-image';
 import '@res/style/sections/cooking.scss';
 
 export interface DishInfo {

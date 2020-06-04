@@ -42,13 +42,11 @@ export const LightboxItem = ({target}: LightboxItemProps): HTMLElement => {
   return lbItem;
 };
 
-const lightboxImg = document.createElement('img');
-lightboxImg.addEventListener('click', (e) => e.stopPropagation());
-
 const lightboxCloseBtn = htmlElement`<button id="lightbox-close">Close</button>`;
 lightboxCloseBtn.addEventListener('click', hideLightbox);
 
 const lightboxContent = htmlElement`<div id="lightbox-content"></div>`;
+lightboxContent.addEventListener('click', (e) => e.stopPropagation());
 
 const lightbox: HTMLDivElement = htmlElement`
   <div id="lightbox">
