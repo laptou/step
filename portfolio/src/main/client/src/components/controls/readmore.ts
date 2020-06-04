@@ -10,10 +10,11 @@ export const ReadMore = (content: Renderable): HTMLElement => {
   expanderEl.addEventListener('click', () => {
     if (!contentEl.classList.contains('collapsed')) {
       contentEl.classList.add('collapsed');
+      // let CSS transition max height from whatever it was to 0
       contentEl.style.maxHeight = '';
-
       expanderEl.innerText = 'see more';
     } else {
+      // this makes the CSS transition work, gracefully scaling from 100% to 0
       contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
       contentEl.classList.remove('collapsed');
       expanderEl.innerText = 'see less';

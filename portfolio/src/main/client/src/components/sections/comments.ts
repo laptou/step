@@ -1,6 +1,9 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 
+/**
+ * Information about a comment returned by the server.
+ */
 export interface CommentInfo {
   id: number;
   name: string;
