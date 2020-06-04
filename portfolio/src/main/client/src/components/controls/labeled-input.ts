@@ -1,5 +1,8 @@
 import {htmlElement, htmlFragment} from '@src/util/html';
 
+/**
+ * Options for labeled inputs.
+ */
 export interface LabeledInputOptions {
   /**
    * The label. Will be shown as a placeholder when the textbox is empty, and
