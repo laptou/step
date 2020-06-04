@@ -1,7 +1,5 @@
 @use 'responsive';
 @use 'theme';
-@use 'text';
-@use 'ui';
 
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Serif&display=swap');
 
@@ -21,6 +19,63 @@ body {
 
 * {
   box-sizing: border-box;
+}
+
+/* text */
+
+h1, h2, h3, h4, code, pre, button {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+h1, h2 {
+  margin: 0 0 0.5em;
+  line-height: 1.5;
+}
+
+h3, h4 {
+  margin: 0 0 0.5em;
+  line-height: 1.25;
+}
+
+p {
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+a {
+  color: hsl(0, 75%, 50%); // muted red
+  text-decoration-style: dotted;
+}
+
+a:hover, a:focus {
+  color: hsl(25, 100%, 50%); // bright orange
+  text-decoration-style: solid;
+  outline: none;
+}
+
+a:visited, a:active {
+  color: hsl(0, 100%, 50%); // bright red
+  text-decoration-style: dashed;
+}
+
+/* ui */
+
+button {
+  --accent: hsl(200, 75%, 50%);
+
+  padding: 0.5rem 1rem;
+  color: var(--accent);
+  background: var(--background);
+  border: 1pt var(--accent) dashed;
+  box-shadow: 0 0 1pt rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+button:hover, button:focus {
+  --accent: hsl(200, 100%, 60%);
+  border-style: solid;
+  outline: none;
+  box-shadow: 0 0 2pt rgba(0, 0, 0, 0.25);
 }
 
 /* sections */

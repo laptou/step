@@ -5,17 +5,13 @@
   @extend %content-section;
 
   padding-right: 0;
-  padding-bottom: 2rem;
+  padding-bottom: 1rem;
   padding-left: 0;
-  
-  h2 {
-    @include index.content-section-padding();
-    margin-bottom: 1rem;
-  }
+  list-style: none;
 
-  ul {
-    padding: 0;
-    list-style: none;
+  h3 {
+    @include index.content-section-padding();
+    margin-bottom: 2rem;
   }
 
   .comment {
@@ -23,8 +19,8 @@
     padding-top: 1rem;
     padding-bottom: 1rem;
     border-color: hsla(0, 0%, 50%, 50%); // 50% grey
-    border-style: dashed;
-    border-width: 0 0 1px;
+    border-style: solid;
+    border-width: 1px 0 0;
 
     .name {
       font-weight: bold;
@@ -38,18 +34,6 @@
 
     .downvotes {
       opacity: 0.5;
-    }
-  }
-
-  form {
-    @include index.content-section-padding();
-    display: flex;
-    flex-direction: column;
-    padding: 0 2rem;
-
-    #comment-submit {
-      align-self: flex-end;
-      margin: 2rem 0;
     }
   }
 }

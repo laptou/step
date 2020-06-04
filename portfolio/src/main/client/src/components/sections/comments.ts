@@ -1,6 +1,5 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
-import {LabeledInput} from '../controls/labeled-input';
 
 export interface CommentInfo {
   id: number;
@@ -73,19 +72,10 @@ const Comment = (comment: CommentInfo): HTMLElement => {
 export const CommentSection = (): HTMLElement => {
   const form: HTMLFormElement = htmlElement`
     <form>
-      ${LabeledInput({
-        id: 'comment-username',
-        label: 'Name',
-        name: 'username',
-        type: 'text',
-      })}
-      ${LabeledInput({
-        id: 'comment-content',
-        label: 'Comment',
-        name: 'content',
-        type: 'textarea',
-      })}
-      <button id="comment-submit" type="submit">
+      <input id="username" name="username" type="text" />
+      <textarea name="content">
+      </textarea>
+      <button type="submit">
         Comment
       </button>
     </form>`;
@@ -97,7 +87,7 @@ export const CommentSection = (): HTMLElement => {
 
   const el: HTMLElement = htmlElement`
     <div class="comments">
-      <h2>Comments</h2>
+      <h3>Comments</h3>
       <ul>
       </ul>
       ${form}
