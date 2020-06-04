@@ -13,10 +13,13 @@ export interface ProjectInfo {
   attributes: {
     /** Name of the project. */
     name: string;
+
     /** Programming languages used. */
     languages: string[];
+
     /** Technologies used. */
     technologies: string[];
+
     /** Year I started this project. */
     year: number;
   };
@@ -41,6 +44,7 @@ export const ProjectSection = (): HTMLElement =>
   </section>`;
 
 export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
+  const {el: readMoreEl, collapse, expand} = ReadMore(info.html);
   const content: HTMLElement = htmlElement`
     <div class="project-content">
       <h3>${info.attributes.name}</h3>
@@ -49,13 +53,20 @@ export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
              up the presentation -->
         <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
       </ul>
-      ${ReadMore(info.html)}
+      ${readMoreEl}
     </div>`;
 
+  const lightboxItemEl = LightboxItem({
+    target: content,
+    preservePosition: true,
+  });
+  lightboxItemEl.addEventListener('lightbox-show', () => expand());
+  lightboxItemEl.addEventListener('lightbox-hide', () => collapse());
+
   const section: HTMLElement = htmlElement`
-  <div class="project-item">
-    ${LightboxItem({target: content, preservePosition: true})}
-  </div>`;
+    <div class="project-item">
+      ${lightboxItemEl}
+    </div>`;
 
   return section;
 };

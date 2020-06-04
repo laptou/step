@@ -18,14 +18,18 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 /**
- * @typedef {Object} Env
- * @property {Boolean} development Whether we are running in a dev environment.
- * @property {Boolean} production Whether we are running in a prod environment.
- * @property {Boolean} analyze Whether to perform bundle size analysis.
+ * @typedef {object} Env
+ * @property {boolean} development Whether we are running in a dev environment.
+ * @property {boolean} production Whether we are running in a prod environment.
+ * @property {boolean} analyze Whether to perform bundle size analysis.
  */
 
-/** @param {Env} env Current environment.
- *  @return {webpack.Configuration} config */
+/**
+ * Returns Webpack configuration.
+ *
+ * @param env Current environment.
+ * @returns config
+ */
 exports.default = (env = {production: true}) => ({
   context: __dirname,
   entry: ['./src/index.ts'],
