@@ -175,8 +175,8 @@ public class CommentServlet extends HttpServlet {
   protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
       throws ServletException, IOException {
     // TODO implement authentication
-
-    if (true) {
+    boolean authenticated = false;
+    if (!authenticated) {
       resp.setStatus(401);
       return;
     }
