@@ -24,11 +24,13 @@
   }
 
   #lightbox-content {
+    position: relative;
     display: flex;
+    align-content: center;
     justify-content: center;
     height: 100%;
     pointer-events: none;
-
+    
     * {
       pointer-events: auto;
     }

@@ -41,7 +41,7 @@ export const ProjectSection = (): HTMLElement =>
   </section>`;
 
 export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const content = htmlElement`
+  const content: HTMLElement = htmlElement`
     <div class="project-content">
       <h3>${info.attributes.name}</h3>
       <ul class="project-stats">
@@ -54,7 +54,7 @@ export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
 
   const section: HTMLElement = htmlElement`
   <div class="project-item">
-    ${LightboxItem({target: content})}
+    ${LightboxItem({target: content, preservePosition: true})}
   </div>`;
 
   return section;
