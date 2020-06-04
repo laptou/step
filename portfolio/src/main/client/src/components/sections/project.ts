@@ -31,16 +31,23 @@ export interface ProjectInfo {
 const projectContext = require.context('@res/text/project', false);
 const projectInfos = projectContext
   .keys()
-  .map((key) => ({key, info: projectContext(key) as ProjectInfo}));
+  .map((key) => ({key, info: projectContext(key) as ProjectInfo}))
+  .sort((a, b) =>
+    a.info.attributes.year <= b.info.attributes.year ? 1 : -1);
 
 const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
-    <section class="code-section">
-      <div class="content">
-        <h3>${info.attributes.name}</h3>
-        ${ReadMore(info.html)}
-      </div>
-    </section>`;
+      <div class="project-item">
+        <div class="content">
+          <h3>${info.attributes.name}</h3>
+          <ul class="project-stats">
+            <!-- don't nit me, if I put any whitespace in this line it will mess
+                 up the presentation -->
+            <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
+          </ul>
+          ${ReadMore(info.html)}
+        </div>
+      </div>`;
 
   return section;
 };
@@ -53,4 +60,3 @@ export const ProjectSection = (): HTMLElement =>
   <section id="project-section">
     ${projectInfos.map(({key, info}) => ProjectItem(key, info))}
   </section>`;
-
