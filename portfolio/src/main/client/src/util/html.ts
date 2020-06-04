@@ -38,16 +38,16 @@ function getSentinel(
  *
  * You can also interpolate arrays of HTML elements or strings.
  *
- * @param fragments
- * @param items
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML elements.
  */
 export function htmlFragment(
   fragments: TemplateStringsArray,
-  ...items: Array<Renderable | Component>): Node[] {
+  ...items: Renderable[]): Node[] {
   // combine items first so that arrays can be flattened
   // without messing up indices
-  const combined: Array<Renderable | Component> = [fragments[0]];
+  const combined: Renderable[] = [fragments[0]];
 
   for (let i = 0; i < items.length; i++) {
     combined.push(items[i]);
@@ -58,7 +58,6 @@ export function htmlFragment(
   // undefined from the array
   const flattened = combined
     .flat()
-    .map((r: Node | string | null) => r instanceof Component ? r.render() : r)
     .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
 
   const markup = flattened.map(getSentinel).join('');
@@ -85,13 +84,13 @@ export function htmlFragment(
  * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
  *
- * @param fragments
- * @param items
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML element.
  */
 export function htmlElement<T extends Node>(
   fragments: TemplateStringsArray,
-  ...items: Array<Renderable | Component>
+  ...items: Renderable[]
 ): T {
   const result = htmlFragment(fragments, ...items);
   if (result.length !== 1) {
