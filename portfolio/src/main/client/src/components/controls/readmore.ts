@@ -13,39 +13,30 @@ export interface ReadMoreComponent {
 }
 
 export const ReadMore = (content: Renderable): ReadMoreComponent => {
-  const contentEl: HTMLElement =
-    htmlElement`<div class="content collapsed">${content}</div>`;
-  const expanderEl: HTMLElement =
-    htmlElement`<a href="javascript: void 0" class="expander">see more</a>`;
+  const contentEl: HTMLDivElement =
+    htmlElement`<div class="readmore collapsed">${content}</div>`;
 
   const collapse = () => {
+    if (contentEl.classList.contains('collapsed')) return;
+
     contentEl.classList.add('collapsed');
+
     // let CSS transition max height from whatever it was to 0
     contentEl.style.maxHeight = '';
-    expanderEl.innerText = 'see more';
+    contentEl.dispatchEvent(new Event('readmore-collapse'));
   };
 
   const expand = () => {
+    if (!contentEl.classList.contains('collapsed')) return;
+
     // this makes the CSS transition work, gracefully scaling from 100% to 0
     contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
     contentEl.classList.remove('collapsed');
-    expanderEl.innerText = 'see less';
+    contentEl.dispatchEvent(new Event('readmore-expand'));
   };
 
-  expanderEl.addEventListener('click', () => {
-    if (!contentEl.classList.contains('collapsed')) {
-      collapse();
-    } else {
-      expand();
-    }
-  });
-
   return {
-    el: htmlElement`
-      <div class="readmore">
-        ${contentEl}
-        ${expanderEl}
-      </div>`,
+    el: contentEl,
     collapse,
     expand,
   };

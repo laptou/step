@@ -13,22 +13,24 @@ export interface LightboxItemProps {
   preservePosition?: boolean | { x: boolean; y: boolean; };
 }
 
-const shim = document.createElement('div');
+let currentItem: HTMLElement | null = null;
+const placeholder = document.createElement('div');
 
 /**
  * Shows the lightbox with the given element. Has no effect
  * if this element is already in the lightbox.
  *
+ * @param el The lightbox item that is to be shown.
  * @param options The lightbox options.
  */
-function showLightbox({target, preservePosition}: LightboxItemProps) {
-  hideLightbox();
+function showLightbox(el: HTMLElement, {target, preservePosition}: LightboxItemProps) {
+  if (el === currentItem) return;
 
   const lightboxBounds = lightboxContent.getBoundingClientRect();
   const targetBounds = target.getBoundingClientRect();
-  shim.style.width = `${targetBounds.width}px`;
-  shim.style.height = `${targetBounds.height}px`;
-  target.replaceWith(shim);
+  placeholder.style.width = `${targetBounds.width}px`;
+  placeholder.style.height = `${targetBounds.height}px`;
+  target.replaceWith(placeholder);
 
   const {x: preserveX, y: preserveY} =
     typeof preservePosition === 'object' ?
@@ -73,14 +75,19 @@ function showLightbox({target, preservePosition}: LightboxItemProps) {
 
   lightboxContent.appendChild(target);
   lightbox.classList.add('active');
+  currentItem = el;
+  el.dispatchEvent(new CustomEvent('lightbox-show'));
 }
 
 /**
  * Hides the lightbox. Has no effect if the lightbox is not open.
+ *
+ * @param el The lightbox item that is to be hidden.
  */
-function hideLightbox() {
+function hideLightbox(el: HTMLElement) {
   const target = lightboxContent.firstChild as (HTMLElement | null);
   if (!target) return;
+  if (el !== currentItem) return;
 
   // reset any preservePosition styles
   target.style.position = '';
@@ -89,12 +96,30 @@ function hideLightbox() {
   target.style.top = '';
   document.body.style.overflow = '';
 
-
-  const lbItem = shim.parentElement!;
-  lbItem.dispatchEvent(new CustomEvent('lightbox-hide'));
-
-  shim.replaceWith(target);
+  placeholder.replaceWith(target);
   lightbox.classList.remove('active');
+  currentItem = null;
+  el.dispatchEvent(new CustomEvent('lightbox-hide'));
+}
+
+/**
+ * Hides the currently displayed lightbox item.
+ */
+function hideCurrentLightbox() {
+  if (currentItem) {
+    hideLightbox(currentItem);
+  }
+}
+
+interface LightboxItemComponent {
+  /** The lightbox item. */
+  el: HTMLDivElement;
+
+  /** Shows the target in the lightbox. */
+  show(): void;
+
+  /** Dismisses the lightbox. */
+  hide(): void;
 }
 
 /**
@@ -106,23 +131,27 @@ function hideLightbox() {
  * @event lightbox-hide Fired when this item is hidden from the lightbox.
  * @returns A lightbox item which wraps `target`.
  */
-export const LightboxItem = (props: LightboxItemProps): HTMLElement => {
-  const lbItem: HTMLDivElement = htmlElement`
-    <div class='lightbox-item'>
-      ${props.target}
-    </div>`;
+export const LightboxItem =
+  (props: LightboxItemProps): LightboxItemComponent => {
+    const lbItem: HTMLDivElement = htmlElement`
+      <div class='lightbox-item'>
+        ${props.target}
+      </div>`;
 
-  lbItem.addEventListener('click', () => {
-    showLightbox(props);
-    lbItem.dispatchEvent(new CustomEvent('lightbox-show'));
-  });
+    lbItem.addEventListener('click', () => {
+      showLightbox(lbItem, props);
+    });
 
-  return lbItem;
-};
+    return {
+      el: lbItem,
+      show: (): void => showLightbox(lbItem, props),
+      hide: (): void => hideLightbox(lbItem),
+    };
+  };
 
 const lightboxCloseBtn: HTMLElement =
   htmlElement`<button id="lightbox-close">Close</button>`;
-lightboxCloseBtn.addEventListener('click', hideLightbox);
+lightboxCloseBtn.addEventListener('click', hideCurrentLightbox);
 
 const lightboxContent: HTMLElement =
   htmlElement`<div id="lightbox-content"></div>`;
@@ -134,11 +163,11 @@ const lightbox: HTMLDivElement = htmlElement`
     ${lightboxContent}
   </div>`;
 
-lightbox.addEventListener('click', hideLightbox);
+lightbox.addEventListener('click', hideCurrentLightbox);
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  hideLightbox();
+  hideCurrentLightbox();
 });
 
 export const Lightbox = (): HTMLElement => lightbox;

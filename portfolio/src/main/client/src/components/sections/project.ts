@@ -56,10 +56,14 @@ export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
       ${readMoreEl}
     </div>`;
 
-  const lightboxItemEl = LightboxItem({
+  const {el: lightboxItemEl, show, hide} = LightboxItem({
     target: content,
     preservePosition: true,
   });
+
+  readMoreEl.addEventListener('readmore-expand', () => show());
+  readMoreEl.addEventListener('readmore-collapse', () => hide());
+
   lightboxItemEl.addEventListener('lightbox-show', () => expand());
   lightboxItemEl.addEventListener('lightbox-hide', () => collapse());
 

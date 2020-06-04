@@ -57,7 +57,7 @@ export const CookingItem = (info: DishInfo): HTMLElement => {
     <div class="thumbnail">
       ${LightboxItem({
         target: img,
-      })}
+      }).el}
     </div>`;
 
     section.insertBefore(thumbnail, section.firstChild);
