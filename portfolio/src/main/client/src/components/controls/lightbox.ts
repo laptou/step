@@ -1,18 +1,24 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/controls/lightbox.scss';
-import {ResponsiveImage, ResponsiveImageInfo} from './responsive-image';
 
 export interface LightboxItemProps {
-  src: string | ResponsiveImageInfo;
-  alt?: string;
+  target: HTMLElement;
+  onshow?: () => void;
+  onhide?: () => void;
 }
 
+const shim = document.createElement('div');
+
 /**
- * Shows the lightbox with the given image.
- * @param uri The URI of the image to be shown.
+ * Shows the lightbox with the given element.
+ * @param target The element to show in the lightbox.
  */
-function showLightbox(uri: string | ResponsiveImageInfo) {
-  lightboxImg.src = uri.toString();
+function showLightbox(target: HTMLElement) {
+  const {width, height} = target.getBoundingClientRect();
+  shim.style.width = `${width}px`;
+  shim.style.height = `${height}px`;
+  target.replaceWith(shim);
+  lightboxContent.appendChild(target);
   lightbox.classList.add('active');
 }
 
@@ -20,16 +26,18 @@ function showLightbox(uri: string | ResponsiveImageInfo) {
  * Hides the lightbox.
  */
 function hideLightbox() {
+  const target = lightboxContent.firstChild as HTMLElement;
+  shim.replaceWith(target);
   lightbox.classList.remove('active');
 }
 
-export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
+export const LightboxItem = ({target}: LightboxItemProps): HTMLElement => {
   const lbItem: HTMLDivElement = htmlElement`
     <div class='lightbox-item'>
-      ${ResponsiveImage({alt, src})}
+      ${target}
     </div>`;
 
-  lbItem.addEventListener('click', () => showLightbox(src));
+  lbItem.addEventListener('click', () => showLightbox(target));
 
   return lbItem;
 };
@@ -37,13 +45,15 @@ export const LightboxItem = ({alt, src}: LightboxItemProps): HTMLElement => {
 const lightboxImg = document.createElement('img');
 lightboxImg.addEventListener('click', (e) => e.stopPropagation());
 
-const lightboxCloseBtn = htmlElement`<button class='close'>Close</button>`;
+const lightboxCloseBtn = htmlElement`<button id="lightbox-close">Close</button>`;
 lightboxCloseBtn.addEventListener('click', hideLightbox);
 
+const lightboxContent = htmlElement`<div id="lightbox-content"></div>`;
+
 const lightbox: HTMLDivElement = htmlElement`
-  <div id='lightbox'>
-    ${lightboxImg}
+  <div id="lightbox">
     ${lightboxCloseBtn}
+    ${lightboxContent}
   </div>`;
 
 lightbox.addEventListener('click', hideLightbox);
