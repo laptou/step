@@ -3,6 +3,11 @@ name: Rain 2D
 languages:
   - C#
 year: 2018
+technologies:
+  - Direct2D
+  - WPF
+links:
+  github: https://github.com/laptou/rain-2d
 ---
 Rain 2D is an SVG graphics editor that I worked on for nearly a year, starting
 in the summer of 2018. I was frustrated with the vector graphics software I had
