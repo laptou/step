@@ -3,12 +3,11 @@ import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 
 type Cursor = string;
-type CommentPageStack = [null, ...Cursor[]];
 
 /**
  * Information about a comment returned by the server.
  */
-export interface CommentInfo {
+export interface CommentData {
   id: number;
   name: string;
   user: string;
@@ -20,36 +19,48 @@ export interface CommentInfo {
 /**
  * A page of comments returned by the server.
  */
-export interface CommentPage {
-  comments: CommentInfo[];
+interface CommentPageData {
+  comments: CommentData[];
 
   /**
-   * The ID of the first comment in the next page. If this is the same as the ID
-   * of any of the comments in this page, that means there are no pages after
-   * this one.
+   * Can be used to fetch the next batch of comments from the server.
    */
-  next: Cursor;
+  nextCommentCursor: Cursor;
 }
 
 /**
+ * A page of comments stored by the client.
+ */
+interface CommentPage extends CommentPageData {
+  previous: CommentPage | null;
+}
+
+let currentPage: CommentPage | null = null;
+
+/**
  * Loads comments from server and adds them to the component.
- * @param el The element to load the comments into.
- * @param cursor Contains the server-provided cursor for the comment at the
- * start of each page. First one must be null because we get the first page by
- * not specifying a cursor.
+ * @param container The element to load the comments into.
+ * @param page The comment page containing the comments.
  * @param limit The number of comments per page.
  */
-async function load(
-  el: HTMLElement,
-  cursor: Cursor | null,
+function updateComments(
+  container: HTMLElement,
+  page: CommentPage | null,
   limit: number) {
-  const response = cursor ?
-    await fetch(`/api/comments?limit=${limit}&cursor=${cursor}`) :
-    await fetch(`/api/comments?limit=${limit}`);
-  const data = await response.json() as CommentPage;
-  const comments = data.comments.map(Comment);
+  const nextBtn = container.querySelector('#comment-next') as HTMLButtonElement;
+  const prevBtn = container.querySelector('#comment-prev') as HTMLButtonElement;
 
-  const listEl = el.getElementsByTagName('ul')[0];
+  if (page) {
+    nextBtn.disabled = page.comments.length < limit;
+    prevBtn.disabled = page.previous === null;
+  } else {
+    prevBtn.disabled = true;
+    return;
+  }
+
+  const comments = page.comments.map(Comment);
+
+  const listEl = container.getElementsByTagName('ul')[0];
   while (listEl.firstChild) listEl.firstChild.remove();
 
   if (comments.length > 0) {
@@ -57,73 +68,95 @@ async function load(
   } else {
     listEl.append(CommentEmptyState());
   }
-
-  return data;
 }
 
 /**
- * Reloads the current page of comments.
- * @param el The element containing the comment list.
- * @param pages The comment page stack.
+ * Fetches the comment page for a given cursor.
+ * @param cursor The cursor of the page to fetch.
+ * @param limit The size of the page.
+ */
+async function fetchPage(
+  cursor: Cursor | null,
+  limit: number):
+  Promise<CommentPageData> {
+  const response = cursor ?
+    await fetch(`/api/comments?limit=${limit}&cursor=${cursor}`) :
+    await fetch(`/api/comments?limit=${limit}`);
+  return response.json() as Promise<CommentPageData>;
+}
+
+/**
+ * Fetches the current page of comments.
+ * @param page The current comment page.
  * @param limit The number of comments per page.
  */
-async function loadCurrentPage(
-  el: HTMLElement,
-  pages: CommentPageStack,
+async function fetchCurrentPage(
+  page: CommentPage | null,
   limit: number
-) {
-  // if pages.length is less than 2, then no page
-  // has been loaded yet
-  if (pages.length < 2) {
+): Promise<CommentPage> {
+  if (page === null) {
     throw new Error('no comments page is currently loaded');
   }
 
-  const result = await load(el, pages[pages.length - 2], limit);
-  pages[pages.length - 1] = result.next;
-  return result;
+  const data = await fetchPage(
+    page.previous ? page.previous.nextCommentCursor : null,
+    limit);
+
+  return {
+    previous: page.previous,
+    ...data,
+  };
 }
 
 /**
- * Loads the next page of comments.
- * @param el The element containing the comment list.
- * @param pages The comment page stack.
+ * Fetches the next page of comments.
+ * @param page The current comment page.
  * @param limit The number of comments per page.
  */
-async function loadNextPage(
-  el: HTMLElement,
-  pages: CommentPageStack,
+async function fetchNextPage(
+  page: CommentPage | null,
   limit: number
-) {
-  const result = await load(el, pages[pages.length - 1], limit);
-  pages.push(result.next);
-  return result;
+): Promise<CommentPage> {
+  if (page === null) {
+    // we are loading the first page
+    const data = await fetchPage(null, limit);
+    return {
+      previous: null,
+      ...data,
+    };
+  } else {
+    const data = await fetchPage(page.nextCommentCursor, limit);
+    return {
+      previous: page,
+      ...data,
+    };
+  }
 }
 
 /**
- * Loads the previous page of comments.
- * @param el The element containing the comment list.
- * @param pages The comment page stack.
+ * Fetches the previous page of comments.
+ * @param page The current comment page.
  * @param limit The number of comments per page.
  */
-async function loadPreviousPage(
-  el: HTMLElement,
-  pages: CommentPageStack,
+async function fetchPreviousPage(
+  page: CommentPage | null,
   limit: number
 ) {
-  pages.pop();
-  return loadCurrentPage(el, pages, limit);
+  if (page === null || page.previous === null) {
+    return null;
+  } else {
+    return fetchCurrentPage(page.previous, limit);
+  }
 }
 
 /**
  * @param commentsEl The element containing the comment list.
  * @param formEl The form to submit.
- * @param pages The comment page stack.
  * @param limit The number of comments per page.
  */
 async function submitForm(
   commentsEl: HTMLElement,
   formEl: HTMLFormElement,
-  pages: [null, ...string[]],
   limit: number) {
   if (!formEl.checkValidity()) {
     formEl.classList.add('show-validation');
@@ -146,10 +179,12 @@ async function submitForm(
     // TODO present toast to user notifying failure
   }
 
-  await loadCurrentPage(commentsEl, pages, limit);
+  // reset to the first page
+  currentPage = await fetchCurrentPage(null, limit);
+  updateComments(commentsEl, currentPage, limit);
 }
 
-const Comment = (comment: CommentInfo): HTMLElement => {
+const Comment = (comment: CommentData): HTMLElement => {
   // user supplied strings cannot be interpolated directly to avoid XSS
   const content: HTMLElement = htmlElement`<div class="content"></div>`;
   content.innerText = comment.content;
@@ -179,8 +214,6 @@ const CommentEmptyState = (): HTMLElement => {
  * @returns The comments section of the page.
  */
 export const CommentSection = (): HTMLElement => {
-  const pages: CommentPageStack = [null];
-
   const limit = 5;
 
   const usernameInput = LabeledInput({
@@ -212,27 +245,16 @@ export const CommentSection = (): HTMLElement => {
 
   formEl.addEventListener('submit', (ev) => {
     ev.preventDefault();
-    void submitForm(commentsEl, formEl, pages, limit);
+    void submitForm(container, formEl, limit);
   });
 
-  const nextBtn: HTMLButtonElement = htmlElement`<button>Next</button>`;
-  const prevBtn: HTMLButtonElement = htmlElement`<button>Previous</button>`;
+  const nextBtn: HTMLButtonElement =
+    htmlElement`<button id="comment-next">Next</button>`;
+  const prevBtn: HTMLButtonElement =
+    htmlElement`<button id="comment-prev">Previous</button>`;
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  nextBtn.addEventListener('click', async () => {
-    const result = await loadNextPage(commentsEl, pages, limit);
-    nextBtn.disabled = result.comments.length < limit;
-    prevBtn.disabled = pages.length <= 2;
-  });
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  prevBtn.addEventListener('click', async () => {
-    await loadPreviousPage(commentsEl, pages, limit);
-    nextBtn.disabled = false;
-    prevBtn.disabled = pages.length <= 2;
-  });
-
-  const commentsEl: HTMLElement = htmlElement`
+  const container: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
       <ul>
@@ -244,11 +266,20 @@ export const CommentSection = (): HTMLElement => {
       ${formEl}
     </div>`;
 
-  void loadNextPage(commentsEl, pages, limit)
-    .then(() => {
-      nextBtn.disabled = false;
-      prevBtn.disabled = pages.length <= 2;
-    });
+  nextBtn.addEventListener('click', async () => {
+    currentPage = await fetchNextPage(currentPage, limit);
+    updateComments(container, currentPage, limit);
+  });
 
-  return commentsEl;
+  prevBtn.addEventListener('click', async () => {
+    currentPage = await fetchPreviousPage(currentPage, limit);
+    updateComments(container, currentPage, limit);
+  });
+
+  void (async () => {
+    currentPage = await fetchNextPage(null, limit);
+    updateComments(container, currentPage, limit);
+  })();
+
+  return container;
 };
