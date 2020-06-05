@@ -82,7 +82,7 @@ async function fetchPage(
   const response = cursor ?
     await fetch(`/api/comments?limit=${limit}&cursor=${cursor}`) :
     await fetch(`/api/comments?limit=${limit}`);
-  return response.json() as Promise<CommentPageData>;
+  return await response.json() as Promise<CommentPageData>;
 }
 
 /**
