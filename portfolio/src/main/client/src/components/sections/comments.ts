@@ -78,12 +78,14 @@ export const CommentSection = (): HTMLElement => {
         label: 'Name',
         name: 'username',
         type: 'text',
+        soft: true,
       })}
       ${LabeledInput({
         id: 'comment-content',
         label: 'Comment',
         name: 'content',
         type: 'textarea',
+        soft: true,
       })}
       <button id="comment-submit" type="submit">
         Comment
