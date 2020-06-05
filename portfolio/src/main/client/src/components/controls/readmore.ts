@@ -1,6 +1,10 @@
 import {htmlElement, Renderable} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
 
+/**
+ * A component which encapuslates the functionality of a readmore and allows it
+ * to be controlled programatically.
+ */
 export interface ReadMoreComponent {
   /** The wrapper element. */
   el: HTMLDivElement;
@@ -12,6 +16,14 @@ export interface ReadMoreComponent {
   expand(): void;
 }
 
+/**
+ * Creates a readmore component, which is a control that contains long vertical
+ * content and can be expanded to show all of it or collapsed to take up a fixed
+ * amount of space.
+ *
+ * @param content The content to place inside of the readmore.
+ * @returns A @see {ReadMoreComponent}
+ */
 export const ReadMore = (content: Renderable): ReadMoreComponent => {
   const contentEl: HTMLDivElement =
     htmlElement`<div class="readmore collapsed">${content}</div>`;

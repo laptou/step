@@ -1,5 +1,6 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
+import {LabeledInput} from '../controls/labeled-input';
 
 /**
  * Information about a comment returned by the server.
@@ -73,13 +74,27 @@ const Comment = (comment: CommentInfo): HTMLElement => {
   </li>`;
 };
 
+/**
+ * @returns The comments section of the page.
+ */
 export const CommentSection = (): HTMLElement => {
   const form: HTMLFormElement = htmlElement`
     <form>
-      <input id="username" name="username" type="text" />
-      <textarea name="content">
-      </textarea>
-      <button type="submit">
+      ${LabeledInput({
+        id: 'comment-username',
+        label: 'Name',
+        name: 'username',
+        type: 'text',
+        soft: true,
+      })}
+      ${LabeledInput({
+        id: 'comment-content',
+        label: 'Comment',
+        name: 'content',
+        type: 'textarea',
+        soft: true,
+      })}
+      <button id="comment-submit" type="submit">
         Comment
       </button>
     </form>`;
@@ -91,7 +106,7 @@ export const CommentSection = (): HTMLElement => {
 
   const el: HTMLElement = htmlElement`
     <div class="comments">
-      <h3>Comments</h3>
+      <h2>Comments</h2>
       <ul>
       </ul>
       ${form}

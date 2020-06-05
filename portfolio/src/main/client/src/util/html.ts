@@ -1,5 +1,9 @@
 import type {Arrunk} from './types';
 
+/**
+ * Any item that can be rendered by interpolating it with the @see htmlElement
+ * function.
+ */
 export type Renderable = Arrunk<string | Node | null | undefined>;
 
 /**

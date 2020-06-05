@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -28,6 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.gson.Gson;
 import com.google.sps.data.Comment;
 
@@ -36,13 +42,25 @@ import com.google.sps.data.Comment;
 @MultipartConfig
 public class CommentServlet extends HttpServlet {
   private static Gson gson = new Gson();
-  private static ArrayList<Comment> COMMENTS = new ArrayList<Comment>();
+  private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String json = gson.toJson(COMMENTS);
+    Query query = new Query("Comment").addSort("timestamp");
+    PreparedQuery results = datastore.prepare(query);
+
     response.setContentType("application/json");
-    response.getWriter().print(json);
+
+    ArrayList<Comment> comments = new ArrayList<>();
+    for (Entity e : results.asIterable()) {
+      comments.add(new Comment(
+        e.getKey().getId(),
+        (String) e.getProperty("username"),
+        (String) e.getProperty("name"),
+        (String) e.getProperty("content")));
+    }
+    
+    gson.toJson(comments, response.getWriter());
   }
 
   /**
@@ -65,8 +83,14 @@ public class CommentServlet extends HttpServlet {
       return;
     }
 
-    Comment comment = new Comment(COMMENTS.size(), username, username, content);
-    COMMENTS.add(comment);
+    Entity comment = new Entity("Comment");
+    comment.setProperty("timestamp", new Date());
+    comment.setProperty("username", username);
+    comment.setProperty("name", username);
+    comment.setProperty("content", content);
+    comment.setProperty("upvotes", 0);
+    comment.setProperty("downvotes", 0);
+    datastore.put(comment);
   }
 
   private static String readPartToString(Part part) throws IOException {

@@ -37,24 +37,18 @@ const projectInfos = projectContext
   .sort((a, b) =>
     a.info.attributes.year <= b.info.attributes.year ? 1 : -1);
 
-export const ProjectSection = (): HTMLElement =>
-  htmlElement`
-  <section id="project-section">
-    ${projectInfos.map(({key, info}) => ProjectItem(key, info))}
-  </section>`;
-
-export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
+const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
   const {el: readMoreEl, collapse, expand} = ReadMore(info.html);
   const content: HTMLElement = htmlElement`
-    <div class="project-content">
-      <h3>${info.attributes.name}</h3>
-      <ul class="project-stats">
-        <!-- don't nit me, if I put any whitespace in this line it will mess
-             up the presentation -->
-        <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
-      </ul>
-      ${readMoreEl}
-    </div>`;
+        <div class="project-content">
+          <h3>${info.attributes.name}</h3>
+          <ul class="project-stats">
+            <!-- don't nit me, if I put any whitespace in this line it will mess
+                 up the presentation -->
+            <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
+          </ul>
+          ${readMoreEl}
+        </div>`;
 
   const {el: lightboxItemEl, show, hide} = LightboxItem({
     target: content,
@@ -68,9 +62,20 @@ export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
   lightboxItemEl.addEventListener('lightbox-hide', () => collapse());
 
   const section: HTMLElement = htmlElement`
-    <div class="project-item">
-      ${lightboxItemEl}
-    </div>`;
+        <div class="project-item">
+          ${lightboxItemEl}
+        </div>`;
 
   return section;
 };
+
+/**
+ * @returns The code project section of the home page.
+ */
+export const ProjectSection = (): HTMLElement =>
+  htmlElement`
+  <section id="project-section">
+    ${projectInfos.map(({key, info}) => ProjectItem(key, info))}
+  </section>`;
+
+
