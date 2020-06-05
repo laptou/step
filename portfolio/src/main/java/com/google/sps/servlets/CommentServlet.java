@@ -152,7 +152,11 @@ public class CommentServlet extends HttpServlet {
     comment.setProperty("downvotes", 0);
     datastore.put(comment);
   }
+
   private static String readPartToString(Part part, int limit) throws IOException {
+    InputStream src = part.getInputStream();
+    ByteArrayOutputStream dst = new ByteArrayOutputStream();
+    byte[] block = new byte[1024];
 
     while (dst.size() < limit) {
       int bytesRead = src.read(block, 0, Math.min(block.length, limit - dst.size()));
