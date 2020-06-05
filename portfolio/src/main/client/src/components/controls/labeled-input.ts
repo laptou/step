@@ -18,7 +18,6 @@ export interface LabeledInputOptions {
   /**
    * Whether the label will disappear automatically when the input is empty.
    * Does not apply to textareas, since they do not support placeholders.
-   * Defaults to true.
    */
   soft?: boolean;
 
@@ -55,7 +54,7 @@ export const LabeledInput =
     const labelEl: HTMLLabelElement =
       htmlElement`<label for="${id}" class="input-label">${label}</label>`;
 
-    if (soft !== false) labelEl.classList.add('soft');
+    if (soft) labelEl.classList.add('soft');
     if (!value) labelEl.classList.add('empty');
 
     const inputEl: HTMLInputElement | HTMLTextAreaElement =
