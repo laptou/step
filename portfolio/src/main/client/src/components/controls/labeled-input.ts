@@ -42,9 +42,6 @@ export interface LabeledInputOptions {
   value?: string;
 }
 
-export type LabeledInputComponent =
-  [HTMLLabelElement, HTMLInputElement | HTMLTextAreaElement];
-
 /**
  * A labeled input fragment. The first element is the label, and the second is
  * the actual input. They are bound together so that the label will respond to
