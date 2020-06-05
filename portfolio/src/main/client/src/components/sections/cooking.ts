@@ -21,37 +21,42 @@ const dishInfos = dishContext
   .keys()
   .map((key) => dishContext(key) as DishInfo);
 
-export const CookingSection = (): HTMLElement =>
-  htmlElement`
-  <section id="cooking-section">
-    ${dishInfos.map((info) => CookingItem(info))}
-  </section>`;
-
-export const CookingItem = (info: DishInfo): HTMLElement => {
+const CookingItem = (info: DishInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
-  <div class="cooking-item">
-    <div class="content">
-      <h3>${info.attributes.name}</h3>
-      ${info.html}
-    </div>
-  </div>`;
+    <div class="cooking-item">
+      <div class="content">
+        <h3>${info.attributes.name}</h3>
+        ${info.html}
+      </div>
+    </div>`;
 
   if (info.attributes.image) {
     const src = require(
-      `@res/img/dish/${info.attributes.image}` +
-      '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
+        `@res/img/dish/${info.attributes.image}` +
+        '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
 
     const thumbnail = htmlElement`
-    <div class="thumbnail">
-      ${LightboxItem({
-        // require returns the mangled URL to the image, via file-loader
-        src,
-        alt: info.attributes.name,
-      })}
-    </div>`;
+      <div class="thumbnail">
+        ${LightboxItem({
+          // require returns the mangled URL to the image, via file-loader
+          src,
+          alt: info.attributes.name,
+        })}
+      </div>`;
 
     section.insertBefore(thumbnail, section.firstChild);
   }
 
   return section;
 };
+
+/**
+ * @returns The cooking section of the home page.
+ */
+export const CookingSection = (): HTMLElement =>
+  htmlElement`
+  <section id="cooking-section">
+    ${dishInfos.map((info) => CookingItem(info))}
+  </section>`;
+
+

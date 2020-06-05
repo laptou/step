@@ -32,20 +32,24 @@ const projectInfos = projectContext
   .keys()
   .map((key) => ({key, info: projectContext(key) as ProjectInfo}));
 
+const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
+  const section: HTMLElement = htmlElement`
+    <section class="code-section">
+      <div class="content">
+        <h3>${info.attributes.name}</h3>
+        ${ReadMore(info.html)}
+      </div>
+    </section>`;
+
+  return section;
+};
+
+/**
+ * @returns The code project section of the home page.
+ */
 export const ProjectSection = (): HTMLElement =>
   htmlElement`
   <section id="project-section">
     ${projectInfos.map(({key, info}) => ProjectItem(key, info))}
   </section>`;
 
-export const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const section: HTMLElement = htmlElement`
-  <section class="code-section">
-    <div class="content">
-      <h3>${info.attributes.name}</h3>
-      ${ReadMore(info.html)}
-    </div>
-  </section>`;
-
-  return section;
-};

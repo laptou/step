@@ -1,6 +1,14 @@
 import {htmlElement, Renderable} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
 
+/**
+ * Creates a readmore control, which is a control that contains long vertical
+ * content and can be expanded to show all of it or collapsed to take up a fixed
+ * amount of space.
+ * @param content The content to place inside of the readmore.
+ * @returns A div containing the content and the mechanism for expanding &
+ * collapsing.
+ */
 export const ReadMore = (content: Renderable): HTMLElement => {
   const contentEl: HTMLElement =
     htmlElement`<div class="content collapsed">${content}</div>`;

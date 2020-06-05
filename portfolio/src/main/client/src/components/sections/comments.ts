@@ -72,6 +72,9 @@ const Comment = (comment: CommentInfo): HTMLElement => {
   </li>`;
 };
 
+/**
+ * @returns The comments section of the page.
+ */
 export const CommentSection = (): HTMLElement => {
   const form: HTMLFormElement = htmlElement`
     <form>
