@@ -22,7 +22,7 @@
   }
 }
 
-.cooking-section {
+.cooking-item {
   display: flex;
   flex-flow: column nowrap;
   margin: 2rem 0;
@@ -50,7 +50,7 @@
   }
 }
 
-.cooking-section .thumbnail {
+.cooking-item .thumbnail {
   flex-basis: 12rem;
   flex-grow: 0;
   flex-shrink: 0;

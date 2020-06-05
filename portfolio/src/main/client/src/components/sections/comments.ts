@@ -1,6 +1,9 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 
+/**
+ * Information about a comment returned by the server.
+ */
 export interface CommentInfo {
   id: number;
   name: string;
@@ -69,6 +72,9 @@ const Comment = (comment: CommentInfo): HTMLElement => {
   </li>`;
 };
 
+/**
+ * @returns The comments section of the page.
+ */
 export const CommentSection = (): HTMLElement => {
   const form: HTMLFormElement = htmlElement`
     <form>

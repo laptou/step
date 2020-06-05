@@ -1,0 +1,18 @@
+@function bottom-fade($margin: 0) {
+  @return linear-gradient(to top, transparent, white $margin);
+}
+
+.readmore {
+  .content {
+    overflow: hidden;
+    transition: max-height 0.25s ease-in-out, mask-image, -webkit-mask-image;
+    -webkit-mask-image: bottom-fade(0rem);
+    mask-image: bottom-fade(0rem);
+
+    &.collapsed {
+      max-height: 8rem;
+      -webkit-mask-image: bottom-fade(3rem);
+      mask-image: bottom-fade(3rem);
+    }
+  }
+}

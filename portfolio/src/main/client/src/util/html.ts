@@ -1,6 +1,10 @@
 import type {Arrunk} from './types';
 
-type Renderable = Arrunk<string | Node | null | undefined>;
+/**
+ * Any item that can be rendered by interpolating it with the @see htmlElement
+ * function.
+ */
+export type Renderable = Arrunk<string | Node | null | undefined>;
 
 /**
  * @param item The item to get the sentinel value for.

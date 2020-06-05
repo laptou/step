@@ -1,26 +1,12 @@
-import {CookingSection, DishInfo} from '@src/components/sections/cooking';
+import {CookingSection} from '@src/components/sections/cooking';
 import {htmlFragment} from '@src/util/html';
 import {Footer} from '../footer';
 import {ThemeSwitcher} from '../controls/theme-switcher';
 import '@res/style/pages/index.scss';
-import { CommentSection } from '../sections/comments';
+import {CommentSection} from '../sections/comments';
+import { ProjectSection } from '../sections/project';
 
 export const IndexPage = (): Node[] => {
-  // get list of files in res/text/dish folder as webpack context
-  const dishContext = require.context('@res/text/dish', false);
-
-  // load each file from the context these are markdown files that are
-  // transformed into JS objects via frontmatter-markdown-loader, giving the
-  // front matter on property `attributes` and the HTML corresponding to the
-  // markdown on property `html`.
-
-  // type assertion b/c webpack context returns `any` since it does not know
-  // the type of the modules
-  const dishInfos = dishContext
-    .keys()
-    .map((key) => dishContext(key) as DishInfo);
-  const dishComponents = dishInfos.map((info) => CookingSection(info));
-
   return htmlFragment`
   <section id="index-hero" class="hero parallax">
     <h1>Ibiyemi Abiodun</h1>
@@ -43,12 +29,13 @@ export const IndexPage = (): Node[] => {
       You want my resume? 
       <a href="${require('@res/dl/resume.pdf').default}">Here you go</a>.
     </p>
+    ${ProjectSection()}
     <h2>Cooking</h2>
     <p>
       I know, we're in quarantine, everyone is cooking and baking. But look at 
       this:
     </p>
-    ${dishComponents}
+    ${CookingSection()}
   </main>
   ${CommentSection()}
   ${Footer()}`;
