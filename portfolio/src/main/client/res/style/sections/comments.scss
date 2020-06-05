@@ -40,7 +40,7 @@
   }
 
   .comment-empty-state {
-    @include index.content-section-padding();
+    padding: 4rem var(--page-padding);
     padding-top: 4rem;
     padding-bottom: 4rem;
     font-size: 0.9em;

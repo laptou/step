@@ -17,8 +17,17 @@ export interface CommentInfo {
   downvotes: number;
 }
 
+/**
+ * A page of comments returned by the server.
+ */
 export interface CommentPage {
   comments: CommentInfo[];
+
+  /**
+   * The ID of the first comment in the next page. If this is the same as the ID
+   * of any of the comments in this page, that means there are no pages after
+   * this one.
+   */
   next: Cursor;
 }
 
