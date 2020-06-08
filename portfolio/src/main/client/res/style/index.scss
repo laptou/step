@@ -41,35 +41,27 @@ footer {
   opacity: 0.8;
 }
 
-@mixin content-section-padding {
-  padding-right: 2rem;
-  padding-left: 2rem;
-
-  @media screen and (min-width: responsive.$break-mobile) {
-    padding-right: 4rem;
-    padding-left: 4rem;
-  }
+main {
+  @extend %content-section;
 }
 
 %content-section {
-  width: 50rem;
+  width: var(--page-width);
   max-width: 100%;
   margin: 2rem auto;
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+
+  padding: 3rem var(--page-padding);
   background-color: var(--background);
-  border: 1px solid hsla(0, 0%, 50%, 50%); // 50% grey
-  border-width: 1px 0;
-
-  @media screen and (min-width: 50rem) {
-    border-width: 1px;
-  }
-
-  @include content-section-padding();
+  outline: 1px solid hsla(0, 0%, 50%, 50%); // 50% grey
 }
 
-main {
-  @extend %content-section;
+:root {
+  --page-padding: 2rem;
+  --page-width: 50rem;
+
+  @media screen and (min-width: responsive.$break-mobile) {
+    --page-padding: 4rem;
+  }
 }
 
 .hero {

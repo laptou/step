@@ -7,10 +7,10 @@
   padding-right: 0;
   padding-bottom: 2rem;
   padding-left: 0;
-  
+
   h2 {
-    @include index.content-section-padding();
     margin-bottom: 1rem;
+    padding: 0 var(--page-padding) 2rem;
   }
 
   ul {
@@ -19,9 +19,7 @@
   }
 
   .comment {
-    @include index.content-section-padding();
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem var(--page-padding);
     border-color: hsla(0, 0%, 50%, 50%); // 50% grey
     border-style: dashed;
     border-width: 0 0 1px;
@@ -71,7 +69,7 @@
   }
 
   .comment-empty-state {
-    @include index.content-section-padding();
+    padding: 4rem var(--page-padding);
     padding-top: 4rem;
     padding-bottom: 4rem;
     font-size: 0.9em;
@@ -81,13 +79,10 @@
   }
 
   .comments-controls {
-    @include index.content-section-padding();
-
     display: flex;
     justify-content: flex-end;
     margin: 0 -1rem 0;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem var(--page-padding);
 
     * {
       margin: 0 1rem;
@@ -95,10 +90,9 @@
   }
 
   form {
-    @include index.content-section-padding();
     display: flex;
     flex-direction: column;
-    padding: 0 2rem;
+    padding: 0 var(--page-padding);
 
     #comment-submit {
       align-self: flex-end;

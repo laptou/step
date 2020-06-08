@@ -1,37 +1,63 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
 import {ResponsiveImageInfo} from '../controls/responsive-image';
+import '@res/style/sections/cooking.scss';
 
 export interface DishInfo {
   attributes: { name: string; image?: string };
   html: string;
 }
 
-export const CookingSection = (info: DishInfo): HTMLElement => {
+// get list of files in res/text/dish folder as webpack context
+const dishContext = require.context('@res/text/dish', false);
+
+// load each file from the context these are markdown files that are
+// transformed into JS objects via frontmatter-markdown-loader, giving the
+// front matter on property `attributes` and the HTML corresponding to the
+// markdown on property `html`.
+
+// type assertion b/c webpack context returns `any` since it does not know
+// the type of the modules
+const dishInfos = dishContext
+  .keys()
+  .map((key) => dishContext(key) as DishInfo);
+
+const CookingItem = (info: DishInfo): HTMLElement => {
   const section: HTMLElement = htmlElement`
-  <section class="cooking-section">
-    <div class="content">
-      <h3>${info.attributes.name}</h3>
-      ${info.html}
-    </div>
-  </section>`;
+    <div class="cooking-item">
+      <div class="content">
+        <h3>${info.attributes.name}</h3>
+        ${info.html}
+      </div>
+    </div>`;
 
   if (info.attributes.image) {
     const src = require(
-      `@res/img/dish/${info.attributes.image}` +
-      '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
+        `@res/img/dish/${info.attributes.image}` +
+        '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
 
     const thumbnail = htmlElement`
-    <div class="thumbnail">
-      ${LightboxItem({
-        // require returns the mangled URL to the image, via file-loader
-        src,
-        alt: info.attributes.name,
-      })}
-    </div>`;
+      <div class="thumbnail">
+        ${LightboxItem({
+          // require returns the mangled URL to the image, via file-loader
+          src,
+          alt: info.attributes.name,
+        })}
+      </div>`;
 
     section.insertBefore(thumbnail, section.firstChild);
   }
 
   return section;
 };
+
+/**
+ * @returns The cooking section of the home page.
+ */
+export const CookingSection = (): HTMLElement =>
+  htmlElement`
+  <section id="cooking-section">
+    ${dishInfos.map((info) => CookingItem(info))}
+  </section>`;
+
+
