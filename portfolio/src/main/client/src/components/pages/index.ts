@@ -2,9 +2,9 @@ import {CookingSection} from '@src/components/sections/cooking';
 import {htmlFragment} from '@src/util/html';
 import {Footer} from '../footer';
 import {ThemeSwitcher} from '../controls/theme-switcher';
-import '@res/style/pages/index.scss';
 import {CommentSection} from '../sections/comments';
 import {ProjectSection} from '../sections/project';
+import '@res/style/pages/index.scss';
 
 export const IndexPage = (): Node[] => {
   return htmlFragment`

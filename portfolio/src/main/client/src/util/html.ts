@@ -92,7 +92,7 @@ export function htmlFragment(
  * @param items The items to interpolate into the HTML.
  * @returns The HTML element.
  */
-export function htmlElement<T extends Node>(
+export function htmlElement<T extends Node = HTMLElement>(
   fragments: TemplateStringsArray,
   ...items: Renderable[]
 ): T {
