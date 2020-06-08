@@ -18,7 +18,6 @@ export interface LabeledInputOptions {
   /**
    * Whether the label will disappear automatically when the input is empty.
    * Does not apply to textareas, since they do not support placeholders.
-   * Defaults to true.
    */
   soft?: boolean;
 
@@ -43,7 +42,11 @@ export interface LabeledInputOptions {
   value?: string;
 }
 
-
+/**
+ * A labeled input fragment. The first element is the label, and the second is
+ * the actual input. They are bound together so that the label will respond to
+ * the user modifying the input.
+ */
 export type LabeledInputComponent =
   [HTMLLabelElement, HTMLInputElement | HTMLTextAreaElement];
 
@@ -59,7 +62,7 @@ export const LabeledInput =
     const labelEl: HTMLLabelElement =
       htmlElement`<label for="${id}" class="input-label">${label}</label>`;
 
-    if (soft !== false) labelEl.classList.add('soft');
+    if (soft) labelEl.classList.add('soft');
     if (!value) labelEl.classList.add('empty');
 
     const inputEl: HTMLInputElement | HTMLTextAreaElement =

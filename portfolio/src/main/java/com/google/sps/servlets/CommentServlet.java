@@ -34,7 +34,6 @@ import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
-import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
@@ -97,8 +96,8 @@ public class CommentServlet extends HttpServlet {
 
     JsonObject root = new JsonObject();
     root.add("comments", gson.toJsonTree(comments));
-    root.addProperty("next", results.getCursor().toWebSafeString());
-
+    root.addProperty("nextCommentCursor", results.getCursor().toWebSafeString());
+    
     response.setContentType("application/json");
     response.getWriter().print(root.toString());
   }
@@ -169,20 +168,5 @@ public class CommentServlet extends HttpServlet {
     dst.flush();
     byte[] buf = dst.toByteArray();
     return new String(buf, StandardCharsets.UTF_8);
-  }
-
-  @Override
-  protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-      throws ServletException, IOException {
-    // TODO implement authentication
-    boolean authenticated = false;
-    if (!authenticated) {
-      resp.setStatus(401);
-      return;
-    }
-
-    for (Entity ent : datastore.prepare(new Query("Comment")).asIterable()) {
-      datastore.delete(ent.getKey());
-    }
   }
 }
