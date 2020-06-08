@@ -43,6 +43,14 @@ export interface LabeledInputOptions {
 }
 
 /**
+ * A labeled input fragment. The first element is the label, and the second is
+ * the actual input. They are bound together so that the label will respond to
+ * the user modifying the input.
+ */
+export type LabeledInputComponent =
+  [HTMLLabelElement, HTMLInputElement | HTMLTextAreaElement];
+
+/**
  * @returns A labeled input, which is just a label followed by an input or
  * textarea. This is designed to be used with textual inputs: when the input is
  * empty, the label may disappear and be used as a placeholder instead.
@@ -50,7 +58,7 @@ export interface LabeledInputOptions {
 export const LabeledInput =
   ({
     name, id, className, label, type, value, soft,
-  }: LabeledInputOptions): Node[] => {
+  }: LabeledInputOptions): LabeledInputComponent => {
     const labelEl: HTMLLabelElement =
       htmlElement`<label for="${id}" class="input-label">${label}</label>`;
 
@@ -80,5 +88,5 @@ export const LabeledInput =
       }
     });
 
-    return htmlFragment`${labelEl}${inputEl}`;
+    return htmlFragment`${labelEl}${inputEl}` as LabeledInputComponent;
   };

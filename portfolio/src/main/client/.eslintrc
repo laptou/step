@@ -71,6 +71,12 @@
     "@typescript-eslint/unbound-method": [
       "warn"
     ],
+    "@typescript-eslint/no-misused-promises": [
+      "error",
+      {
+        "checksVoidReturn": false
+      }
+    ],
     "@typescript-eslint/no-unused-vars": [
       "warn",
       {
