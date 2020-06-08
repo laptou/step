@@ -22,9 +22,7 @@
 
   & > .content {
     padding: 1rem;
-    // TODO: change when PR #23 merges
-    // background: var(--background-saturated);
-    background: white;
+    background: var(--background-saturated);
     box-shadow: 0 0 4pt rgba(0, 0, 0, 0.25);
     content: ' ';
   }

@@ -35,9 +35,9 @@ import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
-import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.sps.data.Comment;
@@ -52,17 +52,17 @@ public class CommentServlet extends HttpServlet {
       Pattern.compile("<\\w+(\\s*\\w+\\s*(=\\s*['\"].*['\"]))*>.*<\\/\\w+>", Pattern.DOTALL);
 
   @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
     Query query = new Query("Comment").addSort("timestamp", SortDirection.DESCENDING);
 
     FetchOptions fetchOptions;
 
-    if (request.getParameter("limit") != null) {
+    if (req.getParameter("limit") != null) {
       int limit;
       try {
-        limit = Integer.parseInt(request.getParameter("limit"));
+        limit = Integer.parseInt(req.getParameter("limit"));
       } catch (NumberFormatException ex) {
-        response.setStatus(400);
+        res.setStatus(400);
         return;
       }
 
@@ -71,12 +71,12 @@ public class CommentServlet extends HttpServlet {
       fetchOptions = FetchOptions.Builder.withLimit(20);
     }
 
-    if (request.getParameter("cursor") != null) {
+    if (req.getParameter("cursor") != null) {
       Cursor start;
       try {
-        start = Cursor.fromWebSafeString(request.getParameter("cursor"));
+        start = Cursor.fromWebSafeString(req.getParameter("cursor"));
       } catch (IllegalArgumentException ex) {
-        response.setStatus(400);
+        res.setStatus(400);
         return;
       }
 
@@ -98,15 +98,16 @@ public class CommentServlet extends HttpServlet {
     root.add("comments", gson.toJsonTree(comments));
     root.addProperty("nextCommentCursor", results.getCursor().toWebSafeString());
     
-    response.setContentType("application/json");
-    response.getWriter().print(root.toString());
+    res.setContentType("application/json");
+    res.setStatus(200);
+    res.getWriter().print(root.toString());
   }
 
   /**
    * This route expects multipart form data, not url-encoded form data.
    */
   @Override
-  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+  protected void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
     Part usernamePart, contentPart;
 
@@ -114,10 +115,10 @@ public class CommentServlet extends HttpServlet {
       usernamePart = req.getPart("username");
       contentPart = req.getPart("content");
     } catch (ServletException e) {
-      resp.setStatus(400);
+      res.setStatus(400);
       return;
     } catch (Error e) {
-      resp.setStatus(500);
+      res.setStatus(500);
       return;
     }
 
@@ -128,14 +129,14 @@ public class CommentServlet extends HttpServlet {
     String content = readPartToString(contentPart, 50000);
 
     if (username.length() == 0) {
-      resp.setStatus(400);
-      resp.getWriter().print("username");
+      res.setStatus(400);
+      res.getWriter().print("username");
       return;
     }
 
     if (content.length() == 0) {
-      resp.setStatus(400);
-      resp.getWriter().print("content");
+      res.setStatus(400);
+      res.getWriter().print("content");
       return;
     }
 
@@ -151,6 +152,8 @@ public class CommentServlet extends HttpServlet {
     comment.setProperty("upvotes", 0);
     comment.setProperty("downvotes", 0);
     datastore.put(comment);
+    
+    res.setStatus(200);
   }
 
   private static String readPartToString(Part part, int limit) throws IOException {

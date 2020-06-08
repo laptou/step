@@ -18,14 +18,16 @@ const StylelintPlugin = require('stylelint-webpack-plugin');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 /**
- * @typedef {Object} Env
- * @property {Boolean} development Whether we are running in a dev environment.
- * @property {Boolean} production Whether we are running in a prod environment.
- * @property {Boolean} analyze Whether to perform bundle size analysis.
+ * @typedef {object} Env
+ * @property {boolean} development Whether we are running in a dev environment.
+ * @property {boolean} production Whether we are running in a prod environment.
+ * @property {boolean} analyze Whether to perform bundle size analysis.
  */
 
-/** @param {Env} env Current environment.
- *  @return {webpack.Configuration} config */
+/**
+ * @param env Current environment.
+ * @returns config
+ */
 exports.default = (env = {production: true}) => ({
   context: __dirname,
   entry: ['./src/index.ts'],
@@ -33,10 +35,14 @@ exports.default = (env = {production: true}) => ({
   devServer: {
     port: 8090,
     hot: true,
-    proxy: {
-      '/api': 'http://127.0.0.1:8080/',
-    },
-    historyApiFallback: true,
+    proxy: [{
+      context: ['/api', '/_ah'],
+      target: 'http://localhost:8080',
+      autoRewrite: true,
+      // changeOrigin: true,
+    }],
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', '127.0.0.1', 'penguin.linux.test'],
   },
   optimization: {
     runtimeChunk: false,

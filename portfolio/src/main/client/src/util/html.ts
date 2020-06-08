@@ -1,10 +1,19 @@
 import type {Arrunk} from './types';
 
 /**
- * Any item that can be rendered by interpolating it with the @see htmlElement
- * function.
+ * Any stateless item that can be rendered by interpolating it with the @see
+ * htmlElement function.
  */
-export type Renderable = Arrunk<string | Node | null | undefined>;
+export type PrimitiveRenderable = Arrunk<string | Node | null | undefined>;
+
+/**
+ * A component renderable, which has a certain state and renders a primitive.
+ */
+export interface ComponentRenderable {
+  render(): string | Node | null;
+}
+
+export type Renderable = PrimitiveRenderable | ComponentRenderable;
 
 /**
  * @param item The item to get the sentinel value for.
@@ -22,7 +31,6 @@ function getSentinel(
   return item;
 }
 
-// eslint-disable-next-line valid-jsdoc
 /**
  * Helper function to parse HTML into multiple DOM nodes. Meant to be used
  * as a template literal tag:
@@ -40,6 +48,8 @@ function getSentinel(
  *
  * You can also interpolate arrays of HTML elements or strings.
  *
+ * @param fragments
+ * @param items
  * @returns The HTML elements.
  */
 export function htmlFragment(
@@ -54,11 +64,11 @@ export function htmlFragment(
     combined.push(fragments[i + 1]);
   }
 
-  // type assertion b/c TS does not recognize that this will remove null and
-  // undefined from the array
   const flattened = combined
     .flat()
-    .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
+    .map((r) => r && typeof r === 'object' && 'render' in r ? r.render() : r)
+    .filter((r): r is string | Node => r !== null && r !== undefined);
+
   const markup = flattened.map(getSentinel).join('');
   const template = document.createElement('template');
   template.innerHTML = markup.trim();
@@ -75,13 +85,15 @@ export function htmlFragment(
   return Array.from(template.content.children);
 }
 
-// eslint-disable-next-line valid-jsdoc
 /**
  * Helper function to parse HTML into a DOM node. Meant to be used
  * as a template literal tag:
  * ```
  * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
+ *
+ * @param fragments
+ * @param items
  * @returns The HTML element.
  */
 export function htmlElement<T extends Node = HTMLElement>(

@@ -1,6 +1,7 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
+import { Authentication } from '../controls/authentication';
 
 type Cursor = string;
 
@@ -294,6 +295,7 @@ export const CommentSection = (): HTMLElement => {
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
+      ${Authentication()}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">

@@ -1,4 +1,4 @@
-import {htmlElement, Renderable} from '@src/util/html';
+import {htmlElement, PrimitiveRenderable} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
 
 /**
@@ -9,7 +9,7 @@ import '@res/style/controls/readmore.scss';
  * @returns A div containing the content and the mechanism for expanding &
  * collapsing.
  */
-export const ReadMore = (content: Renderable): HTMLElement => {
+export const ReadMore = (content: PrimitiveRenderable): HTMLElement => {
   const contentEl: HTMLElement =
     htmlElement`<div class="content collapsed">${content}</div>`;
   const expanderEl: HTMLElement =

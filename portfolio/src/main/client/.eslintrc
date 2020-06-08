@@ -10,7 +10,8 @@
     "project": "./tsconfig.json"
   },
   "plugins": [
-    "@typescript-eslint"
+    "@typescript-eslint",
+    "jsdoc"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": [
@@ -97,20 +98,92 @@
         ]
       }
     ],
-    "@typescript-eslint/no-unsafe-member-access": ["warn"],
-    "@typescript-eslint/no-unsafe-assignment": ["warn"],
-    "@typescript-eslint/no-unsafe-return": ["warn"],
-    "@typescript-eslint/no-unsafe-call": ["warn"],
+    "@typescript-eslint/no-unsafe-member-access": [
+      "warn"
+    ],
+    "@typescript-eslint/no-unsafe-assignment": [
+      "warn"
+    ],
+    "@typescript-eslint/no-unsafe-return": [
+      "warn"
+    ],
+    "@typescript-eslint/no-unsafe-call": [
+      "warn"
+    ],
     "valid-jsdoc": [
-      "error",
+      "off"
+    ],
+    "require-jsdoc": [
+      "off"
+    ],
+    "jsdoc/check-alignment": [
+      "warn"
+    ], // Recommended
+    "jsdoc/check-indentation": [
+      "warn"
+    ],
+    "jsdoc/check-param-names": [
+      "off",
       {
-        // this is TypeScript, so we don't need types in JSDoc
-        "requireParamType": false,
-        "requireReturnType": false,
-        // don't require @return if the function doesn't return anything
-        "requireReturn": false
+        // "checkTypesPattern": ""
+      }
+    ], // Recommended
+    "jsdoc/check-tag-names": [
+      "warn"
+    ], // Recommended
+    "jsdoc/check-types": [
+      "warn"
+    ], // Recommended
+    "jsdoc/implements-on-classes": [
+      "warn"
+    ], // Recommended
+    "jsdoc/newline-after-description": [
+      "warn"
+    ], // Recommended
+    "jsdoc/no-types": [
+      "warn"
+    ],
+    "jsdoc/no-undefined-types": [
+      "warn"
+    ], // Recommended
+    "jsdoc/require-description": [
+      "warn",
+      {
+        "checkConstructors": false,
+        "checkGetters": false,
+        "checkSetters": false
       }
     ],
+    "jsdoc/require-jsdoc": [
+      "warn",
+      {
+        "publicOnly": true
+      }
+    ], // Recommended
+    "jsdoc/require-param": [
+      "warn",
+      {
+        "checkDestructured": false
+      }
+    ], // Recommended
+    "jsdoc/require-param-description": [
+      "warn"
+    ], // Recommended
+    "jsdoc/require-param-name": [
+      "warn"
+    ], // Recommended
+    "jsdoc/require-returns": [
+      "warn"
+    ], // Recommended
+    "jsdoc/require-returns-check": [
+      "warn"
+    ], // Recommended
+    "jsdoc/require-returns-description": [
+      "warn"
+    ], // Recommended
+    "jsdoc/valid-types": [
+      "warn"
+    ], // Recommended
     "new-cap": [
       "off"
     ],
@@ -124,5 +197,10 @@
         "code": 80
       }
     ]
+  },
+  "settings": {
+    "jsdoc": {
+      "mode": "typescript"
+    }
   }
 }
