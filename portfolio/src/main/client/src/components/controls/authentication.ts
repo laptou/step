@@ -14,12 +14,23 @@ interface LoggedOutResponse {
 
 type State = LoggedInResponse | LoggedOutResponse | null;
 
+/**
+ * Retrieves the current login state from the server.
+ *
+ * @param state The state data signal.
+ */
 async function updateState(state: DataSignal<State>) {
   const response = await fetch('/api/users/me');
-  const newState = await response.json() as LoggedInResponse | LoggedOutResponse;
+  const newState =
+    await response.json() as LoggedInResponse | LoggedOutResponse;
   state.value = newState;
 }
 
+/**
+ * Launches the login flow.
+ *
+ * @param state The state data signal.
+ */
 function login(state: DataSignal<State>) {
   const currentState = state.value;
   if (currentState && 'loginUri' in currentState) {
@@ -31,6 +42,11 @@ function login(state: DataSignal<State>) {
   }
 }
 
+/**
+ * Logs the user out.
+ *
+ * @param state The state data signal.
+ */
 function logout(state: DataSignal<State>) {
   const currentState = state.value;
   if (currentState && 'logoutUri' in currentState) {
@@ -41,6 +57,11 @@ function logout(state: DataSignal<State>) {
   }
 }
 
+/**
+ * An authentication control, which is a button that says 'Log in' if
+ * the user is logged out and vice versa. Clicking the button will allow the
+ * user to sign in and out.
+ */
 export const Authentication = () => {
   const state = new DataSignal<State>(null);
   const container = document.createElement('div');
