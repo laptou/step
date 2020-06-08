@@ -123,7 +123,7 @@ interface LightboxItemComponent {
 }
 
 /**
- * An item that contaisn a target. When this item is clicked, the target will be
+ * An item that contains a target. When this item is clicked, the target will be
  * displayed in the lightbox.
  *
  * @param props _
