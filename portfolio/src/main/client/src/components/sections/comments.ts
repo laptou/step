@@ -14,6 +14,11 @@ export interface CommentData {
   content: string;
   upvotes: number;
   downvotes: number;
+  /**
+   * A comment is shameful if it appears to contain HTML.
+   * Shame on you, for trying to do XSS on my website!
+   */
+  shameful: boolean;
 }
 
 /**
@@ -184,23 +189,76 @@ async function submitForm(
   updateComments(commentsEl, currentPage, limit);
 }
 
+/**
+ * @param text The text to truncate.
+ * @returns `text` truncated to 5 lines or 500 chars, whichever is shorter.
+ */
+function truncateText(text: string) {
+  const truncatedByChars = text.slice(0, 500);
+  const truncatedByNewlines = text.split('\n').slice(0, 5).join('\n');
+
+  if (truncatedByChars.length < truncatedByNewlines.length) {
+    return truncatedByChars;
+  } else {
+    return truncatedByNewlines;
+  }
+}
+
 const Comment = (comment: CommentData): HTMLElement => {
   // user supplied strings cannot be interpolated directly to avoid XSS
-  const content: HTMLElement = htmlElement`<div class="content"></div>`;
-  content.innerText = comment.content;
+  const contentEl: HTMLElement = htmlElement`<div class="content"></div>`;
+  contentEl.innerText = comment.content;
+
+  let truncatedContentEl: HTMLElement | null = null;
+  let truncatedContentExpander: HTMLAnchorElement | null = null;
+  const truncatedContent = truncateText(comment.content);
+
+  if (truncatedContent.length < comment.content.length) {
+    truncatedContentEl = document.createElement('div');
+    truncatedContentEl.classList.add('content', 'truncated');
+    truncatedContentEl.innerText = truncatedContent;
+
+    truncatedContentExpander = document.createElement('a');
+    truncatedContentExpander.href = 'javascript:void 0';
+    truncatedContentExpander.classList.add('expander');
+    truncatedContentExpander.innerText = 'see more';
+
+    let isTruncated = true;
+    truncatedContentExpander.addEventListener('click', () => {
+      isTruncated = !isTruncated;
+
+      if (isTruncated) {
+        contentEl.replaceWith(truncatedContentEl!);
+        truncatedContentExpander!.innerText = 'see more';
+      } else {
+        truncatedContentEl!.replaceWith(contentEl);
+        truncatedContentExpander!.innerText = 'see less';
+      }
+    });
+  }
+
 
   const name: HTMLElement = htmlElement`<span class="name"></span>`;
   name.innerText = comment.name;
 
-  return htmlElement`
-  <li class="comment" data-id="${comment.id.toString()}">
-    <span class="info">
-      ${name}
-      <span class="upvotes">+${comment.upvotes.toString()}</span>
-      <span class="downvotes">-${comment.downvotes.toString()}</span>
-    </span>
-    ${content}
-  </li>`;
+  const commentEl: HTMLElement = htmlElement`
+    <li class="comment" data-id="${comment.id.toString()}">
+      <div class="inner">
+        <span class="info">
+          ${name}
+          <span class="upvotes">+${comment.upvotes.toString()}</span>
+          <span class="downvotes">
+            -${comment.shameful ? '∞' : comment.downvotes.toString()}
+          </span>
+        </span>
+        ${truncatedContentEl ?? contentEl}
+        ${truncatedContentExpander}
+      </div>
+    </li>`;
+
+  commentEl.classList.toggle('shameful', comment.shameful);
+
+  return commentEl;
 };
 
 const CommentEmptyState = (): HTMLElement => {
