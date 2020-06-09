@@ -168,8 +168,8 @@ async function fetchPreviousPage(
  */
 async function submitForm(
   commentsEl: HTMLElement,
-  formEl: HTMLFormElement,
-  limit: number) {
+  formEl: HTMLFormElement
+) {
   if (!formEl.checkValidity()) {
     formEl.classList.add('show-validation');
   }
@@ -190,13 +190,42 @@ async function submitForm(
   } catch {
     // TODO present toast to user notifying failure
   }
+}
 
-  // give the server time to store comment before refreshing
-  setTimeout(async () => {
-    // reset to the first page
-    currentPage = await fetchNextPage(null, limit);
-    updateComments(commentsEl, currentPage, limit);
-  }, 400);
+type VoteKind = 'up' | 'down';
+type VoteTally = {upvotes: number, downvotes: number};
+
+/**
+ * Submits a vote for a comment.
+ *
+ * @param commentId The ID of the comment to vote on.
+ * @param kind
+ */
+async function submitVote(commentId: number, kind: VoteKind) {
+  const res = await fetch(`/api/vote/${commentId}`, {
+    method: 'POST',
+    body: JSON.stringify({kind}),
+  });
+
+  if (res.status !== 200) {
+    throw new Error('sending vote failed');
+  }
+
+  // TODO: handle errors using toast
+}
+
+async function refreshComments(
+  commentsEl: HTMLElement,
+  limit: number
+) {
+  // reset to the first page
+  currentPage = await fetchNextPage(null, limit);
+  updateComments(commentsEl, currentPage, limit);
+}
+
+async function fetchCommentScore(commentId: number) {
+  const res = await fetch(`/api/vote/${commentId}`);
+  return await res.json() as VoteTally;
 }
 
 const Comment = (comment: CommentData): HTMLElement => {
@@ -217,16 +246,34 @@ const Comment = (comment: CommentData): HTMLElement => {
       Downvote
     </button>`;
 
+  const scoreSpan = htmlElement`<span class="comment-score"></span>`;
+
+  const updateScore = (tally: VoteTally) => {
+    const score = tally.upvotes - tally.downvotes;
+    const votes = tally.upvotes + tally.downvotes;
+    const summary = votes > 0 ?
+          `${comment.upvotes / votes * 100}% upvoted` :
+          `No votes`;
+    scoreSpan.title = comment.shameful ? 'Shameful!' : summary;
+    scoreSpan.innerText = score.toString();
+  };
+
+  updateScore(comment);
+
   if (comment.shameful) {
     upvoteBtn.disabled = true;
     downvoteBtn.disabled = true;
+  } else {
+    upvoteBtn.addEventListener('click', async () => {
+      await submitVote(comment.id, 'up');
+      updateScore(await fetchCommentScore(comment.id));
+    });
+    downvoteBtn.addEventListener('click', async () => {
+      await submitVote(comment.id, 'down');
+      updateScore(await fetchCommentScore(comment.id));;
+    });
   }
 
-  const score = comment.upvotes - comment.downvotes;
-  const votes = comment.upvotes + comment.downvotes;
-  const summary = votes > 0 ?
-        `${comment.upvotes / votes * 100}% upvoted` :
-        `No votes`;
 
   const readmore = ReadMore(new Text(comment.content));
   readmore.el.classList.add('comment-content');
@@ -235,10 +282,7 @@ const Comment = (comment: CommentData): HTMLElement => {
     <li class="comment" data-id="${comment.id.toString()}">
       <div class="inner">
         ${nameSpan}
-        <span class="comment-score" 
-              title="${comment.shameful ? 'Shameful!' : summary}">
-          ${comment.shameful ? '-∞' : score.toString()}
-        </span>
+        ${scoreSpan}
         ${upvoteBtn}
         ${downvoteBtn}
         ${readmore}
@@ -291,9 +335,10 @@ export const CommentSection = (): HTMLElement => {
       </button>
     </form>`;
 
-  formEl.addEventListener('submit', (ev) => {
+  formEl.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    void submitForm(container, formEl, limit);
+    await submitForm(container, formEl);
+    await refreshComments(container, limit);
   });
 
   const nextBtn: HTMLButtonElement =
