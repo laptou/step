@@ -1,14 +1,16 @@
-import {htmlElement, PrimitiveRenderable} from '@src/util/html';
+import {
+  htmlElement,
+  PrimitiveRenderable,
+  ComponentRenderable,
+} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
 
 /**
  * A component which encapuslates the functionality of a readmore and allows it
  * to be controlled programatically.
  */
-export interface ReadMoreComponent {
-  /** The wrapper element. */
-  el: HTMLDivElement;
-
+export interface ReadMoreComponent 
+  extends ComponentRenderable<HTMLDivElement> {
   /** Collapses the readmore. */
   collapse(): void;
 

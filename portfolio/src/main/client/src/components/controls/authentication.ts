@@ -120,9 +120,7 @@ export const Authentication = () => {
   void updateState(state);
 
   return {
+    el: container,
     state,
-    render(): HTMLElement {
-      return container;
-    },
   };
 };

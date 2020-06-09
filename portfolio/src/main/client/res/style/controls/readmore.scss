@@ -9,6 +9,7 @@
   mask-image: bottom-fade(0rem);
 
   &.collapsed {
+    min-height: 5rem;
     max-height: 8rem;
     -webkit-mask-image: bottom-fade(3rem);
     mask-image: bottom-fade(3rem);

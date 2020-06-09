@@ -38,7 +38,7 @@ const projectInfos = projectContext
     a.info.attributes.year <= b.info.attributes.year ? 1 : -1);
 
 const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const {el: readMoreEl, collapse, expand} = ReadMore(info.html);
+  const readmore = ReadMore(info.html);
   const content: HTMLElement = htmlElement`
         <div class="project-content">
           <h3>${info.attributes.name}</h3>
@@ -47,7 +47,7 @@ const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
                  up the presentation -->
             <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
           </ul>
-          ${readMoreEl}
+          ${readmore}
         </div>`;
 
   const {el: lightboxItemEl, show, hide} = LightboxItem({
@@ -55,11 +55,11 @@ const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
     preservePosition: true,
   });
 
-  readMoreEl.addEventListener('readmore-expand', () => show());
-  readMoreEl.addEventListener('readmore-collapse', () => hide());
+  readmore.el.addEventListener('readmore-expand', () => show());
+  readmore.el.addEventListener('readmore-collapse', () => hide());
 
-  lightboxItemEl.addEventListener('lightbox-show', () => expand());
-  lightboxItemEl.addEventListener('lightbox-hide', () => collapse());
+  lightboxItemEl.addEventListener('lightbox-show', () => readmore.expand());
+  lightboxItemEl.addEventListener('lightbox-hide', () => readmore.collapse());
 
   const section: HTMLElement = htmlElement`
         <div class="project-item">
