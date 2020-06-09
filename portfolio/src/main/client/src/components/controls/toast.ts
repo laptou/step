@@ -15,6 +15,81 @@ interface ToastInfo {
 
 const container = htmlElement`<ul id="toast-container"></ul>`;
 
+function createToastTimer(
+  el: HTMLElement,
+  info: ToastInfo
+) {
+  const toastTimer: SVGCircleElement =
+    document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  toastTimer.setAttribute('pathLength', '100');
+  toastTimer.setAttribute('cx', '12');
+  toastTimer.setAttribute('cy', '12');
+  toastTimer.setAttribute('r', '12');
+
+  const toastSvg =
+    document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  toastSvg.classList.add('toast-timer');
+  toastSvg.setAttribute('viewBox', '0 0 24 24');
+  toastSvg.append(toastTimer);
+
+  el.append(toastSvg);
+
+  el.addEventListener('mouseover', () => {
+    if (info.timeout) {
+      info.paused = true;
+    }
+  });
+
+  el.addEventListener('mouseout', () => {
+    info.paused = false;
+  });
+
+  let lastFrame: DOMHighResTimeStamp | null = null;
+
+  function animateToast(frame: DOMHighResTimeStamp) {
+    if (info.timeout === false || info.remaining === false) {
+      return;
+    }
+
+    const delta = lastFrame ? frame - lastFrame : 0;
+
+    if (!info.paused) {
+      info.remaining -= delta;
+    }
+
+    if (info.remaining < 0) {
+      el.dispatchEvent(new Event('toast-dismissed'));
+      return;
+    }
+
+    const percent = info.remaining / info.timeout * 100;
+
+    toastTimer.style.strokeDasharray = `${percent} ${100 - percent}`;
+
+    requestAnimationFrame(animateToast);
+
+    lastFrame = frame;
+  }
+
+  requestAnimationFrame(animateToast);
+}
+
+function createToastDismiss(
+  el: HTMLElement
+) {
+  const toastDismiss: HTMLButtonElement =
+    htmlElement`
+    <button type="button" class="toast-dismiss">
+      Dismiss
+    </button>`;
+
+  el.append(toastDismiss);
+
+  toastDismiss.addEventListener('click', () => {
+    el.dispatchEvent(new Event('toast-dismissed'));
+  });
+}
+
 /**
  * Shows a toast message.
  *
@@ -37,69 +112,26 @@ export function showToast(
     dismissed: false,
   };
 
-  const toastTimer: SVGCircleElement =
-    document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  toastTimer.setAttribute('pathLength', '100');
-  toastTimer.setAttribute('cx', '12');
-  toastTimer.setAttribute('cy', '12');
-  toastTimer.setAttribute('r', '12');
-
   const toast =
     htmlElement`
     <li class="toast toast-${kind} toast-created">
       <div class="toast-content">
         ${new Text(message)}
       </div>
-      <svg class="toast-timer" viewBox="0 0 24 24">
-        ${toastTimer}
-      </svg>
     </li>`;
 
-  toast.addEventListener('mouseover', () => {
-    if (info.timeout) {
-      info.paused = true;
-    }
-  });
-
-  toast.addEventListener('mouseout', () => {
-    info.paused = false;
-  });
-
-  let lastFrame: DOMHighResTimeStamp | null = null;
-
-  function animateToast(frame: DOMHighResTimeStamp) {
-    if (info.timeout === false || info.remaining === false) {
-      return;
-    }
-
-    const delta = lastFrame ? frame - lastFrame : 0;
-
-    if (!info.paused) {
-      info.remaining -= delta;
-    }
-
-    if (info.remaining < 0) {
-      toast.dispatchEvent(new Event('toast-dismissed'));
-      return;
-    }
-
-    const percent = info.remaining / info.timeout * 100;
-
-    toastTimer.style.strokeDasharray = `${percent} ${100 - percent}`;
-
-    requestAnimationFrame(animateToast);
-
-    lastFrame = frame;
+  if (info.timeout !== false) {
+    createToastTimer(toast, info);
+  } else {
+    createToastDismiss(toast);
   }
-
-  requestAnimationFrame(animateToast);
 
   container.append(toast);
 
   // for CSS transition
   // disable transition, then let it spring up
   toast.style.transition = 'none';
-  toast.style.marginBottom = `-${toast.getBoundingClientRect().height}px`;
+  toast.style.marginBottom = `calc(-${toast.getBoundingClientRect().height}px)`;
   toast.classList.toggle('toast-created', true);
 
   setTimeout(() => {
@@ -111,7 +143,7 @@ export function showToast(
   toast.addEventListener(
     'toast-dismissed',
     () => {
-      toast.style.marginBottom = `-${toast.getBoundingClientRect().height}px`;
+      toast.style.marginBottom = `calc(-${toast.getBoundingClientRect().height}px)`;
       toast.classList.toggle('toast-dismissed', true);
     },
     {once: true});
@@ -124,23 +156,10 @@ export function showToast(
 export const Toast = (): HTMLElement => container;
 
 setTimeout(() =>
-  void showToast(`hello this is a test ajklsdfjsadfkjd
-asdfjjs
-sidofa
-asdfosapidfas
-oiaspdfiadf
-iopasdfk`, 'info', 10000), 2000);
+  void showToast('This is an info toast.', 'info', 10000), 2000);
 setTimeout(() =>
-  void showToast(`hello this is a test ajklsdfjsadfkjd
-asdfjjs
-sidofa
-asdfosapidfas
-oiaspdfiadf
-iopasdfk`, 'error', 10000), 3000);
+  void showToast('This is an error toast.', 'error', 5000), 3000);
 setTimeout(() =>
-  void showToast(`hello this is a test ajklsdfjsadfkjd
-asdfjjs
-sidofa
-asdfosapidfas
-oiaspdfiadf
-iopasdfk`, 'info', 10000), 5000);
+  void showToast('This is another info toast.', 'info', 10000), 5000);
+setTimeout(() =>
+  void showToast('This is a modal info toast.', 'info', false), 5000);
