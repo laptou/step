@@ -6,9 +6,8 @@
   bottom: 0;
   left: 0;
   display: grid;
-  align-content: center;
-  justify-items: center;
-  padding: 4rem;
+  grid-template-rows: auto 1fr;
+  overflow-y: auto;
   background-color: rgba(0, 0, 0, 0.25);
   visibility: hidden;
   opacity: 0;
@@ -24,13 +23,25 @@
     max-height: 100%;
   }
 
-  .close {
+  #lightbox-content {
+    position: relative;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    height: 100%;
+    pointer-events: none;
+    
+    * {
+      pointer-events: auto;
+    }
+  }
+
+  #lightbox-close {
     --accent: white;
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
+    justify-self: end;
     width: 2rem;
     height: 2rem;
+    margin: 1rem;
     font-size: 0;
     background: url('~@res/icon/close-white-24dp.svg') center no-repeat;
   }

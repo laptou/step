@@ -40,3 +40,9 @@
     }
   }
 }
+
+#lightbox-content .cooking-item-image {
+  // make images appear centered
+  margin-bottom: 4rem;
+  object-fit: scale-down;
+}

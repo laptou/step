@@ -7,6 +7,8 @@ import type {Arrunk} from './types';
 export type Renderable = Arrunk<string | Node | null | undefined>;
 
 /**
+ * Gets the sentinel for an item.
+ *
  * @param item The item to get the sentinel value for.
  * @param idx The index of the item within the items array.
  * @returns The sentinel value.
@@ -40,6 +42,8 @@ function getSentinel(
  *
  * You can also interpolate arrays of HTML elements or strings.
  *
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML elements.
  */
 export function htmlFragment(
@@ -59,6 +63,7 @@ export function htmlFragment(
   const flattened = combined
     .flat()
     .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
+
   const markup = flattened.map(getSentinel).join('');
   const template = document.createElement('template');
   template.innerHTML = markup.trim();
@@ -82,6 +87,9 @@ export function htmlFragment(
  * ```
  * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
+ *
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML element.
  */
 export function htmlElement<T extends Node = HTMLElement>(
