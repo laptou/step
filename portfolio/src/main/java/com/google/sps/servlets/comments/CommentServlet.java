@@ -19,9 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -38,20 +36,22 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.cloud.translate.Translate;
+import com.google.cloud.translate.TranslateOptions;
+import com.google.cloud.translate.Translation;
+import com.google.cloud.translate.Translate.TranslateOption;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.sps.data.Comment;
 
 /** Servlet that returns comment information. */
 @WebServlet("/api/comments")
 @MultipartConfig
 public class CommentServlet extends HttpServlet {
-  private static Gson gson = new Gson();
   private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
   private static UserService users = UserServiceFactory.getUserService();
+  private static Translate translate = TranslateOptions.getDefaultInstance().getService();
   private static Pattern htmlDetector =
       Pattern.compile("<\\w+(\\s*\\w+\\s*(=\\s*['\"].*['\"]))*>.*<\\/\\w+>", Pattern.DOTALL);
 
@@ -97,6 +97,13 @@ public class CommentServlet extends HttpServlet {
       comment.addProperty("id", ent.getKey().getId());
       comment.addProperty("name", (String) ent.getProperty("name"));
       comment.addProperty("content", ((Text) ent.getProperty("content")).getValue());
+
+      if (ent.hasProperty("contentLang")) {
+        comment.addProperty("contentLang", (String) ent.getProperty("contentLang"));
+        comment.addProperty("contentTranslated",
+            ((Text) ent.getProperty("contentTranslated")).getValue());
+      }
+
       comment.addProperty("shameful", (boolean) ent.getProperty("shameful"));
       comment.addProperty("upvotes", (long) ent.getProperty("upvotes"));
       comment.addProperty("downvotes", (long) ent.getProperty("downvotes"));
@@ -148,10 +155,21 @@ public class CommentServlet extends HttpServlet {
       return;
     }
 
+
+
     Entity comment = new Entity("Comment");
     comment.setProperty("timestamp", new Date());
     comment.setProperty("user", users.isUserLoggedIn() ? users.getCurrentUser().getUserId() : null);
     comment.setProperty("name", name);
+
+    Translation translation = translate.translate(content, TranslateOption.targetLanguage("en"),
+        TranslateOption.model("nmt"));
+
+    if (translation.getSourceLanguage() != "en") {
+      comment.setUnindexedProperty("contentTranslated", new Text(translation.getTranslatedText()));
+      comment.setProperty("contentLang", translation.getSourceLanguage());
+    }
+
     comment.setUnindexedProperty("content", new Text(content));
     comment.setProperty("shameful",
         htmlDetector.matcher(name).matches() || htmlDetector.matcher(content).matches());
