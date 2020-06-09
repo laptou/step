@@ -155,19 +155,22 @@ public class CommentServlet extends HttpServlet {
       return;
     }
 
-
-
     Entity comment = new Entity("Comment");
     comment.setProperty("timestamp", new Date());
     comment.setProperty("user", users.isUserLoggedIn() ? users.getCurrentUser().getUserId() : null);
     comment.setProperty("name", name);
 
-    Translation translation = translate.translate(content, TranslateOption.targetLanguage("en"),
-        TranslateOption.model("nmt"));
+    try {
+      Translation translation = translate.translate(content, TranslateOption.targetLanguage("en"),
+          TranslateOption.model("nmt"));
 
-    if (translation.getSourceLanguage() != "en") {
-      comment.setUnindexedProperty("contentTranslated", new Text(translation.getTranslatedText()));
-      comment.setProperty("contentLang", translation.getSourceLanguage());
+      if (translation.getSourceLanguage() != "en") {
+        comment.setUnindexedProperty("contentTranslated",
+            new Text(translation.getTranslatedText()));
+        comment.setProperty("contentLang", translation.getSourceLanguage());
+      }
+    } catch (Throwable e) {
+      // this is so that the server does not crash in dev mode
     }
 
     comment.setUnindexedProperty("content", new Text(content));

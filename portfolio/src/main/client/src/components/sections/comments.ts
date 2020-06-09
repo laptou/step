@@ -24,6 +24,19 @@ export interface CommentData {
 }
 
 /**
+ * Information about a comment returned by the server. This is only for comments
+ * that did not appear to be written in English according to the Cloud Translate
+ * API.
+ */
+export interface TranslatedCommentData extends CommentData {
+  /** The language the comment was originally written in. */
+  contentLang: string;
+
+  /** The comment's content, translated to English. */
+  contentTranslated: string;
+}
+
+/**
  * A page of comments returned by the server.
  */
 interface CommentPageData {
