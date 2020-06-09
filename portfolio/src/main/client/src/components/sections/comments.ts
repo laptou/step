@@ -99,6 +99,7 @@ async function fetchPage(
  *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchCurrentPage(
   page: CommentPage | null,
@@ -123,6 +124,7 @@ async function fetchCurrentPage(
  *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchNextPage(
   page: CommentPage | null,
@@ -149,6 +151,7 @@ async function fetchNextPage(
  *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchPreviousPage(
   page: CommentPage | null,
@@ -162,6 +165,8 @@ async function fetchPreviousPage(
 }
 
 /**
+ * Submits the comment from the form.
+ *
  * @param commentsEl The element containing the comment list.
  * @param formEl The form to submit.
  * @param limit The number of comments per page.
@@ -199,7 +204,7 @@ type VoteTally = {upvotes: number, downvotes: number};
  * Submits a vote for a comment.
  *
  * @param commentId The ID of the comment to vote on.
- * @param kind
+ * @param kind The kind of vote to cast.
  */
 async function submitVote(commentId: number, kind: VoteKind) {
   const res = await fetch(`/api/vote/${commentId}`, {
@@ -214,6 +219,13 @@ async function submitVote(commentId: number, kind: VoteKind) {
   // TODO: handle errors using toast
 }
 
+/**
+ * Refreshes the current page of comments, fetching them and loading them into
+ * the page.
+ *
+ * @param commentsEl The container for the list of comments.
+ * @param limit The number of comments per page.
+ */
 async function refreshComments(
   commentsEl: HTMLElement,
   limit: number
