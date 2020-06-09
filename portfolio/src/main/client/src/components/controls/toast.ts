@@ -131,7 +131,7 @@ export function showToast(
   // for CSS transition
   // disable transition, then let it spring up
   toast.style.transition = 'none';
-  toast.style.marginBottom = `calc(-${toast.getBoundingClientRect().height}px)`;
+  toast.style.marginBottom = `-${toast.getBoundingClientRect().height}px`;
   toast.classList.toggle('toast-created', true);
 
   setTimeout(() => {
@@ -143,7 +143,7 @@ export function showToast(
   toast.addEventListener(
     'toast-dismissed',
     () => {
-      toast.style.marginBottom = `calc(-${toast.getBoundingClientRect().height}px)`;
+      toast.style.marginBottom = `-${toast.getBoundingClientRect().height}px`;
       toast.classList.toggle('toast-dismissed', true);
     },
     {once: true});
@@ -154,12 +154,3 @@ export function showToast(
 }
 
 export const Toast = (): HTMLElement => container;
-
-setTimeout(() =>
-  void showToast('This is an info toast.', 'info', 10000), 2000);
-setTimeout(() =>
-  void showToast('This is an error toast.', 'error', 5000), 3000);
-setTimeout(() =>
-  void showToast('This is another info toast.', 'info', 10000), 5000);
-setTimeout(() =>
-  void showToast('This is a modal info toast.', 'info', false), 5000);
