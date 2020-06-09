@@ -270,7 +270,7 @@ const Comment = (comment: CommentData): HTMLElement => {
     });
     downvoteBtn.addEventListener('click', async () => {
       await submitVote(comment.id, 'down');
-      updateScore(await fetchCommentScore(comment.id));;
+      updateScore(await fetchCommentScore(comment.id));
     });
   }
 
