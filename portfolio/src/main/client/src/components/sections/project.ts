@@ -1,6 +1,5 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
-import {ResponsiveImageInfo} from '../controls/responsive-image';
 import {ReadMore} from '../controls/readmore';
 import '@res/style/sections/project.scss';
 
@@ -14,10 +13,13 @@ export interface ProjectInfo {
   attributes: {
     /** Name of the project. */
     name: string;
+
     /** Programming languages used. */
     languages: string[];
+
     /** Technologies used. */
     technologies: string[];
+
     /** Year I started this project. */
     year: number;
   };
@@ -36,18 +38,33 @@ const projectInfos = projectContext
     a.info.attributes.year <= b.info.attributes.year ? 1 : -1);
 
 const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const section: HTMLElement = htmlElement`
-      <div class="project-item">
-        <div class="content">
+  const {el: readMoreEl, collapse, expand} = ReadMore(info.html);
+  const content: HTMLElement = htmlElement`
+        <div class="project-content">
           <h3>${info.attributes.name}</h3>
           <ul class="project-stats">
             <!-- don't nit me, if I put any whitespace in this line it will mess
                  up the presentation -->
             <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
           </ul>
-          ${ReadMore(info.html)}
-        </div>
-      </div>`;
+          ${readMoreEl}
+        </div>`;
+
+  const {el: lightboxItemEl, show, hide} = LightboxItem({
+    target: content,
+    preservePosition: true,
+  });
+
+  readMoreEl.addEventListener('readmore-expand', () => show());
+  readMoreEl.addEventListener('readmore-collapse', () => hide());
+
+  lightboxItemEl.addEventListener('lightbox-show', () => expand());
+  lightboxItemEl.addEventListener('lightbox-hide', () => collapse());
+
+  const section: HTMLElement = htmlElement`
+        <div class="project-item">
+          ${lightboxItemEl}
+        </div>`;
 
   return section;
 };
@@ -60,3 +77,5 @@ export const ProjectSection = (): HTMLElement =>
   <section id="project-section">
     ${projectInfos.map(({key, info}) => ProjectItem(key, info))}
   </section>`;
+
+

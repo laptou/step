@@ -1,6 +1,9 @@
 import {htmlElement} from '@src/util/html';
 import {LightboxItem} from '../controls/lightbox';
-import {ResponsiveImageInfo} from '../controls/responsive-image';
+import {
+  ResponsiveImageInfo,
+  ResponsiveImage,
+} from '../controls/responsive-image';
 import '@res/style/sections/cooking.scss';
 
 export interface DishInfo {
@@ -32,18 +35,24 @@ const CookingItem = (info: DishInfo): HTMLElement => {
     </div>`;
 
   if (info.attributes.image) {
+    // require returns the mangled URL to the image, via file-loader
     const src = require(
         `@res/img/dish/${info.attributes.image}` +
         '?responsive&sizes[]=200,sizes[]=400,sizes[]=600') as ResponsiveImageInfo;
 
+    const img = ResponsiveImage({
+      src,
+      alt: info.attributes.name,
+    });
+
+    img.classList.add('cooking-item-image');
+
     const thumbnail = htmlElement`
-      <div class="thumbnail">
-        ${LightboxItem({
-          // require returns the mangled URL to the image, via file-loader
-          src,
-          alt: info.attributes.name,
-        })}
-      </div>`;
+    <div class="thumbnail">
+      ${LightboxItem({
+        target: img,
+      }).el}
+    </div>`;
 
     section.insertBefore(thumbnail, section.firstChild);
   }

@@ -25,6 +25,8 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
  */
 
 /**
+ * Returns Webpack configuration.
+ *
  * @param env Current environment.
  * @returns config
  */

@@ -16,6 +16,8 @@ export interface ComponentRenderable {
 export type Renderable = PrimitiveRenderable | ComponentRenderable;
 
 /**
+ * Gets the sentinel for an item.
+ *
  * @param item The item to get the sentinel value for.
  * @param idx The index of the item within the items array.
  * @returns The sentinel value.
@@ -48,8 +50,8 @@ function getSentinel(
  *
  * You can also interpolate arrays of HTML elements or strings.
  *
- * @param fragments
- * @param items
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML elements.
  */
 export function htmlFragment(
@@ -92,8 +94,8 @@ export function htmlFragment(
  * const myElem = htmlElement`<td>this is the html</td>`;
  * ```
  *
- * @param fragments
- * @param items
+ * @param fragments The HTML fragements to interpolate into.
+ * @param items The items to interpolate into the HTML.
  * @returns The HTML element.
  */
 export function htmlElement<T extends Node = HTMLElement>(
