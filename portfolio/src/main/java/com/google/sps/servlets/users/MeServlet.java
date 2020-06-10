@@ -25,7 +25,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.JsonObject;
 
-/** Servlet that returns comment information. */
+/** Servlet that returns user information. */
 @WebServlet("/api/users/me")
 public class MeServlet extends HttpServlet {
   private static UserService userService = UserServiceFactory.getUserService();

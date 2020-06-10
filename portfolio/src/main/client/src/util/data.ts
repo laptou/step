@@ -19,11 +19,11 @@ export class DataSignal<T> {
     this._value = value;
   }
 
-  public get value(): T {
+  public getValue(): T {
     return this._value;
   }
 
-  public set value(value: T) {
+  public setValue(value: T) {
     const oldValue = this._value;
     this._value = value;
 
@@ -39,10 +39,10 @@ export class DataSignal<T> {
    * this signal.
    * @returns A cleanup function which will unregister this handler when called.
    */
-  public on(handler: Handler<T>): Cleanup {
+  public addHandler(handler: Handler<T>): Cleanup {
     this._handlers.add(handler);
 
-    return () => this.off(handler);
+    return () => this.removeHandler(handler);
   }
 
   /**
@@ -52,7 +52,7 @@ export class DataSignal<T> {
    * on this signal.
    * @returns `true` if that handler was registered, `false` otherwise.
    */
-  public off(handler: Handler<T>): boolean {
+  public removeHandler(handler: Handler<T>): boolean {
     return this._handlers.delete(handler);
   }
 }

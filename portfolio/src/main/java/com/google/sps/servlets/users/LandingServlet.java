@@ -20,7 +20,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/** Servlet that allows the page to know if the user has logged in. */
+/** 
+ * Servlet that allows the page to know if the user has logged in. URIs provided by UserService
+ * should be opened in a popup window, and should redirect to this servlet when the user is finished
+ * logging in. This servlet sends some JS which notifies the window that opened the popout that the
+ * authentication flow is complete and it should re-query the authentication state.
+ */
 @WebServlet("/api/users/landing")
 public class LandingServlet extends HttpServlet {
   @Override

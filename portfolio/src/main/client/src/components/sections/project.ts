@@ -47,23 +47,23 @@ const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
                  up the presentation -->
             <li class="year">${info.attributes.year.toString()}</li><li class="languages">${info.attributes.languages.join(', ')}</li>
           </ul>
-          ${readmore}
+          ${readmore.root}
         </div>`;
 
-  const {el: lightboxItemEl, show, hide} = LightboxItem({
+  const lightbox = LightboxItem({
     target: content,
     preservePosition: true,
   });
 
-  readmore.el.addEventListener('readmore-expand', () => show());
-  readmore.el.addEventListener('readmore-collapse', () => hide());
+  readmore.root.addEventListener('readmore-expand', () => lightbox.show());
+  readmore.root.addEventListener('readmore-collapse', () => lightbox.hide());
 
-  lightboxItemEl.addEventListener('lightbox-show', () => readmore.expand());
-  lightboxItemEl.addEventListener('lightbox-hide', () => readmore.collapse());
+  lightbox.root.addEventListener('lightbox-show', () => readmore.expand());
+  lightbox.root.addEventListener('lightbox-hide', () => readmore.collapse());
 
   const section: HTMLElement = htmlElement`
         <div class="project-item">
-          ${lightboxItemEl}
+          ${lightbox.root}
         </div>`;
 
   return section;
