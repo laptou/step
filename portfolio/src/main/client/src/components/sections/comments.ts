@@ -40,7 +40,7 @@ export interface TranslatedCommentData extends CommentData {
  * A page of comments returned by the server.
  */
 interface CommentPageData {
-  comments: CommentData[];
+  comments: Array<CommentData | TranslatedCommentData>;
 
   /**
    * Can be used to fetch the next batch of comments from the server.
@@ -253,7 +253,7 @@ async function fetchCommentScore(commentId: number) {
   return await res.json() as VoteTally;
 }
 
-const Comment = (comment: CommentData): HTMLElement => {
+const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
   const nameSpan: HTMLElement =
     htmlElement`<span class="comment-name"></span>`;
   nameSpan.innerText = comment.name;
