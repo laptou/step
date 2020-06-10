@@ -15,7 +15,12 @@ interface ToastInfo {
 
 const container = htmlElement`<ul id="toast-container"></ul>`;
 
-function createToastTimer(
+/**
+ * Creates a timed toast and places it in the toast container. 
+ * @param el The HTML element which represents this toast.
+ * @param info The state associated with this toast.
+ */
+function initTimedToast(
   el: HTMLElement,
   info: ToastInfo
 ) {
@@ -74,7 +79,12 @@ function createToastTimer(
   requestAnimationFrame(animateToast);
 }
 
-function createToastDismiss(
+/**
+ * Creates a modal toast and places it in the toast container. 
+ * @param el The HTML element which represents this toast.
+ * @param info The state associated with this toast.
+ */
+function initModalToast(
   el: HTMLElement
 ) {
   const toastDismiss: HTMLButtonElement =
@@ -121,9 +131,9 @@ export function showToast(
     </li>`;
 
   if (info.timeout !== false) {
-    createToastTimer(toast, info);
+    initTimedToast(toast, info);
   } else {
-    createToastDismiss(toast);
+    initModalToast(toast);
   }
 
   container.append(toast);
