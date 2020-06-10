@@ -229,7 +229,7 @@ const Comment = (comment: CommentData): HTMLElement => {
         `No votes`;
 
   const readmore = ReadMore(new Text(comment.content));
-  readmore.el.classList.add('comment-content');
+  readmore.root.classList.add('comment-content');
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
@@ -241,7 +241,7 @@ const Comment = (comment: CommentData): HTMLElement => {
         </span>
         ${upvoteBtn}
         ${downvoteBtn}
-        ${readmore}
+        ${readmore.root}
       </div>
     </li>`;
 
