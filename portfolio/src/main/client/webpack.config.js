@@ -37,10 +37,13 @@ exports.default = (env = {production: true}) => ({
   devServer: {
     port: 8090,
     hot: true,
-    proxy: {
-      '/api': 'http://127.0.0.1:8080/',
-    },
-    historyApiFallback: true,
+    proxy: [{
+      context: ['/api', '/_ah'],
+      target: 'http://localhost:8080',
+      autoRewrite: true,
+    }],
+    host: '0.0.0.0',
+    allowedHosts: ['localhost', '127.0.0.1', 'penguin.linux.test'],
   },
   optimization: {
     runtimeChunk: false,

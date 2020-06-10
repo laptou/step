@@ -24,7 +24,6 @@ function getSentinel(
   return item;
 }
 
-// eslint-disable-next-line valid-jsdoc
 /**
  * Helper function to parse HTML into multiple DOM nodes. Meant to be used
  * as a template literal tag:
@@ -58,11 +57,9 @@ export function htmlFragment(
     combined.push(fragments[i + 1]);
   }
 
-  // type assertion b/c TS does not recognize that this will remove null and
-  // undefined from the array
   const flattened = combined
     .flat()
-    .filter((r) => r !== null && r !== undefined) as Array<string | Node>;
+    .filter((r): r is string | Node => r !== null && r !== undefined);
 
   const markup = flattened.map(getSentinel).join('');
   const template = document.createElement('template');
@@ -80,7 +77,6 @@ export function htmlFragment(
   return Array.from(template.content.children);
 }
 
-// eslint-disable-next-line valid-jsdoc
 /**
  * Helper function to parse HTML into a DOM node. Meant to be used
  * as a template literal tag:

@@ -113,7 +113,7 @@ function hideCurrentLightbox() {
 
 interface LightboxItemComponent {
   /** The lightbox item. */
-  el: HTMLDivElement;
+  root: HTMLDivElement;
 
   /** Shows the target in the lightbox. */
   show(): void;
@@ -143,7 +143,7 @@ export const LightboxItem =
     });
 
     return {
-      el: lbItem,
+      root: lbItem,
       show: (): void => showLightbox(lbItem, props),
       hide: (): void => hideLightbox(lbItem),
     };
