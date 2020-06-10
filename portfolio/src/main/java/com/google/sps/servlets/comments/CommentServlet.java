@@ -137,6 +137,11 @@ public class CommentServlet extends HttpServlet {
       return;
     }
 
+    if (namePart == null || contentPart == null) {
+      res.setStatus(400);
+      return;
+    }
+
     // truncate usernames at 1000 bytes
     String name = readPartToString(namePart, 1000);
 
