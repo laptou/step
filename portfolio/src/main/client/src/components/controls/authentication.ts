@@ -23,7 +23,7 @@ async function updateState(state: DataSignal<State>) {
   const response = await fetch('/api/users/me');
   const newState =
     await response.json() as LoggedInResponse | LoggedOutResponse;
-  state.value = newState;
+  state.setValue(newState);
 }
 
 /**
@@ -32,7 +32,8 @@ async function updateState(state: DataSignal<State>) {
  * @param state The state data signal.
  */
 function login(state: DataSignal<State>) {
-  const currentState = state.value;
+  const currentState = state.getValue();
+
   if (currentState && 'loginUri' in currentState) {
     const loginDialog = window.open(currentState.loginUri);
 
@@ -48,7 +49,8 @@ function login(state: DataSignal<State>) {
  * @param state The state data signal.
  */
 function logout(state: DataSignal<State>) {
-  const currentState = state.value;
+  const currentState = state.getValue();
+
   if (currentState && 'logoutUri' in currentState) {
     // we don't even need to open the window to log out, so don't
     void fetch(currentState.logoutUri)
@@ -88,24 +90,21 @@ export const Authentication = () => {
     void updateState(state);
   });
 
-  function handle(newState: State) {
+  function onStateChange(newState: State) {
+    container.classList.toggle('loading', false);
+    container.innerHTML = '';
+
     if (newState === null) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
       container.append(loadingContent);
       return;
     }
 
     if ('loginUri' in newState) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
       container.append(loggedOutContent);
       return;
     }
 
     if ('logoutUri' in newState) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
       container.append(loggedInContent);
       return;
     }
@@ -113,9 +112,9 @@ export const Authentication = () => {
     throw new Error('unexpected state');
   }
 
-  state.on(handle);
+  state.addHandler(onStateChange);
 
-  handle(state.value);
+  onStateChange(state.getValue());
 
   void updateState(state);
 
