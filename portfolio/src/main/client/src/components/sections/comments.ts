@@ -352,7 +352,7 @@ export const CommentSection = (): HTMLElement => {
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${Authentication()}
+      ${Authentication().root}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">

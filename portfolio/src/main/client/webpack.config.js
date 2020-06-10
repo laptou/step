@@ -41,7 +41,6 @@ exports.default = (env = {production: true}) => ({
       context: ['/api', '/_ah'],
       target: 'http://localhost:8080',
       autoRewrite: true,
-      // changeOrigin: true,
     }],
     host: '0.0.0.0',
     allowedHosts: ['localhost', '127.0.0.1', 'penguin.linux.test'],

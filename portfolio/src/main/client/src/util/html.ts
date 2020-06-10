@@ -1,21 +1,10 @@
 import type {Arrunk} from './types';
 
 /**
- * Any stateless item that can be rendered by interpolating it with the @see
- * htmlElement function.
+ * Any item that can be rendered by interpolating it with the @see htmlElement
+ * function.
  */
-export type PrimitiveRenderable = Arrunk<string | number | Node | null | undefined>;
-
-/**
- * A component renderable, which has a certain state and renders a primitive.
- */
-export interface ComponentRenderable<
-  T extends string | Node | null = string | Node | null
-> {
-  readonly el: T;
-}
-
-export type Renderable = PrimitiveRenderable | ComponentRenderable;
+export type Renderable = Arrunk<string | number | Node | null | undefined>;
 
 /**
  * Gets the sentinel for an item.
@@ -70,7 +59,6 @@ export function htmlFragment(
 
   const flattened = combined
     .flat()
-    .map((r) => r && typeof r === 'object' && 'el' in r ? r.el : r)
     .map((r) => typeof r === 'number' ? r.toString() : r)
     .filter((r): r is string | Node => r !== null && r !== undefined);
 
