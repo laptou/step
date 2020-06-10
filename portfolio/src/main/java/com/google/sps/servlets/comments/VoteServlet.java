@@ -33,6 +33,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * Serlvet that allows user to vote on comments. Last segment of path should be the comment ID.
@@ -52,6 +53,30 @@ public class VoteServlet extends HttpServlet {
     }
   }
 
+  protected void doGet(HttpServletRequest req, HttpServletResponse res)
+      throws ServletException, IOException {
+    long commentId;
+    Entity commentEnt;
+    try {
+      // skip leading forward slash
+      commentId = Long.parseLong(req.getPathInfo().substring(1));
+      commentEnt = datastore.get(KeyFactory.createKey("Comment", commentId));
+    } catch (NumberFormatException e) {
+      res.setStatus(404);
+      return;
+    } catch (EntityNotFoundException e) {
+      res.setStatus(404);
+      return;
+    }
+
+    JsonObject root = new JsonObject();
+    root.addProperty("upvotes", (long) commentEnt.getProperty("upvotes"));
+    root.addProperty("downvotes", (long) commentEnt.getProperty("downvotes"));
+
+    res.setContentType("application/json");
+    res.getWriter().write(root.toString());
+  }
+
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
@@ -67,14 +92,15 @@ public class VoteServlet extends HttpServlet {
       // skip leading forward slash
       commentId = Long.parseLong(req.getPathInfo().substring(1));
     } catch (NumberFormatException e) {
-      res.setStatus(400);
+      res.setStatus(404);
       return;
     }
 
     VotePostInfo info;
     try {
       info = gson.fromJson(req.getReader(), VotePostInfo.class);
-      if (info.kind == null) throw new IllegalArgumentException();
+      if (info.kind == null)
+        throw new IllegalArgumentException();
     } catch (Throwable e) {
       res.setStatus(400);
       return;
@@ -94,7 +120,7 @@ public class VoteServlet extends HttpServlet {
     PreparedQuery pq = datastore.prepare(q);
 
     Entity voteEnt = pq.asSingleEntity();
-    
+
 
     if (voteEnt == null) {
       // we are committing a new vote
