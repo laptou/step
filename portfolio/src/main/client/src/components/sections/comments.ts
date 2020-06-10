@@ -1,7 +1,7 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
-import {Authentication} from '../controls/authentication';
+import {Authentication, AuthState} from '../controls/authentication';
 import {ReadMore} from '../controls/readmore';
 import languages from '@res/misc/languages.json';
 
@@ -385,7 +385,6 @@ export const CommentSection = (): HTMLElement => {
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${Authentication().root}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">
@@ -404,10 +403,20 @@ export const CommentSection = (): HTMLElement => {
   const prevBtn: HTMLButtonElement =
     htmlElement`<button id="comment-prev">Previous</button>`;
 
+  const auth = Authentication({
+    loggedInText: (authState) =>
+      authState ?
+        `Log out from ${authState.username}` :
+        'Loading',
+    loggedOutText: 'Log in to vote on comments',
+  });
 
   const container: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
+      <div id="comments-auth">
+        ${auth.root}
+      </div>
       <ul>
       </ul>
       <div id="comments-pager">
