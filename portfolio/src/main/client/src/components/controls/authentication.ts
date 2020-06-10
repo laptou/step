@@ -15,24 +15,26 @@ interface LoggedOutResponse {
 type State = LoggedInResponse | LoggedOutResponse | null;
 
 /**
- * Retrieves the current login state from the server.
- *
- * @param state The state data signal.
+ * The current authentication state: logged in, logged out, or unknown.
  */
-async function updateState(state: DataSignal<State>) {
+export const authState = new DataSignal<State>(null);
+
+
+/**
+ * Retrieves the current login state from the server.
+ */
+async function updateState() {
   const response = await fetch('/api/users/me');
   const newState =
     await response.json() as LoggedInResponse | LoggedOutResponse;
-  state.setValue(newState);
+  authState.setValue(newState);
 }
 
 /**
  * Launches the login flow.
- *
- * @param state The state data signal.
  */
-function login(state: DataSignal<State>) {
-  const currentState = state.getValue();
+export function login() {
+  const currentState = authState.getValue();
 
   if (currentState && 'loginUri' in currentState) {
     const loginDialog = window.open(currentState.loginUri);
@@ -46,17 +48,20 @@ function login(state: DataSignal<State>) {
 /**
  * Logs the user out.
  *
- * @param state The state data signal.
+ * @returns `true` if the user was logged out, `false` if they were not logged
+ * in.
  */
-function logout(state: DataSignal<State>) {
-  const currentState = state.getValue();
+export async function logout(): Promise<boolean> {
+  const currentState = authState.getValue();
 
   if (currentState && 'logoutUri' in currentState) {
     // we don't even need to open the window to log out, so don't
-    void fetch(currentState.logoutUri)
-      .then(() => updateState(state))
-      .catch((err) => console.error(err));
+    await fetch(currentState.logoutUri);
+    await updateState();
+    return true;
   }
+
+  return Promise.resolve(false);
 }
 
 /**
@@ -65,7 +70,6 @@ function logout(state: DataSignal<State>) {
  * user to sign in and out.
  */
 export const Authentication = () => {
-  const state = new DataSignal<State>(null);
   const container = document.createElement('div');
   container.classList.add('auth-container');
 
@@ -75,29 +79,26 @@ export const Authentication = () => {
   const loggedOutContent: HTMLButtonElement =
     htmlElement`<button type="button">Log in</button>`;
 
-  loggedOutContent.addEventListener('click', () => login(state));
 
   const loggedInContent: HTMLButtonElement =
     htmlElement`<button type="button">Log out</button>`;
 
-  loggedInContent.addEventListener('click', () => logout(state));
+  loggedOutContent.addEventListener('click', () => login());
+  loggedInContent.addEventListener('click', () => logout());
 
-  window.addEventListener('auth-login', () => {
-    void updateState(state);
-  });
-
-  window.addEventListener('auth-logout', () => {
-    void updateState(state);
-  });
+  window.addEventListener('auth-login', () => updateState());
+  window.addEventListener('auth-logout', () => updateState());
 
   function onStateChange(newState: State) {
-    container.classList.toggle('loading', false);
     container.innerHTML = '';
 
     if (newState === null) {
+      container.classList.toggle('loading', true);
       container.append(loadingContent);
       return;
     }
+
+    container.classList.toggle('loading', false);
 
     if ('loginUri' in newState) {
       container.append(loggedOutContent);
@@ -112,14 +113,13 @@ export const Authentication = () => {
     throw new Error('unexpected state');
   }
 
-  state.addHandler(onStateChange);
+  authState.addHandler(onStateChange);
 
-  onStateChange(state.getValue());
+  onStateChange(authState.getValue());
 
-  void updateState(state);
+  void updateState();
 
   return {
-    state,
-    root: container
+    root: container,
   };
 };
