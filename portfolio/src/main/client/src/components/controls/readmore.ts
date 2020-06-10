@@ -24,7 +24,7 @@ export interface ReadMoreComponent {
  * @param content The content to place inside of the readmore.
  * @returns A @see {ReadMoreComponent}
  */
-export const ReadMore = (content: PrimitiveRenderable): ReadMoreComponent => {
+export const ReadMore = (content: Renderable): ReadMoreComponent => {
   const contentEl: HTMLDivElement =
     htmlElement`<div class="readmore collapsed">${content}</div>`;
 
