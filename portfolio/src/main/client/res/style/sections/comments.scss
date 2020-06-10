@@ -1,5 +1,6 @@
 @use '../index';
 @use '../responsive';
+@use '../text';
 
 .comments {
   @extend %content-section;
@@ -25,39 +26,87 @@
     border-width: 0 0 1px;
 
     .inner {
+      display: grid;
+      grid-template-rows: 1.5rem 1.5rem 1.5rem auto;
+      grid-template-columns: auto 1fr;
       margin: -0.5rem;
       padding: 0.5rem;
-      background-color: var(--background);
       overflow: hidden;
+      background-color: var(--background);
     }
 
-    &.shameful {
-      background-color: hsla(0, 100%, 50%, 25%); // 50% transparent red
-      background-image: url('~@res/img/site/shame.svg');
-      animation: 15s linear 0s infinite shameful-background;
+    .comment-name {
+      grid-row: 1;
+      grid-column: 2;
+      align-self: center;
+      padding: 0 0 0 0.5rem;
+      overflow: hidden;
+      font-weight: bold;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
 
-      .inner::after {
-        display: block;
-        margin-top: 1rem;
-        font-size: 0.9em;
-        font-style: italic;
-        opacity: 0.8;
-        content: 'Look at this fool, they tried to do HTML injection on my website! Repent!';
+    .comment-score {
+      grid-row: 2;
+      grid-column: 1;
+      align-self: center;
+      justify-self: center;
+      font-weight: bold;
+      user-select: none;
+    }
+
+    .comment-upvote-btn {
+      grid-row: 1;
+
+      -webkit-mask-image: url('~@res/icon/thumb_up-white-24dp.svg');
+      mask-image: url('~@res/icon/thumb_up-white-24dp.svg');
+
+      &:enabled:hover {
+        --accent: dodgerblue;
       }
     }
 
-    .name {
-      font-weight: bold;
-      
-      &::after { content: ' • '; }
+    .comment-downvote-btn {
+      grid-row: 3;
+
+      -webkit-mask-image: url('~@res/icon/thumb_down-white-24dp.svg');
+      mask-image: url('~@res/icon/thumb_down-white-24dp.svg');
+
+      &:enabled:hover {
+        --accent: tomato;
+      }
     }
 
-    .upvotes {
-      opacity: 0.5;
+    // these rules have a circular heirarchy of specificity
+    /* stylelint-disable-next-line no-descending-specificity */
+    .comment-upvote-btn, .comment-downvote-btn {
+      grid-column: 1;
+      font-size: 0;
+      background-color: var(--accent);
+
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      -webkit-mask-size: 1.25rem;
+      mask-size: 1.25rem;
+
+      border: none;
+      box-shadow: none;
+      transition: background-color 0.125s linear;
+
+      --accent: grey;
+
+      /* stylelint-disable-next-line no-descending-specificity */
+      &:disabled {
+        opacity: 0.7;
+      }
     }
 
-    .downvotes {
-      opacity: 0.5;
+    .comment-content {
+      grid-row: 2 / 5;
+      grid-column: 2;
+      padding: 0.25rem 0 0 0.5rem;
     }
 
     .expander {
@@ -65,6 +114,16 @@
       font-size: 0.9em;
       font-style: italic;
       opacity: 0.8;
+    }
+
+    &.shameful {
+      background-color: hsla(0, 100%, 50%, 25%); // 50% transparent red
+      background-image: url('~@res/img/site/shame.svg');
+      animation: 15s linear 0s infinite shameful-background;
+
+      .score {
+        color: hsl(0, 80%, 50%); // 80% red
+      }
     }
   }
 

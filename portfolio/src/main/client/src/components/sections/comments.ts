@@ -2,6 +2,7 @@ import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 import {Authentication} from '../controls/authentication';
+import {ReadMore} from '../controls/readmore';
 
 type Cursor = string;
 
@@ -190,75 +191,57 @@ async function submitForm(
     // TODO present toast to user notifying failure
   }
 
-  // reset to the first page
-  currentPage = await fetchCurrentPage(null, limit);
-  updateComments(commentsEl, currentPage, limit);
-}
-
-/**
- * @param text The text to truncate.
- * @returns `text` truncated to 5 lines or 500 chars, whichever is shorter.
- */
-function truncateText(text: string) {
-  const truncatedByChars = text.slice(0, 500);
-  const truncatedByNewlines = text.split('\n').slice(0, 5).join('\n');
-
-  if (truncatedByChars.length < truncatedByNewlines.length) {
-    return truncatedByChars;
-  } else {
-    return truncatedByNewlines;
-  }
+  // give the server time to store comment before refreshing
+  setTimeout(async () => {
+    // reset to the first page
+    currentPage = await fetchNextPage(null, limit);
+    updateComments(commentsEl, currentPage, limit);
+  }, 400);
 }
 
 const Comment = (comment: CommentData): HTMLElement => {
-  // user supplied strings cannot be interpolated directly to avoid XSS
-  const contentEl: HTMLElement = htmlElement`<div class="content"></div>`;
-  contentEl.innerText = comment.content;
+  const nameSpan: HTMLElement =
+    htmlElement`<span class="comment-name"></span>`;
+  nameSpan.innerText = comment.name;
+  nameSpan.title = comment.name;
 
-  let truncatedContentEl: HTMLElement | null = null;
-  let truncatedContentExpander: HTMLAnchorElement | null = null;
-  const truncatedContent = truncateText(comment.content);
+  const upvoteBtn: HTMLButtonElement =
+    htmlElement`
+    <button type="button" class="comment-upvote-btn">
+      Upvote
+    </button>`;
 
-  if (truncatedContent.length < comment.content.length) {
-    truncatedContentEl = document.createElement('div');
-    truncatedContentEl.classList.add('content', 'truncated');
-    truncatedContentEl.innerText = truncatedContent;
+  const downvoteBtn: HTMLButtonElement =
+    htmlElement`
+    <button type="button" class="comment-downvote-btn">
+      Downvote
+    </button>`;
 
-    truncatedContentExpander = document.createElement('a');
-    truncatedContentExpander.href = 'javascript:void 0';
-    truncatedContentExpander.classList.add('expander');
-    truncatedContentExpander.innerText = 'see more';
-
-    let isTruncated = true;
-    truncatedContentExpander.addEventListener('click', () => {
-      isTruncated = !isTruncated;
-
-      if (isTruncated) {
-        contentEl.replaceWith(truncatedContentEl!);
-        truncatedContentExpander!.innerText = 'see more';
-      } else {
-        truncatedContentEl!.replaceWith(contentEl);
-        truncatedContentExpander!.innerText = 'see less';
-      }
-    });
+  if (comment.shameful) {
+    upvoteBtn.disabled = true;
+    downvoteBtn.disabled = true;
   }
 
+  const score = comment.upvotes - comment.downvotes;
+  const votes = comment.upvotes + comment.downvotes;
+  const summary = votes > 0 ?
+        `${comment.upvotes / votes * 100}% upvoted` :
+        `No votes`;
 
-  const name: HTMLElement = htmlElement`<span class="name"></span>`;
-  name.innerText = comment.name;
+  const readmore = ReadMore(new Text(comment.content));
+  readmore.root.classList.add('comment-content');
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
       <div class="inner">
-        <span class="info">
-          ${name}
-          <span class="upvotes">+${comment.upvotes.toString()}</span>
-          <span class="downvotes">
-            -${comment.shameful ? '∞' : comment.downvotes.toString()}
-          </span>
+        ${nameSpan}
+        <span class="comment-score" 
+              title="${comment.shameful ? 'Shameful!' : summary}">
+          ${comment.shameful ? '-∞' : score.toString()}
         </span>
-        ${truncatedContentEl ?? contentEl}
-        ${truncatedContentExpander}
+        ${upvoteBtn}
+        ${downvoteBtn}
+        ${readmore.root}
       </div>
     </li>`;
 
@@ -283,7 +266,7 @@ export const CommentSection = (): HTMLElement => {
   const usernameInput = LabeledInput({
     id: 'comment-username',
     label: 'Name',
-    name: 'username',
+    name: 'name',
     type: 'text',
   });
 

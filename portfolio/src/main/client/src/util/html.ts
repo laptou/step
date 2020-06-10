@@ -4,7 +4,7 @@ import type {Arrunk} from './types';
  * Any item that can be rendered by interpolating it with the @see htmlElement
  * function.
  */
-export type Renderable = Arrunk<string | Node | null | undefined>;
+export type Renderable = Arrunk<string | number | Node | null | undefined>;
 
 /**
  * Gets the sentinel for an item.
@@ -14,14 +14,14 @@ export type Renderable = Arrunk<string | Node | null | undefined>;
  * @returns The sentinel value.
  */
 function getSentinel(
-  item: string | Node,
+  item: string | number | Node,
   idx: number): string {
   if (item instanceof Node) {
     // will be replaced with actual element later
     return `<slot data-template data-index="${idx}"></slot>`;
   }
 
-  return item;
+  return item.toString();
 }
 
 /**
@@ -59,6 +59,7 @@ export function htmlFragment(
 
   const flattened = combined
     .flat()
+    .map((r) => typeof r === 'number' ? r.toString() : r)
     .filter((r): r is string | Node => r !== null && r !== undefined);
 
   const markup = flattened.map(getSentinel).join('');
