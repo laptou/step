@@ -1,7 +1,8 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
-import { Authentication } from '../controls/authentication';
+import {Authentication} from '../controls/authentication';
+import {ReadMore} from '../controls/readmore';
 
 type Cursor = string;
 
@@ -45,6 +46,7 @@ let currentPage: CommentPage | null = null;
 
 /**
  * Loads comments from server and adds them to the component.
+ *
  * @param container The element to load the comments into.
  * @param page The comment page containing the comments.
  * @param limit The number of comments per page.
@@ -78,6 +80,7 @@ function updateComments(
 
 /**
  * Fetches the comment page for a given cursor.
+ *
  * @param cursor The cursor of the page to fetch.
  * @param limit The size of the page.
  */
@@ -93,8 +96,10 @@ async function fetchPage(
 
 /**
  * Fetches the current page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchCurrentPage(
   page: CommentPage | null,
@@ -116,8 +121,10 @@ async function fetchCurrentPage(
 
 /**
  * Fetches the next page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchNextPage(
   page: CommentPage | null,
@@ -141,8 +148,10 @@ async function fetchNextPage(
 
 /**
  * Fetches the previous page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
+ * @returns The comment page.
  */
 async function fetchPreviousPage(
   page: CommentPage | null,
@@ -156,14 +165,16 @@ async function fetchPreviousPage(
 }
 
 /**
+ * Submits the comment from the form.
+ *
  * @param commentsEl The element containing the comment list.
  * @param formEl The form to submit.
  * @param limit The number of comments per page.
  */
 async function submitForm(
   commentsEl: HTMLElement,
-  formEl: HTMLFormElement,
-  limit: number) {
+  formEl: HTMLFormElement
+) {
   if (!formEl.checkValidity()) {
     formEl.classList.add('show-validation');
   }
@@ -184,76 +195,109 @@ async function submitForm(
   } catch {
     // TODO present toast to user notifying failure
   }
+}
 
-  // reset to the first page
-  currentPage = await fetchCurrentPage(null, limit);
-  updateComments(commentsEl, currentPage, limit);
+type VoteKind = 'up' | 'down';
+type VoteTally = {upvotes: number, downvotes: number};
+
+/**
+ * Submits a vote for a comment.
+ *
+ * @param commentId The ID of the comment to vote on.
+ * @param kind The kind of vote to cast.
+ */
+async function submitVote(commentId: number, kind: VoteKind) {
+  const res = await fetch(`/api/vote/${commentId}`, {
+    method: 'POST',
+    body: JSON.stringify({kind}),
+  });
+
+  if (res.status !== 200) {
+    throw new Error('sending vote failed');
+  }
+
+  // TODO: handle errors using toast
 }
 
 /**
- * @param text The text to truncate.
- * @returns `text` truncated to 5 lines or 500 chars, whichever is shorter.
+ * Refreshes the current page of comments, fetching them and loading them into
+ * the page.
+ *
+ * @param commentsEl The container for the list of comments.
+ * @param limit The number of comments per page.
  */
-function truncateText(text: string) {
-  const truncatedByChars = text.slice(0, 500);
-  const truncatedByNewlines = text.split('\n').slice(0, 5).join('\n');
+async function refreshComments(
+  commentsEl: HTMLElement,
+  limit: number
+) {
+  // reset to the first page
+  currentPage = await fetchNextPage(null, limit);
+  updateComments(commentsEl, currentPage, limit);
+}
 
-  if (truncatedByChars.length < truncatedByNewlines.length) {
-    return truncatedByChars;
-  } else {
-    return truncatedByNewlines;
-  }
+async function fetchCommentScore(commentId: number) {
+  const res = await fetch(`/api/vote/${commentId}`);
+  return await res.json() as VoteTally;
 }
 
 const Comment = (comment: CommentData): HTMLElement => {
-  // user supplied strings cannot be interpolated directly to avoid XSS
-  const contentEl: HTMLElement = htmlElement`<div class="content"></div>`;
-  contentEl.innerText = comment.content;
+  const nameSpan: HTMLElement =
+    htmlElement`<span class="comment-name"></span>`;
+  nameSpan.innerText = comment.name;
+  nameSpan.title = comment.name;
 
-  let truncatedContentEl: HTMLElement | null = null;
-  let truncatedContentExpander: HTMLAnchorElement | null = null;
-  const truncatedContent = truncateText(comment.content);
+  const upvoteBtn: HTMLButtonElement =
+    htmlElement`
+    <button type="button" class="comment-upvote-btn">
+      Upvote
+    </button>`;
 
-  if (truncatedContent.length < comment.content.length) {
-    truncatedContentEl = document.createElement('div');
-    truncatedContentEl.classList.add('content', 'truncated');
-    truncatedContentEl.innerText = truncatedContent;
+  const downvoteBtn: HTMLButtonElement =
+    htmlElement`
+    <button type="button" class="comment-downvote-btn">
+      Downvote
+    </button>`;
 
-    truncatedContentExpander = document.createElement('a');
-    truncatedContentExpander.href = 'javascript:void 0';
-    truncatedContentExpander.classList.add('expander');
-    truncatedContentExpander.innerText = 'see more';
+  const scoreSpan = htmlElement`<span class="comment-score"></span>`;
 
-    let isTruncated = true;
-    truncatedContentExpander.addEventListener('click', () => {
-      isTruncated = !isTruncated;
+  const updateScore = (tally: VoteTally) => {
+    const score = tally.upvotes - tally.downvotes;
+    const votes = tally.upvotes + tally.downvotes;
+    const summary = votes > 0 ?
+          `${comment.upvotes / votes * 100}% upvoted` :
+          `No votes`;
+    scoreSpan.title = comment.shameful ? 'Shameful!' : summary;
+    scoreSpan.innerText = score.toString();
+  };
 
-      if (isTruncated) {
-        contentEl.replaceWith(truncatedContentEl!);
-        truncatedContentExpander!.innerText = 'see more';
-      } else {
-        truncatedContentEl!.replaceWith(contentEl);
-        truncatedContentExpander!.innerText = 'see less';
-      }
+  updateScore(comment);
+
+  if (comment.shameful) {
+    upvoteBtn.disabled = true;
+    downvoteBtn.disabled = true;
+  } else {
+    upvoteBtn.addEventListener('click', async () => {
+      await submitVote(comment.id, 'up');
+      updateScore(await fetchCommentScore(comment.id));
+    });
+    downvoteBtn.addEventListener('click', async () => {
+      await submitVote(comment.id, 'down');
+      updateScore(await fetchCommentScore(comment.id));
     });
   }
 
 
-  const name: HTMLElement = htmlElement`<span class="name"></span>`;
-  name.innerText = comment.name;
+  const readmore = ReadMore(new Text(comment.content));
+  readmore.root.classList.add('comment-content');
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
       <div class="inner">
-        <span class="info">
-          ${name}
-          <span class="upvotes">+${comment.upvotes.toString()}</span>
-          <span class="downvotes">
-            -${comment.shameful ? '∞' : comment.downvotes.toString()}
-          </span>
-        </span>
-        ${truncatedContentEl ?? contentEl}
-        ${truncatedContentExpander}
+        ${nameSpan}
+        ${scoreSpan}
+        ${upvoteBtn}
+        ${downvoteBtn}
+        ${readmore.root}
       </div>
     </li>`;
 
@@ -278,7 +322,7 @@ export const CommentSection = (): HTMLElement => {
   const usernameInput = LabeledInput({
     id: 'comment-username',
     label: 'Name',
-    name: 'username',
+    name: 'name',
     type: 'text',
   });
 
@@ -295,7 +339,7 @@ export const CommentSection = (): HTMLElement => {
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${Authentication()}
+      ${Authentication().root}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">
@@ -303,9 +347,10 @@ export const CommentSection = (): HTMLElement => {
       </button>
     </form>`;
 
-  formEl.addEventListener('submit', (ev) => {
+  formEl.addEventListener('submit', async (ev) => {
     ev.preventDefault();
-    void submitForm(container, formEl, limit);
+    await submitForm(container, formEl);
+    await refreshComments(container, limit);
   });
 
   const nextBtn: HTMLButtonElement =

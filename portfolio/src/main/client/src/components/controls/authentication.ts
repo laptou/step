@@ -1,4 +1,3 @@
-import {DataSignal} from '@src/util/data';
 import {htmlElement} from '@src/util/html';
 
 interface LoggedInResponse {
@@ -12,50 +11,73 @@ interface LoggedOutResponse {
   loginUri: string;
 }
 
-type State = LoggedInResponse | LoggedOutResponse | null;
+type State = LoggedInResponse | LoggedOutResponse;
+
+/**
+ * The current authentication state.
+ */
+export let authState: State | null = null;
 
 /**
  * Retrieves the current login state from the server.
- *
- * @param state The state data signal.
  */
-async function updateState(state: DataSignal<State>) {
+async function fetchState() {
   const response = await fetch('/api/users/me');
-  const newState =
-    await response.json() as LoggedInResponse | LoggedOutResponse;
-  state.value = newState;
+  authState = await response.json() as State;
+  window.dispatchEvent(new CustomEvent('auth-state-change', {detail: authState}));
 }
 
 /**
  * Launches the login flow.
  *
- * @param state The state data signal.
+ * @returns A Promise which resolves when the login is complete. Resolves to
+ * `true` if the user was logged in, `false` if they were not logged out.
  */
-function login(state: DataSignal<State>) {
-  const currentState = state.value;
-  if (currentState && 'loginUri' in currentState) {
-    const loginDialog = window.open(currentState.loginUri);
+export function login(): Promise<boolean> {
+  if (authState && 'loginUri' in authState) {
+    const loginDialog = window.open(authState.loginUri);
 
     if (loginDialog === null) {
       throw new Error('popup blocker');
     }
+
+    return new Promise((resolve, reject) => {
+      window.addEventListener(
+        'auth-login',
+        async () => {
+          try {
+            await fetchState();
+            resolve(true);
+          } catch (err) {
+            reject(err);
+          }
+        },
+        {once: true}
+      );
+    });
   }
+
+  return Promise.resolve(false);
 }
 
 /**
  * Logs the user out.
  *
- * @param state The state data signal.
+ * @returns `true` if the user was logged out, `false` if they were not logged
+ * in.
  */
-function logout(state: DataSignal<State>) {
-  const currentState = state.value;
-  if (currentState && 'logoutUri' in currentState) {
+export async function logout(): Promise<boolean> {
+  if (authState && 'logoutUri' in authState) {
     // we don't even need to open the window to log out, so don't
-    void fetch(currentState.logoutUri)
-      .then(() => updateState(state))
-      .catch((err) => console.error(err));
+    await fetch(authState.logoutUri);
+    await fetchState();
+    return true;
   }
+
+  return Promise.resolve(false);
 }
+
+void fetchState();
 
 /**
  * An authentication control, which is a button that says 'Log in' if
@@ -63,7 +85,6 @@ function logout(state: DataSignal<State>) {
  * user to sign in and out.
  */
 export const Authentication = () => {
-  const state = new DataSignal<State>(null);
   const container = document.createElement('div');
   container.classList.add('auth-container');
 
@@ -73,56 +94,41 @@ export const Authentication = () => {
   const loggedOutContent: HTMLButtonElement =
     htmlElement`<button type="button">Log in</button>`;
 
-  loggedOutContent.addEventListener('click', () => login(state));
 
   const loggedInContent: HTMLButtonElement =
     htmlElement`<button type="button">Log out</button>`;
 
-  loggedInContent.addEventListener('click', () => logout(state));
+  loggedOutContent.addEventListener('click', () => login());
+  loggedInContent.addEventListener('click', () => logout());
 
-  window.addEventListener('auth-login', () => {
-    void updateState(state);
-  });
+  const onStateChange = () => {
+    container.innerHTML = '';
 
-  window.addEventListener('auth-logout', () => {
-    void updateState(state);
-  });
-
-  function handle(newState: State) {
-    if (newState === null) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
+    if (authState === null) {
+      container.classList.toggle('loading', true);
       container.append(loadingContent);
       return;
     }
 
-    if ('loginUri' in newState) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
+    container.classList.toggle('loading', false);
+
+    if ('loginUri' in authState) {
       container.append(loggedOutContent);
       return;
     }
 
-    if ('logoutUri' in newState) {
-      container.classList.toggle('loading', false);
-      container.innerHTML = '';
+    if ('logoutUri' in authState) {
       container.append(loggedInContent);
       return;
     }
 
     throw new Error('unexpected state');
-  }
+  };
 
-  state.on(handle);
-
-  handle(state.value);
-
-  void updateState(state);
+  onStateChange();
+  window.addEventListener('auth-state-change', onStateChange);
 
   return {
-    state,
-    render(): HTMLElement {
-      return container;
-    },
+    root: container,
   };
 };
