@@ -38,7 +38,7 @@ const projectInfos = projectContext
     a.info.attributes.year <= b.info.attributes.year ? 1 : -1);
 
 const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
-  const {el: readMoreEl, collapse, expand} = ReadMore(info.html);
+  const {root: readMoreEl, collapse, expand} = ReadMore(info.html);
   const content: HTMLElement = htmlElement`
         <div class="project-content">
           <h3>${info.attributes.name}</h3>
@@ -50,7 +50,7 @@ const ProjectItem = (key: string, info: ProjectInfo): HTMLElement => {
           ${readMoreEl}
         </div>`;
 
-  const {el: lightboxItemEl, show, hide} = LightboxItem({
+  const {root: lightboxItemEl, show, hide} = LightboxItem({
     target: content,
     preservePosition: true,
   });

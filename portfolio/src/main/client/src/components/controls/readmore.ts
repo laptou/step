@@ -1,4 +1,4 @@
-import {htmlElement, PrimitiveRenderable} from '@src/util/html';
+import {htmlElement, Renderable} from '@src/util/html';
 import '@res/style/controls/readmore.scss';
 
 /**
@@ -7,7 +7,7 @@ import '@res/style/controls/readmore.scss';
  */
 export interface ReadMoreComponent {
   /** The wrapper element. */
-  el: HTMLDivElement;
+  root: HTMLDivElement;
 
   /** Collapses the readmore. */
   collapse(): void;
@@ -48,7 +48,7 @@ export const ReadMore = (content: Renderable): ReadMoreComponent => {
   };
 
   return {
-    el: contentEl,
+    root: contentEl,
     collapse,
     expand,
   };
