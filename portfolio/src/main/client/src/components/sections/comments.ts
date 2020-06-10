@@ -1,7 +1,7 @@
 import {htmlElement} from '@src/util/html';
 import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
-import { Authentication } from '../controls/authentication';
+import {Authentication} from '../controls/authentication';
 
 type Cursor = string;
 
@@ -45,6 +45,7 @@ let currentPage: CommentPage | null = null;
 
 /**
  * Loads comments from server and adds them to the component.
+ *
  * @param container The element to load the comments into.
  * @param page The comment page containing the comments.
  * @param limit The number of comments per page.
@@ -78,6 +79,7 @@ function updateComments(
 
 /**
  * Fetches the comment page for a given cursor.
+ *
  * @param cursor The cursor of the page to fetch.
  * @param limit The size of the page.
  */
@@ -93,6 +95,7 @@ async function fetchPage(
 
 /**
  * Fetches the current page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
  */
@@ -116,6 +119,7 @@ async function fetchCurrentPage(
 
 /**
  * Fetches the next page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
  */
@@ -141,6 +145,7 @@ async function fetchNextPage(
 
 /**
  * Fetches the previous page of comments.
+ *
  * @param page The current comment page.
  * @param limit The number of comments per page.
  */
