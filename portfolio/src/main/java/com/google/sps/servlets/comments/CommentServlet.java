@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.sps.servlets;
+package com.google.sps.servlets.comments;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -36,9 +36,12 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.appengine.api.datastore.QueryResultList;
 import com.google.appengine.api.datastore.Text;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.sps.data.Comment;
 
@@ -48,6 +51,7 @@ import com.google.sps.data.Comment;
 public class CommentServlet extends HttpServlet {
   private static Gson gson = new Gson();
   private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+  private static UserService users = UserServiceFactory.getUserService();
   private static Pattern htmlDetector =
       Pattern.compile("<\\w+(\\s*\\w+\\s*(=\\s*['\"].*['\"]))*>.*<\\/\\w+>", Pattern.DOTALL);
 
@@ -85,19 +89,23 @@ public class CommentServlet extends HttpServlet {
 
     QueryResultList<Entity> results = datastore.prepare(query).asQueryResultList(fetchOptions);
 
-    List<Comment> comments = results.stream().map(e -> {
-      long id = e.getKey().getId();
-      String username = (String) e.getProperty("username");
-      String name = (String) e.getProperty("name");
-      String content = ((Text) e.getProperty("content")).getValue();
-      boolean shameful = (boolean) e.getProperty("shameful");
-      return new Comment(id, username, name, content, shameful);
-    }).collect(Collectors.toList());
-
     JsonObject root = new JsonObject();
-    root.add("comments", gson.toJsonTree(comments));
+    JsonArray comments = new JsonArray();
+
+    results.stream().forEach(ent -> {
+      JsonObject comment = new JsonObject();
+      comment.addProperty("id", ent.getKey().getId());
+      comment.addProperty("name", (String) ent.getProperty("name"));
+      comment.addProperty("content", ((Text) ent.getProperty("content")).getValue());
+      comment.addProperty("shameful", (boolean) ent.getProperty("shameful"));
+      comment.addProperty("upvotes", (long) ent.getProperty("upvotes"));
+      comment.addProperty("downvotes", (long) ent.getProperty("downvotes"));
+      comments.add(comment);
+    });
+
+    root.add("comments", comments);
     root.addProperty("nextCommentCursor", results.getCursor().toWebSafeString());
-    
+
     res.setContentType("application/json");
     res.setStatus(200);
     res.getWriter().print(root.toString());
@@ -109,10 +117,10 @@ public class CommentServlet extends HttpServlet {
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse res)
       throws ServletException, IOException {
-    Part usernamePart, contentPart;
+    Part namePart, contentPart;
 
     try {
-      usernamePart = req.getPart("username");
+      namePart = req.getPart("name");
       contentPart = req.getPart("content");
     } catch (ServletException e) {
       res.setStatus(400);
@@ -123,14 +131,14 @@ public class CommentServlet extends HttpServlet {
     }
 
     // truncate usernames at 1000 bytes
-    String username = readPartToString(usernamePart, 1000);
+    String name = readPartToString(namePart, 1000);
 
     // truncate comments at 50000 bytes
     String content = readPartToString(contentPart, 50000);
 
-    if (username.length() == 0) {
+    if (name.length() == 0) {
       res.setStatus(400);
-      res.getWriter().print("username");
+      res.getWriter().print("name");
       return;
     }
 
@@ -142,17 +150,15 @@ public class CommentServlet extends HttpServlet {
 
     Entity comment = new Entity("Comment");
     comment.setProperty("timestamp", new Date());
-    comment.setProperty("username", username);
-    comment.setProperty("name", username);
-
-    // allow storing values more than 1500 bytes long
+    comment.setProperty("user", users.isUserLoggedIn() ? users.getCurrentUser().getUserId() : null);
+    comment.setProperty("name", name);
     comment.setUnindexedProperty("content", new Text(content));
     comment.setProperty("shameful",
-        htmlDetector.matcher(username).matches() || htmlDetector.matcher(content).matches());
+        htmlDetector.matcher(name).matches() || htmlDetector.matcher(content).matches());
     comment.setProperty("upvotes", 0);
     comment.setProperty("downvotes", 0);
     datastore.put(comment);
-    
+
     res.setStatus(200);
   }
 
