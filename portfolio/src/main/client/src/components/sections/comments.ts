@@ -302,7 +302,7 @@ const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
 
   const readmore = ReadMore(new Text(comment.content));
 
-  const btnsEl = htmlElement`
+  const controlsDiv = htmlElement`
     <div class="comment-controls">
       ${readmore.root}
     </div>`;
@@ -330,8 +330,34 @@ const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
       }
     });
 
-    btnsEl.append(translateBtn);
+    controlsDiv.append(translateBtn);
   }
+
+  const expandBtn = htmlElement`
+    <button type="button" class="btn-flat btn-inline comment-expander">
+      see more
+    </button>`;
+
+  expandBtn.addEventListener('click', () => {
+    if (readmore.isCollapsed) {
+      readmore.expand();
+      expandBtn.innerText = 'see less';
+    } else {
+      readmore.collapse();
+      expandBtn.innerText = 'see more';
+    }
+  });
+
+  controlsDiv.append(expandBtn);
+
+  // hack because there are no real 'components' here which means
+  // there is no way to know when the component is added to the DOM
+  setTimeout(() => {
+    if (!readmore.isOverflowed) {
+      expandBtn.style.visibility = 'hidden';
+      readmore.expand();
+    }
+  }, 0);
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
@@ -342,8 +368,8 @@ const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
         ${downvoteBtn}
         <div class="comment-content">
           ${readmore.root}
+          ${controlsDiv}
         </div>
-        ${btnsEl}
       </div>
     </li>`;
 
@@ -403,7 +429,6 @@ export const CommentSection = (): HTMLElement => {
     htmlElement`<button id="comment-next">Next</button>`;
   const prevBtn: HTMLButtonElement =
     htmlElement`<button id="comment-prev">Previous</button>`;
-
 
   const container: HTMLElement = htmlElement`
     <div class="comments">
