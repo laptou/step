@@ -16,6 +16,7 @@ package com.google.sps;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -44,12 +45,31 @@ public final class FindMeetingQuery {
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     TimeSegment root = new TimeSegment(TimeRange.WHOLE_DAY, null, null);
+    TimeSegment optionalRoot = root;
+
+    System.out.printf("\nrequesting %d minute meeting\n", request.getDuration());
+
+    if (request.getDuration() > 1440)
+      return Collections.emptyList();
 
     for (Event event : events) {
       for (String attendee : event.getAttendees()) {
+        TimeRange blocked = event.getWhen();
+        int buffer = (int) request.getDuration();
+
         if (request.getAttendees().contains(attendee)) {
+          System.out.printf("removing blocker %s\n", blocked);
           // this is a blocker, split up the available time segment
-          root = removeRange(root, event.getWhen());
+          root = removeRange(root, blocked, buffer);
+          optionalRoot = removeRange(optionalRoot, blocked, buffer);
+          System.out.printf("root: %s\n", root);
+          System.out.printf("opt: %s\n", optionalRoot);
+        }
+
+        if (request.getOptionalAttendees().contains(attendee)) {
+          System.out.printf("removing optional %s\n", blocked);
+          optionalRoot = removeRange(optionalRoot, blocked, buffer);
+          System.out.printf("opt: %s\n", optionalRoot);
         }
       }
     }
@@ -57,12 +77,19 @@ public final class FindMeetingQuery {
     // traverse time segments
     List<TimeRange> availableRanges = new ArrayList<>();
     Queue<TimeSegment> toProcess = new LinkedList<>();
-    toProcess.add(root);
+
+    // if anything remained while including optional attendees, get them
+    if (optionalRoot != null) {
+      toProcess.add(optionalRoot);
+    } else if (root != null) {
+      toProcess.add(root);
+    }
 
     while (!toProcess.isEmpty()) {
       TimeSegment seg = toProcess.poll();
 
-      if (seg.left == null && seg.right == null && seg.range.duration() >= request.getDuration()) {
+        // extend the blocked zone forwards by the duration of the request
+      if (seg.left == null && seg.right == null) {
         availableRanges.add(seg.range);
         continue;
       }
@@ -82,36 +109,38 @@ public final class FindMeetingQuery {
   /**
    * Removes the range `toRemove` from the segment `segment`, splitting it if necessary.
    */
-  private TimeSegment removeRange(TimeSegment segment, TimeRange toRemove) {
-    if (!segment.range.overlaps(toRemove))
+  private TimeSegment removeRange(TimeSegment segment, TimeRange toRemove, long buffer) {
+    if (segment == null || !segment.range.overlaps(toRemove))
       return segment;
 
     TimeRange baseRange = segment.range;
+    boolean spaceAtStart = baseRange.start() <= toRemove.start() - buffer;
+    boolean spaceAtEnd = baseRange.end() >= toRemove.end() + buffer;
+
+    // we can perform this check early
+    if (!spaceAtStart && !spaceAtEnd)
+      return null;
+
+    // otherwise, what we should do depends on whether this node already has children
+
     boolean hasChild = false;
 
     if (segment.left != null) {
-      TimeSegment newLeft = removeRange(segment.left, toRemove);
+      TimeSegment newLeft = removeRange(segment.left, toRemove, buffer);
+      hasChild = newLeft != null;
       segment = new TimeSegment(baseRange, newLeft, segment.right);
-      hasChild = true;
     } 
 
     if (segment.right != null) {
-      TimeSegment newRight = removeRange(segment.right, toRemove);
+      TimeSegment newRight = removeRange(segment.right, toRemove, buffer);
+      hasChild = hasChild || newRight != null;
       segment = new TimeSegment(baseRange, segment.left, newRight);
-      hasChild = true;
     } 
 
     if (hasChild) {
       return segment;
     }
 
-    boolean spaceAtStart = baseRange.start() < toRemove.start();
-    boolean spaceAtEnd = baseRange.end() > toRemove.end();
-
-    if (!spaceAtStart && !spaceAtEnd) {
-      return null;
-    }
-    
     if (spaceAtStart && !spaceAtEnd) {
       TimeRange newRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
       return new TimeSegment(newRange, segment.left, segment.right);
