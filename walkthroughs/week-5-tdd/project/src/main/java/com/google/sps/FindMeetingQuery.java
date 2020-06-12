@@ -16,18 +16,15 @@ package com.google.sps;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.Queue;
 
 public final class FindMeetingQuery {
   private static class TimeSegment {
-    public TimeRange range;
-    public TimeSegment left;
-    public TimeSegment right;
+    public final TimeRange range;
+    public final TimeSegment left;
+    public final TimeSegment right;
 
     public TimeSegment(TimeRange range) {
       this(range, null, null);
@@ -48,25 +45,22 @@ public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     TimeSegment root = new TimeSegment(TimeRange.WHOLE_DAY, null, null);
 
-    System.out.printf("\nrequesting %d minute meeting\n", request.getDuration());
     for (Event event : events) {
       for (String attendee : event.getAttendees()) {
         if (request.getAttendees().contains(attendee)) {
-          System.out.printf("splitting for %s\n", event.getWhen());
           // this is a blocker, split up the available time segment
-          root = removeRange(root, event.getWhen(), request.getDuration());
-          System.out.printf("new time range: %s\n", root);
+          root = removeRange(root, event.getWhen());
         }
       }
     }
 
     // traverse time segments
     List<TimeRange> availableRanges = new ArrayList<>();
-    Stack<TimeSegment> toProcess = new Stack<>();
-    toProcess.push(root);
+    Queue<TimeSegment> toProcess = new LinkedList<>();
+    toProcess.add(root);
 
     while (!toProcess.isEmpty()) {
-      TimeSegment seg = toProcess.pop();
+      TimeSegment seg = toProcess.poll();
 
       if (seg.left == null && seg.right == null && seg.range.duration() >= request.getDuration()) {
         availableRanges.add(seg.range);
@@ -74,57 +68,62 @@ public final class FindMeetingQuery {
       }
 
       if (seg.left != null) {
-        toProcess.push(seg.left);
+        toProcess.add(seg.left);
       }
 
       if (seg.right != null) {
-        toProcess.push(seg.right);
+        toProcess.add(seg.right);
       }
     }
 
     return availableRanges;
   }
 
-  private TimeSegment removeRange(TimeSegment segment, TimeRange toRemove, long minLength) {
+  /**
+   * Removes the range `toRemove` from the segment `segment`, splitting it if necessary.
+   */
+  private TimeSegment removeRange(TimeSegment segment, TimeRange toRemove) {
     if (!segment.range.overlaps(toRemove))
       return segment;
 
     TimeRange baseRange = segment.range;
+    boolean hasChild = false;
+
+    if (segment.left != null) {
+      TimeSegment newLeft = removeRange(segment.left, toRemove);
+      segment = new TimeSegment(baseRange, newLeft, segment.right);
+      hasChild = true;
+    } 
+
+    if (segment.right != null) {
+      TimeSegment newRight = removeRange(segment.right, toRemove);
+      segment = new TimeSegment(baseRange, segment.left, newRight);
+      hasChild = true;
+    } 
+
+    if (hasChild) {
+      return segment;
+    }
+
     boolean spaceAtStart = baseRange.start() < toRemove.start();
     boolean spaceAtEnd = baseRange.end() > toRemove.end();
 
-    if (segment.left != null) {
-      TimeSegment newLeft = removeRange(segment.left, toRemove, minLength);
-      segment = new TimeSegment(baseRange, newLeft, segment.right);
-    } else if (spaceAtStart) {
-
-      if (baseRange.end() < toRemove.end()) {
-
-      }
-      TimeRange splitRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-      if (segment.right != null)
-        segment = new TimeSegment(baseRange, new TimeSegment(splitRange), segment.right);
-      else
-        segment = new TimeSegment(splitRange, null, null);
-    } else {
-      TimeRange clippedRange = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-      segment = new TimeSegment(clippedRange, null, segment.right);
+    if (!spaceAtStart && !spaceAtEnd) {
+      return null;
+    }
+    
+    if (spaceAtStart && !spaceAtEnd) {
+      TimeRange newRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
+      return new TimeSegment(newRange, segment.left, segment.right);
     }
 
-    if (segment.right != null) {
-      TimeSegment newRight = removeRange(segment.right, toRemove, minLength);
-      segment = new TimeSegment(baseRange, segment.left, newRight);
-    } else if (baseRange.end() > toRemove.end()) {
-      TimeRange splitRange = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-      if (segment.left != null)
-        segment = new TimeSegment(baseRange, segment.left, new TimeSegment(splitRange));
-      else
-        segment = new TimeSegment(splitRange, null, null);
-    } else {
-      TimeRange clippedRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-      segment = new TimeSegment(clippedRange, segment.left, null);
+    if (!spaceAtStart && spaceAtEnd) {
+      TimeRange newRange = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
+      return new TimeSegment(newRange, segment.left, segment.right);
     }
 
-    return segment;
+    TimeRange newLeft = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
+    TimeRange newRight = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
+    return new TimeSegment(baseRange, new TimeSegment(newLeft), new TimeSegment(newRight));
   }
 }
