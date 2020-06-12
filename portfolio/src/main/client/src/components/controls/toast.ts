@@ -5,10 +5,9 @@ type ToastKind = 'info' | 'error';
 
 interface ToastInfo {
   message: string;
-  kind: 'info' | 'error';
-
-  timeout: number | false;
-  remaining: number | false;
+  kind: ToastKind;
+  timeout: number | null;
+  remaining: number | null;
   paused: boolean;
   dismissed: boolean;
 }
@@ -52,7 +51,7 @@ function initTimedToast(
   let lastFrame: DOMHighResTimeStamp | null = null;
 
   function animateToast(frame: DOMHighResTimeStamp) {
-    if (info.timeout === false || info.remaining === false) {
+    if (info.timeout === null || info.remaining === null) {
       return;
     }
 
@@ -106,13 +105,13 @@ function initModalToast(
  * @param message The message to show.
  * @param kind The kind of toast to show.
  * @param timeout The amount of time before the toast should disappear. Specify
- * `false` if the toast should not disappear automatically.
+ * `null` if the toast should not disappear automatically.
  * @returns A Promise which resolves when the toast is dismissed.
  */
 export function showToast(
   message: string,
   kind: ToastKind,
-  timeout: number | false = 7000): Promise<void> {
+  timeout: number | null = 7000): Promise<void> {
   const info: ToastInfo = {
     message,
     kind,
@@ -130,7 +129,7 @@ export function showToast(
       </div>
     </li>`;
 
-  if (info.timeout !== false) {
+  if (info.timeout !== null) {
     initTimedToast(toast, info);
   } else {
     initModalToast(toast);
