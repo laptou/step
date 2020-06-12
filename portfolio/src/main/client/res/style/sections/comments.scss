@@ -27,7 +27,7 @@
 
     .inner {
       display: grid;
-      grid-template-rows: 1.5rem 1.5rem 1.5rem auto;
+      grid-template-rows: 1.5rem 1.5rem 1.5rem auto auto;
       grid-template-columns: auto 1fr;
       margin: -0.5rem;
       padding: 0.5rem;
@@ -109,6 +109,11 @@
       padding: 0.25rem 0 0 0.5rem;
     }
 
+    .comment-controls {
+      grid-row: 5;
+      grid-column: 2;
+    }
+
     .expander {
       margin-top: 1rem;
       font-size: 0.9em;
@@ -137,9 +142,9 @@
     opacity: 0.7;
   }
 
-  .comments-controls {
+  #comments-pager {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     margin: 0 -1rem 0;
     padding: 1rem var(--page-padding);
 

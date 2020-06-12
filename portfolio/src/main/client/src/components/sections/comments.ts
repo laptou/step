@@ -3,6 +3,7 @@ import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 import {Authentication} from '../controls/authentication';
 import {ReadMore} from '../controls/readmore';
+import languages from '@res/misc/languages.json';
 
 type Cursor = string;
 
@@ -40,7 +41,7 @@ export interface TranslatedCommentData extends CommentData {
  * A page of comments returned by the server.
  */
 interface CommentPageData {
-  comments: CommentData[];
+  comments: Array<CommentData | TranslatedCommentData>;
 
   /**
    * Can be used to fetch the next batch of comments from the server.
@@ -253,7 +254,7 @@ async function fetchCommentScore(commentId: number) {
   return await res.json() as VoteTally;
 }
 
-const Comment = (comment: CommentData): HTMLElement => {
+const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
   const nameSpan: HTMLElement =
     htmlElement`<span class="comment-name"></span>`;
   nameSpan.innerText = comment.name;
@@ -299,9 +300,38 @@ const Comment = (comment: CommentData): HTMLElement => {
     });
   }
 
-
   const readmore = ReadMore(new Text(comment.content));
-  readmore.root.classList.add('comment-content');
+
+  const btnsEl = htmlElement`
+    <div class="comment-controls">
+      ${readmore.root}
+    </div>`;
+
+  if ('contentLang' in comment && comment.contentLang in languages) {
+    const langInfo = languages[comment.contentLang as keyof typeof languages];
+    const translatePrompt =
+      `translate from ${langInfo.native} (${langInfo.name})`;
+    const translateBtn = htmlElement`
+      <button type="button" class="btn-flat btn-inline comment-translate">
+        ${translatePrompt}
+      </button>`;
+
+    let translated = false;
+
+    translateBtn.addEventListener('click', () => {
+      translated = !translated;
+
+      if (translated) {
+        readmore.root.innerText = comment.contentTranslated;
+        translateBtn.innerText = 'see original text';
+      } else {
+        readmore.root.innerText = comment.content;
+        translateBtn.innerText = translatePrompt;
+      }
+    });
+
+    btnsEl.append(translateBtn);
+  }
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
@@ -310,7 +340,10 @@ const Comment = (comment: CommentData): HTMLElement => {
         ${scoreSpan}
         ${upvoteBtn}
         ${downvoteBtn}
-        ${readmore.root}
+        <div class="comment-content">
+          ${readmore.root}
+        </div>
+        ${btnsEl}
       </div>
     </li>`;
 
@@ -377,7 +410,7 @@ export const CommentSection = (): HTMLElement => {
       <h2>Comments</h2>
       <ul>
       </ul>
-      <div class="comments-controls">
+      <div id="comments-pager">
         ${prevBtn}
         ${nextBtn}
       </div>

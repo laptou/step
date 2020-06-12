@@ -3,6 +3,7 @@
 
 $accent-interactive: hsl(200, 75%, 50%);
 $accent-interactive-hover: color.scale($accent-interactive, $lightness: 20%);
+$accent-interactive-focus: color.scale($accent-interactive, $lightness: -40%);
 
 button {
   --accent: #{$accent-interactive};
@@ -16,18 +17,36 @@ button {
   cursor: pointer;
 }
 
-button:hover, button:active {
+button:hover {
   --accent: #{$accent-interactive-hover};
   
-  border: 1px solid var(--accent);
+  border-color: var(--accent);
   box-shadow: 0 0 4pt var(--accent);
+}
+
+button:active, button:focus {
+  --accent: #{$accent-interactive-focus};
+  outline: none;
 }
 
 button:disabled {
   --accent: grey;
-  border: var(--accent) solid 1px;
+  border-color: var(--accent);
   box-shadow: none;
   cursor: initial;
+}
+
+.btn-flat {
+  padding: 0.25rem 0.5rem;
+  box-shadow: none;
+
+  &:hover, &:active {
+    box-shadow: none;
+  }
+}
+
+.btn-inline {
+  display: inline-block;
 }
 
 input[type=text], textarea {

@@ -176,6 +176,8 @@ public class CommentServlet extends HttpServlet {
       }
     } catch (Throwable e) {
       // this is so that the server does not crash in dev mode
+      comment.setUnindexedProperty("contentTranslated", new Text("translated content"));
+      comment.setProperty("contentLang", "es");
     }
 
     comment.setUnindexedProperty("content", new Text(content));
