@@ -82,7 +82,7 @@
       "warn",
       {
         "vars": "all",
-        "varsIgnorePattern": "Surplus",
+        "varsIgnorePattern": "^_",
         "args": "after-used",
         "ignoreRestSiblings": true
       }
