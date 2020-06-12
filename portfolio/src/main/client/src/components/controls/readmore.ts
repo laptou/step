@@ -16,10 +16,10 @@ export interface ReadMoreComponent {
   expand(): void;
 
   /** Whether the readmore is currently collapsed. */
-  readonly isCollapsed: boolean;
+  getIsCollapsed(): boolean;
 
   /** Whether the content of the readmore exceeds its height. */
-  readonly isOverflowed: boolean;
+  getIsOverflowed(): boolean;
 }
 
 /**
@@ -41,7 +41,7 @@ export const ReadMore = (
   const component: ReadMoreComponent = {
     root: contentEl,
     collapse() {
-      if (this.isCollapsed) return;
+      if (this.getIsCollapsed) return;
       contentEl.classList.add('collapsed');
 
       // let CSS transition max height from whatever it was to 0
@@ -54,7 +54,7 @@ export const ReadMore = (
       contentEl.dispatchEvent(new Event('readmore-collapse'));
     },
     expand() {
-      if (!this.isCollapsed) return;
+      if (!this.getIsCollapsed) return;
       contentEl.classList.remove('collapsed');
 
       // this makes the CSS transition work, gracefully scaling from 100% to 0
@@ -64,10 +64,10 @@ export const ReadMore = (
           `linear-gradient(to bottom, white 100%, transparent)`;
       contentEl.dispatchEvent(new Event('readmore-expand'));
     },
-    get isCollapsed() {
+    getIsCollapsed() {
       return contentEl.classList.contains('collapsed');
     },
-    get isOverflowed() {
+    getIsCollapsed() {
       return contentEl.scrollHeight > contentEl.clientHeight;
     },
   };

@@ -339,7 +339,7 @@ const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
     </button>`;
 
   expandBtn.addEventListener('click', () => {
-    if (readmore.isCollapsed) {
+    if (readmore.getIsCollapsed()) {
       readmore.expand();
       expandBtn.innerText = 'see less';
     } else {
