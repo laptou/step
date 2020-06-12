@@ -45,9 +45,6 @@ public final class FindMeetingQuery {
   }
 
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-
-    System.out.printf("\nrequesting %d minute meeting\n", request.getDuration());
-
     if (request.getDuration() > 1440)
       return Collections.emptyList();
 
@@ -68,22 +65,13 @@ public final class FindMeetingQuery {
         int buffer = (int) request.getDuration();
 
         if (request.getAttendees().contains(attendee)) {
-          System.out.printf("removing blocker %s\n", blocked);
-
           // this is a blocker, split up the available time segment
           root = removeRange(root, blocked, buffer);
           optionalRoot = removeRange(optionalRoot, blocked, buffer);
-
-          System.out.printf("root: %s\n", root);
-          System.out.printf("opt: %s\n", optionalRoot);
         }
 
         if (request.getOptionalAttendees().contains(attendee)) {
-          System.out.printf("removing optional %s\n", blocked);
-
           optionalRoot = removeRange(optionalRoot, blocked, buffer);
-
-          System.out.printf("opt: %s\n", optionalRoot);
         }
       }
     }
