@@ -18,142 +18,109 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public final class FindMeetingQuery {
-  private static class TimeTree {
-    public final TimeRange range;
-    public final TimeTree left;
-    public final TimeTree right;
-
-    public TimeTree(TimeRange range) {
-      this(range, null, null);
-    }
-
-    public TimeTree(TimeRange range, TimeTree left, TimeTree right) {
-      this.range = range;
-      this.left = left;
-      this.right = right;
-    }
-
-    @Override
-    public String toString() {
-      return "[ (" + range + ") " + left + " " + right + "]";
-    }
-  }
-
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
     if (request.getDuration() > 1440)
       return Collections.emptyList();
 
-    TimeTree root = new TimeTree(TimeRange.WHOLE_DAY, null, null);
+    boolean hasMandatoryAttendees = false;
+    boolean hasOptionalAttendees = false;
 
-    boolean hasOptionalAttendees = !request.getOptionalAttendees().isEmpty();
-    boolean hasRequiredAttendees = !request.getAttendees().isEmpty();
-
-    if (!hasOptionalAttendees && !hasRequiredAttendees) {
-      return Arrays.asList(root.range);
-    }
-
-    TimeTree optionalRoot = hasOptionalAttendees ? root : null;
+    SortedSet<TimeRange> mandatoryBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
+    SortedSet<TimeRange> optionalBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
 
     for (Event event : events) {
       for (String attendee : event.getAttendees()) {
-        TimeRange blocked = event.getWhen();
-        int buffer = (int) request.getDuration();
-
         if (request.getAttendees().contains(attendee)) {
-          // this is a blocker, split up the available time segment
-          root = removeRange(root, blocked, buffer);
-          optionalRoot = removeRange(optionalRoot, blocked, buffer);
-        }
-
-        if (request.getOptionalAttendees().contains(attendee)) {
-          optionalRoot = removeRange(optionalRoot, blocked, buffer);
+          hasMandatoryAttendees = true;
+          mandatoryBlockers.add(event.getWhen());
+          optionalBlockers.add(event.getWhen());
+        } else if (request.getOptionalAttendees().contains(attendee)) {
+          hasOptionalAttendees = true;
+          optionalBlockers.add(event.getWhen());
         }
       }
     }
 
-    // traverse time segments
-    List<TimeRange> availableRanges = new ArrayList<>();
-    Queue<TimeTree> toProcess = new LinkedList<>();
+    List<TimeRange> combinedMandatoryBlockers = mergeTimeRanges(mandatoryBlockers);
+    List<TimeRange> combinedOptionalBlockers = mergeTimeRanges(optionalBlockers);
 
-    // if anything remained while including optional attendees, get them
-    if (hasOptionalAttendees && optionalRoot != null) {
-      toProcess.add(optionalRoot);
-    } else if (hasRequiredAttendees && root != null) {
-      toProcess.add(root);
+    if (hasMandatoryAttendees) {
+      if (hasOptionalAttendees) {
+        List<TimeRange> availableRangesWithOptionalAttendees = 
+          subtractTimeRanges(combinedOptionalBlockers, request.getDuration());
+
+        if (availableRangesWithOptionalAttendees.size() > 0)
+          return availableRangesWithOptionalAttendees;
+      }
+
+      return subtractTimeRanges(combinedMandatoryBlockers, request.getDuration());
+    } else if (hasOptionalAttendees) {
+      return subtractTimeRanges(combinedOptionalBlockers, request.getDuration());
+    } else {
+      return Arrays.asList(TimeRange.WHOLE_DAY);
     }
-    while (!toProcess.isEmpty()) {
-      TimeTree seg = toProcess.poll();
+  }
 
-      // extend the blocked zone forwards by the duration of the request
-      if (seg.left == null && seg.right == null) {
-        availableRanges.add(seg.range);
+  private static List<TimeRange> mergeTimeRanges(Collection<TimeRange> ranges) {
+    List<TimeRange> merged = new ArrayList<>(ranges.size());
+    TimeRange prev = null;
+
+    for (TimeRange current : ranges) {
+      if (prev == null) {
+        prev = current;
+        merged.add(prev);
         continue;
       }
 
-      if (seg.left != null) {
-        toProcess.add(seg.left);
-      }
-
-      if (seg.right != null) {
-        toProcess.add(seg.right);
+      if (prev.end() > current.start()) {
+        if (current.end() > prev.end()) {
+          prev = TimeRange.fromStartEnd(prev.start(), current.end(), false);
+          merged.set(merged.size() - 1, prev);
+        }
+      } else {
+        prev = current;
+        merged.add(prev);
       }
     }
 
-    return availableRanges;
+    return merged;
   }
 
   /**
-   * Removes the range `toRemove` from the segment `segment`, splitting it if necessary.
+   * Subtracts the time ranges given by `ranges` from the time ranges representing the whole day.
+   * `ranges` must be sorted by start time and not contain any overlapping ranges.
    */
-  private TimeTree removeRange(TimeTree segment, TimeRange toRemove, long buffer) {
-    if (segment == null || !segment.range.overlaps(toRemove))
-      return segment;
+  private static List<TimeRange> subtractTimeRanges(List<TimeRange> ranges,
+      long minGapLength) {
+    List<TimeRange> availableRanges = new ArrayList<>();
 
-    TimeRange baseRange = segment.range;
-    boolean spaceAtStart = baseRange.start() <= toRemove.start() - buffer;
-    boolean spaceAtEnd = baseRange.end() >= toRemove.end() + buffer;
-
-    // we can perform this check early
-    if (!spaceAtStart && !spaceAtEnd)
-      return null;
-
-    // otherwise, what we should do depends on whether this node already has children
-
-    boolean hasChild = false;
-
-    if (segment.left != null) {
-      TimeTree newLeft = removeRange(segment.left, toRemove, buffer);
-      hasChild = newLeft != null;
-      segment = new TimeTree(baseRange, newLeft, segment.right);
+    if (ranges.size() == 0) {
+      availableRanges.add(TimeRange.WHOLE_DAY);
+      return availableRanges;
     }
 
-    if (segment.right != null) {
-      TimeTree newRight = removeRange(segment.right, toRemove, buffer);
-      hasChild = hasChild || newRight != null;
-      segment = new TimeTree(baseRange, segment.left, newRight);
+    TimeRange prev = null;
+    for (int i = 0; i <= ranges.size(); i++) {
+      TimeRange current = i < ranges.size() ? ranges.get(i) : null;
+
+      int start = prev == null ? TimeRange.START_OF_DAY : prev.end();
+      int end = current == null ? TimeRange.END_OF_DAY : current.start();
+      // END_OF_DAY is actually 1 minute before the end b/c whoever wrote this hates me
+      boolean inclusive = current == null;
+
+      TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
+
+      if (gap.duration() >= minGapLength)
+        availableRanges.add(gap);
+
+      prev = current;
     }
 
-    if (hasChild) {
-      return segment;
-    }
-
-    if (spaceAtStart && !spaceAtEnd) {
-      TimeRange newRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-      return new TimeTree(newRange, segment.left, segment.right);
-    }
-
-    if (!spaceAtStart && spaceAtEnd) {
-      TimeRange newRange = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-      return new TimeTree(newRange, segment.left, segment.right);
-    }
-
-    TimeRange newLeft = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-    TimeRange newRight = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-    return new TimeTree(baseRange, new TimeTree(newLeft), new TimeTree(newRight));
+    return availableRanges;
   }
 }
