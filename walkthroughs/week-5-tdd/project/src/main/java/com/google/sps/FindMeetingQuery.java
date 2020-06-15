@@ -37,56 +37,63 @@ public final class FindMeetingQuery {
       }
     }
 
-    List<TimeRange> combinedMandatoryBlockers = new ArrayList<>(mandatoryBlockers.size());
+    List<TimeRange> combinedMandatoryBlockers = mergeTimeRanges(mandatoryBlockers);
+    return subtractTimeRanges(combinedMandatoryBlockers, request.getDuration());
+  }
 
-    {
-      TimeRange prev = null;
+  private static List<TimeRange> mergeTimeRanges(Collection<TimeRange> ranges) {
+    List<TimeRange> merged = new ArrayList<>(ranges.size());
+    TimeRange prev = null;
 
-      for (TimeRange current : mandatoryBlockers) {
-        if (prev == null) {
-          prev = current;
-          combinedMandatoryBlockers.add(prev);
-          continue;
+    for (TimeRange current : ranges) {
+      if (prev == null) {
+        prev = current;
+        merged.add(prev);
+        continue;
+      }
+
+      if (prev.end() > current.start()) {
+        if (current.end() > prev.end()) {
+          prev = TimeRange.fromStartEnd(prev.start(), current.end(), false);
+          merged.set(merged.size() - 1, prev);
         }
-
-        if (prev.end() > current.start()) {
-          if (current.end() > prev.end()) {
-            prev = TimeRange.fromStartEnd(prev.start(), current.end(), false);
-            combinedMandatoryBlockers.set(combinedMandatoryBlockers.size() - 1, prev);
-          }
-        } else {
-          prev = current;
-          combinedMandatoryBlockers.add(prev);
-        }
+      } else {
+        prev = current;
+        merged.add(prev);
       }
     }
 
-    // traverse time segments
+    return merged;
+  }
+
+  /**
+   * Subtracts the time ranges given by `ranges` from the time ranges representing the whole day.
+   * `ranges` must be sorted by start time and not contain any overlapping ranges.
+   */
+  private static List<TimeRange> subtractTimeRanges(List<TimeRange> ranges,
+      long minGapLength) {
     List<TimeRange> availableRanges = new ArrayList<>();
 
-    if (combinedMandatoryBlockers.size() == 0) {
+    if (ranges.size() == 0) {
       availableRanges.add(TimeRange.WHOLE_DAY);
       return availableRanges;
     }
 
-    {
-      TimeRange prev = null;
-      for (int i = 0; i <= combinedMandatoryBlockers.size(); i++) {
-        TimeRange current =
-            i < combinedMandatoryBlockers.size() ? combinedMandatoryBlockers.get(i) : null;
+    TimeRange prev = null;
+    for (int i = 0; i <= ranges.size(); i++) {
+      TimeRange current = i < ranges.size() ? ranges.get(i) : null;
 
-        int start = prev == null ? TimeRange.START_OF_DAY : prev.end();
-        int end = current == null ? TimeRange.END_OF_DAY : current.start();
-        // END_OF_DAY is actually 1 minute before the end b/c whoever wrote this hates me
-        boolean inclusive = current == null;
+      int start = prev == null ? TimeRange.START_OF_DAY : prev.end();
+      int end = current == null ? TimeRange.END_OF_DAY : current.start();
+      // END_OF_DAY is actually 1 minute before the end b/c whoever wrote this hates me
+      boolean inclusive = current == null;
 
-        TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
+      TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
 
-        if (gap.duration() >= request.getDuration())
-          availableRanges.add(gap);
+      if (gap.duration() >= minGapLength)
+        availableRanges.add(gap);
 
-        prev = current;
-      }
+      prev = current;
     }
 
     return availableRanges;
