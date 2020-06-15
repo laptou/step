@@ -396,6 +396,7 @@ export const CommentSection = (): HTMLElement => {
     label: 'Name',
     name: 'name',
     type: 'text',
+    soft: true,
   });
 
   usernameInput[1].required = true;
@@ -405,6 +406,7 @@ export const CommentSection = (): HTMLElement => {
     label: 'Comment',
     name: 'content',
     type: 'textarea',
+    soft: true,
   });
 
   commentInput[1].required = true;
