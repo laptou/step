@@ -353,7 +353,7 @@ const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
   // hack because there are no real 'components' here which means
   // there is no way to know when the component is added to the DOM
   setTimeout(() => {
-    if (!readmore.isOverflowed) {
+    if (!readmore.getIsOverflowed()) {
       expandBtn.style.visibility = 'hidden';
       readmore.expand();
     }
@@ -411,7 +411,6 @@ export const CommentSection = (): HTMLElement => {
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${Authentication().root}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">
@@ -430,9 +429,20 @@ export const CommentSection = (): HTMLElement => {
   const prevBtn: HTMLButtonElement =
     htmlElement`<button id="comment-prev">Previous</button>`;
 
+  const auth = Authentication({
+    loggedInText: (authState) =>
+      authState ?
+        `Log out from ${authState.username}` :
+        'Loading',
+    loggedOutText: 'Log in to vote on comments',
+  });
+
   const container: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
+      <div id="comments-auth">
+        ${auth.root}
+      </div>
       <ul>
       </ul>
       <div id="comments-pager">
