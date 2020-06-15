@@ -16,114 +16,79 @@ package com.google.sps;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public final class FindMeetingQuery {
-  private static class TimeSegment {
-    public final TimeRange range;
-    public final TimeSegment left;
-    public final TimeSegment right;
-
-    public TimeSegment(TimeRange range) {
-      this(range, null, null);
-    }
-
-    public TimeSegment(TimeRange range, TimeSegment left, TimeSegment right) {
-      this.range = range;
-      this.left = left;
-      this.right = right;
-    }
-
-    @Override
-    public String toString() {
-      return "[ (" + range + ") " + left + " " + right + "]";
-    }
-  }
-
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    TimeSegment root = new TimeSegment(TimeRange.WHOLE_DAY, null, null);
+    if (request.getDuration() > 1440)
+      return Collections.emptyList();
+
+    SortedSet<TimeRange> mandatoryBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
 
     for (Event event : events) {
       for (String attendee : event.getAttendees()) {
         if (request.getAttendees().contains(attendee)) {
           // this is a blocker, split up the available time segment
-          root = removeRange(root, event.getWhen());
+          mandatoryBlockers.add(event.getWhen());
+        }
+      }
+    }
+
+    List<TimeRange> combinedMandatoryBlockers = new ArrayList<>(mandatoryBlockers.size());
+
+    {
+      TimeRange prev = null;
+
+      for (TimeRange current : mandatoryBlockers) {
+        if (prev == null) {
+          prev = current;
+          combinedMandatoryBlockers.add(prev);
+          continue;
+        }
+
+        if (prev.end() > current.start()) {
+          if (current.end() > prev.end()) {
+            prev = TimeRange.fromStartEnd(prev.start(), current.end(), false);
+            combinedMandatoryBlockers.set(combinedMandatoryBlockers.size() - 1, prev);
+          }
+        } else {
+          prev = current;
+          combinedMandatoryBlockers.add(prev);
         }
       }
     }
 
     // traverse time segments
     List<TimeRange> availableRanges = new ArrayList<>();
-    Queue<TimeSegment> toProcess = new LinkedList<>();
-    toProcess.add(root);
 
-    while (!toProcess.isEmpty()) {
-      TimeSegment seg = toProcess.poll();
+    if (combinedMandatoryBlockers.size() == 0) {
+      availableRanges.add(TimeRange.WHOLE_DAY);
+      return availableRanges;
+    }
 
-      if (seg.left == null && seg.right == null && seg.range.duration() >= request.getDuration()) {
-        availableRanges.add(seg.range);
-        continue;
-      }
+    {
+      TimeRange prev = null;
+      for (int i = 0; i <= combinedMandatoryBlockers.size(); i++) {
+        TimeRange current =
+            i < combinedMandatoryBlockers.size() ? combinedMandatoryBlockers.get(i) : null;
 
-      if (seg.left != null) {
-        toProcess.add(seg.left);
-      }
+        int start = prev == null ? TimeRange.START_OF_DAY : prev.end();
+        int end = current == null ? TimeRange.END_OF_DAY : current.start();
+        // END_OF_DAY is actually 1 minute before the end b/c whoever wrote this hates me
+        boolean inclusive = current == null;
 
-      if (seg.right != null) {
-        toProcess.add(seg.right);
+        TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
+
+        if (gap.duration() >= request.getDuration())
+          availableRanges.add(gap);
+
+        prev = current;
       }
     }
 
     return availableRanges;
-  }
-
-  /**
-   * Removes the range `toRemove` from the segment `segment`, splitting it if necessary.
-   */
-  private TimeSegment removeRange(TimeSegment segment, TimeRange toRemove) {
-    if (!segment.range.overlaps(toRemove))
-      return segment;
-
-    TimeRange baseRange = segment.range;
-    boolean hasChild = false;
-
-    if (segment.left != null) {
-      TimeSegment newLeft = removeRange(segment.left, toRemove);
-      segment = new TimeSegment(baseRange, newLeft, segment.right);
-      hasChild = true;
-    } 
-
-    if (segment.right != null) {
-      TimeSegment newRight = removeRange(segment.right, toRemove);
-      segment = new TimeSegment(baseRange, segment.left, newRight);
-      hasChild = true;
-    } 
-
-    if (hasChild) {
-      return segment;
-    }
-
-    boolean spaceAtStart = baseRange.start() < toRemove.start();
-    boolean spaceAtEnd = baseRange.end() > toRemove.end();
-
-    if (!spaceAtStart && !spaceAtEnd) {
-      return null;
-    }
-    
-    if (spaceAtStart && !spaceAtEnd) {
-      TimeRange newRange = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-      return new TimeSegment(newRange, segment.left, segment.right);
-    }
-
-    if (!spaceAtStart && spaceAtEnd) {
-      TimeRange newRange = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-      return new TimeSegment(newRange, segment.left, segment.right);
-    }
-
-    TimeRange newLeft = TimeRange.fromStartEnd(baseRange.start(), toRemove.start(), false);
-    TimeRange newRight = TimeRange.fromStartEnd(toRemove.end(), baseRange.end(), false);
-    return new TimeSegment(baseRange, new TimeSegment(newLeft), new TimeSegment(newRight));
   }
 }
