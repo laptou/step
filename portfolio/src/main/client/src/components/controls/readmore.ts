@@ -14,6 +14,12 @@ export interface ReadMoreComponent {
 
   /** Expands the readmore. */
   expand(): void;
+
+  /** Whether the readmore is currently collapsed. */
+  getIsCollapsed(): boolean;
+
+  /** Whether the content of the readmore exceeds its height. */
+  getIsOverflowed(): boolean;
 }
 
 /**
@@ -22,34 +28,51 @@ export interface ReadMoreComponent {
  * amount of space.
  *
  * @param content The content to place inside of the readmore.
+ * @param height The height of the readmore when collapsed. Defaults to 20rem.
  * @returns A @see {ReadMoreComponent}
  */
-export const ReadMore = (content: Renderable): ReadMoreComponent => {
+export const ReadMore = (
+  content: Renderable,
+  height = '20rem'
+): ReadMoreComponent => {
   const contentEl: HTMLDivElement =
-    htmlElement`<div class="readmore collapsed">${content}</div>`;
+    htmlElement`<div class="readmore">${content}</div>`;
 
-  const collapse = () => {
-    if (contentEl.classList.contains('collapsed')) return;
-
-    contentEl.classList.add('collapsed');
-
-    // let CSS transition max height from whatever it was to 0
-    contentEl.style.maxHeight = '';
-    contentEl.dispatchEvent(new Event('readmore-collapse'));
-  };
-
-  const expand = () => {
-    if (!contentEl.classList.contains('collapsed')) return;
-
-    // this makes the CSS transition work, gracefully scaling from 100% to 0
-    contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
-    contentEl.classList.remove('collapsed');
-    contentEl.dispatchEvent(new Event('readmore-expand'));
-  };
-
-  return {
+  const component: ReadMoreComponent = {
     root: contentEl,
-    collapse,
-    expand,
+    collapse() {
+      if (this.getIsCollapsed) return;
+      contentEl.classList.add('collapsed');
+
+      // let CSS transition max height from whatever it was to 0
+      contentEl.style.maxHeight = height;
+      contentEl.style.webkitMaskImage =
+        contentEl.style.maskImage =
+          `linear-gradient(to bottom, 
+                           white calc(${height} - 5rem), 
+                           transparent calc(${height} - 1rem))`;
+      contentEl.dispatchEvent(new Event('readmore-collapse'));
+    },
+    expand() {
+      if (!this.getIsCollapsed) return;
+      contentEl.classList.remove('collapsed');
+
+      // this makes the CSS transition work, gracefully scaling from 100% to 0
+      contentEl.style.maxHeight = `${contentEl.scrollHeight}px`;
+      contentEl.style.webkitMaskImage =
+        contentEl.style.maskImage =
+          `linear-gradient(to bottom, white 100%, transparent)`;
+      contentEl.dispatchEvent(new Event('readmore-expand'));
+    },
+    getIsCollapsed() {
+      return contentEl.classList.contains('collapsed');
+    },
+    getIsCollapsed() {
+      return contentEl.scrollHeight > contentEl.clientHeight;
+    },
   };
+
+  component.collapse();
+
+  return component;
 };
