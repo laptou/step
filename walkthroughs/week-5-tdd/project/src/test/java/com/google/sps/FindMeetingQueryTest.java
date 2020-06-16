@@ -313,6 +313,12 @@ public final class FindMeetingQueryTest {
 
   @Test
   public void onlyOptionalAttendeesWithGaps() {
+    // Have only optional attendees, with gaps in the schedule.
+    //
+    // Events  :    |-A-| |-A-| |-B-|
+    // Day     : |---------------------|
+    // Options : |--|    |-|   |-|   |--|
+
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartEnd(TIME_0830AM, TIME_0900AM, false),
             Arrays.asList(PERSON_A)),
@@ -339,6 +345,12 @@ public final class FindMeetingQueryTest {
 
   @Test
   public void onlyOptionalAttendeesNoGaps() {
+    // Have only optional attendees, without gaps in the schedule.
+    //
+    // Events  : |---A---||-A-||---B---|
+    // Day     : |---------------------|
+    // Options : 
+
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartEnd(TimeRange.START_OF_DAY, TIME_0900AM, false),
             Arrays.asList(PERSON_A)),
