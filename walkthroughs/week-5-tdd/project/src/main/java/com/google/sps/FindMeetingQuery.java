@@ -59,13 +59,10 @@ public final class FindMeetingQuery {
     if (!hasOptionalAttendees)
       return findAvailability(combinedMandatoryBlockers, request.getDuration());
 
-    if (!hasMandatoryAttendees)
-      return Arrays.asList(TimeRange.WHOLE_DAY);
-
     List<TimeRange> availableRangesWithOptionalAttendees =
         findAvailability(combinedOptionalBlockers, request.getDuration());
 
-    if (availableRangesWithOptionalAttendees.size() > 0)
+    if (!hasMandatoryAttendees || availableRangesWithOptionalAttendees.size() > 0)
       return availableRangesWithOptionalAttendees;
 
     return findAvailability(combinedMandatoryBlockers, request.getDuration());
