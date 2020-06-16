@@ -317,7 +317,7 @@ public final class FindMeetingQueryTest {
     //
     // Events  :    |-A-| |-A-| |-B-|
     // Day     : |---------------------|
-    // Options : |--|    |-|   |-|   |--|
+    // Options : |--|   |-|   |-|   |--|
 
     Collection<Event> events = Arrays.asList(
         new Event("Event 1", TimeRange.fromStartEnd(TIME_0830AM, TIME_0900AM, false),
