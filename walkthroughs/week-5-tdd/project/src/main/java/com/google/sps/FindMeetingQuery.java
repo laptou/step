@@ -30,11 +30,12 @@ public final class FindMeetingQuery {
     boolean hasMandatoryAttendees = false;
     boolean hasOptionalAttendees = false;
 
-    // TreeSet has O(log n) insertion time
+    // TreeSet has O(log n) insertion time and inserts items in order
+    // which allows us to filter time ranges into optional and mandatory
+    // categories and obtain them in sorted order in O(n log n) time
     SortedSet<TimeRange> mandatoryBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
     SortedSet<TimeRange> optionalBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
 
-    // which makes this loop an O(n log n) operation
     events: for (Event event : events) {
       for (String attendee : event.getAttendees()) {
         if (request.getAttendees().contains(attendee)) {
@@ -52,7 +53,6 @@ public final class FindMeetingQuery {
       }
     }
 
-    // mergeTimeRanges is O(n)
     List<TimeRange> combinedMandatoryBlockers = mergeTimeRanges(mandatoryBlockers);
     List<TimeRange> combinedOptionalBlockers = mergeTimeRanges(optionalBlockers);
 
@@ -80,17 +80,18 @@ public final class FindMeetingQuery {
         continue;
       }
 
-      // if the previous range overlaps the current range, extend it
       if (prev.end() > current.start()) {
+        // overlapping time ranges need to be merged together
         if (current.end() > prev.end()) {
           prev = TimeRange.fromStartEnd(prev.start(), current.end(), false);
           merged.set(merged.size() - 1, prev);
         }
-      } else {
-        // otherwise, just add it
-        prev = current;
-        merged.add(prev);
+
+        continue;
       }
+
+      prev = current;
+      merged.add(prev);
     }
 
     return merged;
