@@ -24,8 +24,9 @@ import java.util.TreeSet;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    if (request.getDuration() > 1440)
+    if (request.getDuration() > 1440) {
       return Collections.emptyList();
+    }
 
     boolean hasMandatoryAttendees = false;
     boolean hasOptionalAttendees = false;
@@ -121,8 +122,9 @@ public final class FindMeetingQuery {
 
       TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
 
-      if (gap.duration() >= minGapLength)
+      if (gap.duration() >= minGapLength) {
         availableRanges.add(gap);
+      }
 
       prev = current;
     }
