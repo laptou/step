@@ -23,8 +23,9 @@ import java.util.TreeSet;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    if (request.getDuration() > 1440)
+    if (request.getDuration() > 1440) {
       return Collections.emptyList();
+    }
 
     // TreeSet has O(log n) insertion time and inserts items in order
     // which allows us to filter time ranges into optional and mandatory
@@ -98,8 +99,9 @@ public final class FindMeetingQuery {
 
       TimeRange gap = TimeRange.fromStartEnd(start, end, inclusive);
 
-      if (gap.duration() >= minGapLength)
+      if (gap.duration() >= minGapLength) {
         availableRanges.add(gap);
+      }
 
       prev = current;
     }
