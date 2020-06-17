@@ -41,7 +41,7 @@ export const ReadMore = (
   const component: ReadMoreComponent = {
     root: contentEl,
     collapse() {
-      if (this.getIsCollapsed) return;
+      if (this.getIsCollapsed()) return;
       contentEl.classList.add('collapsed');
 
       // let CSS transition max height from whatever it was to 0
@@ -67,7 +67,7 @@ export const ReadMore = (
     getIsCollapsed() {
       return contentEl.classList.contains('collapsed');
     },
-    getIsCollapsed() {
+    getIsOverflowed() {
       return contentEl.scrollHeight > contentEl.clientHeight;
     },
   };
