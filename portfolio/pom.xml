@@ -5,7 +5,7 @@
 
   <groupId>com.google.sps</groupId>
   <artifactId>portfolio</artifactId>
-  <version>1</version>
+  <version>3</version>
   <packaging>war</packaging>
 
   <properties>
@@ -59,7 +59,7 @@
           <port>8080</port>
           -->
           <deploy.projectId>ibiyemi-step-2020</deploy.projectId>
-          <deploy.version>1</deploy.version>
+          <deploy.version>3</deploy.version>
         </configuration>
       </plugin>
     </plugins>

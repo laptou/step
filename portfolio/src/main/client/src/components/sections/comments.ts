@@ -3,6 +3,7 @@ import '@res/style/sections/comments.scss';
 import {LabeledInput} from '../controls/labeled-input';
 import {Authentication} from '../controls/authentication';
 import {ReadMore} from '../controls/readmore';
+import languages from '@res/misc/languages.json';
 
 type Cursor = string;
 
@@ -40,7 +41,7 @@ export interface TranslatedCommentData extends CommentData {
  * A page of comments returned by the server.
  */
 interface CommentPageData {
-  comments: CommentData[];
+  comments: Array<CommentData | TranslatedCommentData>;
 
   /**
    * Can be used to fetch the next batch of comments from the server.
@@ -253,7 +254,7 @@ async function fetchCommentScore(commentId: number) {
   return await res.json() as VoteTally;
 }
 
-const Comment = (comment: CommentData): HTMLElement => {
+const Comment = (comment: CommentData | TranslatedCommentData): HTMLElement => {
   const nameSpan: HTMLElement =
     htmlElement`<span class="comment-name"></span>`;
   nameSpan.innerText = comment.name;
@@ -299,9 +300,64 @@ const Comment = (comment: CommentData): HTMLElement => {
     });
   }
 
-
   const readmore = ReadMore(new Text(comment.content));
-  readmore.root.classList.add('comment-content');
+
+  const controlsDiv = htmlElement`
+    <div class="comment-controls">
+      ${readmore.root}
+    </div>`;
+
+  if ('contentLang' in comment && comment.contentLang in languages) {
+    const langInfo = languages[comment.contentLang as keyof typeof languages];
+    const translatePrompt =
+      `translate from ${langInfo.native} (${langInfo.name})`;
+    const translateBtn = htmlElement`
+      <button type="button" class="btn-flat btn-inline comment-translate">
+        ${translatePrompt}
+      </button>`;
+
+    let translated = false;
+
+    translateBtn.addEventListener('click', () => {
+      translated = !translated;
+
+      if (translated) {
+        readmore.root.innerText = comment.contentTranslated;
+        translateBtn.innerText = 'see original text';
+      } else {
+        readmore.root.innerText = comment.content;
+        translateBtn.innerText = translatePrompt;
+      }
+    });
+
+    controlsDiv.append(translateBtn);
+  }
+
+  const expandBtn = htmlElement`
+    <button type="button" class="btn-flat btn-inline comment-expander">
+      see more
+    </button>`;
+
+  expandBtn.addEventListener('click', () => {
+    if (readmore.getIsCollapsed()) {
+      readmore.expand();
+      expandBtn.innerText = 'see less';
+    } else {
+      readmore.collapse();
+      expandBtn.innerText = 'see more';
+    }
+  });
+
+  controlsDiv.append(expandBtn);
+
+  // hack because there are no real 'components' here which means
+  // there is no way to know when the component is added to the DOM
+  setTimeout(() => {
+    if (!readmore.getIsOverflowed()) {
+      expandBtn.style.visibility = 'hidden';
+      readmore.expand();
+    }
+  }, 0);
 
   const commentEl: HTMLElement = htmlElement`
     <li class="comment" data-id="${comment.id.toString()}">
@@ -310,7 +366,10 @@ const Comment = (comment: CommentData): HTMLElement => {
         ${scoreSpan}
         ${upvoteBtn}
         ${downvoteBtn}
-        ${readmore.root}
+        <div class="comment-content">
+          ${readmore.root}
+          ${controlsDiv}
+        </div>
       </div>
     </li>`;
 
@@ -337,6 +396,7 @@ export const CommentSection = (): HTMLElement => {
     label: 'Name',
     name: 'name',
     type: 'text',
+    soft: true,
   });
 
   usernameInput[1].required = true;
@@ -346,13 +406,13 @@ export const CommentSection = (): HTMLElement => {
     label: 'Comment',
     name: 'content',
     type: 'textarea',
+    soft: true,
   });
 
   commentInput[1].required = true;
 
   const formEl: HTMLFormElement = htmlElement`
     <form>
-      ${Authentication().root}
       ${usernameInput}
       ${commentInput}
       <button id="comment-submit" type="submit">
@@ -371,13 +431,23 @@ export const CommentSection = (): HTMLElement => {
   const prevBtn: HTMLButtonElement =
     htmlElement`<button id="comment-prev">Previous</button>`;
 
+  const auth = Authentication({
+    loggedInText: (authState) =>
+      authState ?
+        `Log out from ${authState.username}` :
+        'Loading',
+    loggedOutText: 'Log in to vote on comments',
+  });
 
   const container: HTMLElement = htmlElement`
     <div class="comments">
       <h2>Comments</h2>
+      <div id="comments-auth">
+        ${auth.root}
+      </div>
       <ul>
       </ul>
-      <div class="comments-controls">
+      <div id="comments-pager">
         ${prevBtn}
         ${nextBtn}
       </div>

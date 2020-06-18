@@ -169,13 +169,15 @@ public class CommentServlet extends HttpServlet {
       Translation translation = translate.translate(content, TranslateOption.targetLanguage("en"),
           TranslateOption.model("nmt"));
 
-      if (translation.getSourceLanguage() != "en") {
+      if (!translation.getSourceLanguage().equalsIgnoreCase("en")) {
         comment.setUnindexedProperty("contentTranslated",
             new Text(translation.getTranslatedText()));
         comment.setProperty("contentLang", translation.getSourceLanguage());
       }
     } catch (Throwable e) {
       // this is so that the server does not crash in dev mode
+      comment.setUnindexedProperty("contentTranslated", new Text("translated content"));
+      comment.setProperty("contentLang", "es");
     }
 
     comment.setUnindexedProperty("content", new Text(content));

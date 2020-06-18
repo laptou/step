@@ -1,29 +1,38 @@
 import {htmlElement} from '@src/util/html';
 
-interface LoggedInResponse {
+/**
+ * The state returned by the server when the user is logged in.
+ */
+interface LoggedInState {
   logoutUri: string;
   id: string;
   username: string;
   role: 'admin' | 'user';
 }
 
-interface LoggedOutResponse {
+/**
+ * The state returned by the server when the user is logged out.
+ */
+interface LoggedOutState {
   loginUri: string;
 }
 
-type State = LoggedInResponse | LoggedOutResponse;
+/**
+ * An authentication state: logged in, or logged out.
+ */
+export type AuthState = LoggedInState | LoggedOutState;
 
 /**
  * The current authentication state.
  */
-export let authState: State | null = null;
+export let authState: AuthState | null = null;
 
 /**
  * Retrieves the current login state from the server.
  */
 async function fetchState() {
   const response = await fetch('/api/users/me');
-  authState = await response.json() as State;
+  authState = await response.json() as AuthState;
   window.dispatchEvent(new CustomEvent('auth-state-change', {detail: authState}));
 }
 
@@ -79,12 +88,32 @@ export async function logout(): Promise<boolean> {
 
 void fetchState();
 
+export interface AuthenticationOptions {
+  /**
+   * A string or a function returning a string to display when the user is
+   * logged in.
+   */
+  loggedInText?: string | ((authState: LoggedInState | null) => string);
+
+  /**
+   * A string or a function returning a string to display when the user is
+   * logged in.
+   */
+  loggedOutText?: string | ((authState: LoggedOutState | null) => string);
+}
+
 /**
  * An authentication control, which is a button that says 'Log in' if
  * the user is logged out and vice versa. Clicking the button will allow the
  * user to sign in and out.
+ *
+ * @param options The options that affect this component.
+ * @returns An Authentication component.
  */
-export const Authentication = () => {
+export const Authentication = ({
+  loggedInText = 'Log out',
+  loggedOutText = 'Log in',
+}: AuthenticationOptions = {}) => {
   const container = document.createElement('div');
   container.classList.add('auth-container');
 
@@ -92,11 +121,25 @@ export const Authentication = () => {
     htmlElement`<span>Loading...</span>`;
 
   const loggedOutContent: HTMLButtonElement =
-    htmlElement`<button type="button">Log in</button>`;
+    htmlElement`
+    <button type="button" class="btn-flat btn-inline">
+      ${
+        typeof loggedOutText === 'function' ?
+          loggedOutText(null) :
+          loggedOutText
+      }
+    </button>`;
 
 
   const loggedInContent: HTMLButtonElement =
-    htmlElement`<button type="button">Log out</button>`;
+    htmlElement`
+    <button type="button" class="btn-flat btn-inline">
+      ${
+        typeof loggedInText === 'function' ?
+          loggedInText(null) :
+          loggedInText
+      }
+    </button>`;
 
   loggedOutContent.addEventListener('click', () => login());
   loggedInContent.addEventListener('click', () => logout());
@@ -113,11 +156,19 @@ export const Authentication = () => {
     container.classList.toggle('loading', false);
 
     if ('loginUri' in authState) {
+      loggedOutContent.innerText =
+        typeof loggedOutText === 'function' ?
+          loggedOutText(authState) :
+          loggedOutText;
       container.append(loggedOutContent);
       return;
     }
 
     if ('logoutUri' in authState) {
+      loggedInContent.innerText =
+        typeof loggedInText === 'function' ?
+          loggedInText(authState) :
+          loggedInText;
       container.append(loggedInContent);
       return;
     }
