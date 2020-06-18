@@ -15,6 +15,7 @@
 package com.google.sps;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -27,22 +28,44 @@ public final class FindMeetingQuery {
       return Collections.emptyList();
     }
 
+    boolean hasMandatoryAttendees = false;
+    boolean hasOptionalAttendees = false;
+
     // TreeSet has O(log n) insertion time and inserts items in order
     // which allows us to filter time ranges into optional and mandatory
     // categories and obtain them in sorted order in O(n log n) time
     SortedSet<TimeRange> mandatoryBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
+    SortedSet<TimeRange> optionalBlockers = new TreeSet<>(TimeRange.ORDER_BY_START);
 
     events: for (Event event : events) {
       for (String attendee : event.getAttendees()) {
         if (request.getAttendees().contains(attendee)) {
-          // this is a blocker, split up the available time segment
+          hasMandatoryAttendees = true;
           mandatoryBlockers.add(event.getWhen());
+          optionalBlockers.add(event.getWhen());
+          continue events;
+        }
+
+        if (request.getOptionalAttendees().contains(attendee)) {
+          hasOptionalAttendees = true;
+          optionalBlockers.add(event.getWhen());
           continue events;
         }
       }
     }
 
     List<TimeRange> combinedMandatoryBlockers = mergeTimeRanges(mandatoryBlockers);
+    List<TimeRange> combinedOptionalBlockers = mergeTimeRanges(optionalBlockers);
+
+    if (!hasOptionalAttendees)
+      return findAvailability(combinedMandatoryBlockers, request.getDuration());
+
+    List<TimeRange> availableRangesWithOptionalAttendees =
+        findAvailability(combinedOptionalBlockers, request.getDuration());
+
+    if (!hasMandatoryAttendees || availableRangesWithOptionalAttendees.size() > 0)
+      return availableRangesWithOptionalAttendees;
+
     return findAvailability(combinedMandatoryBlockers, request.getDuration());
   }
 
